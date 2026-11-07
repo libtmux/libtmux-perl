@@ -4,6 +4,21 @@ Use MakeMaker, a single `cpanfile`, cpm, and Perl::Tidy for this scaffold.
 The package targets Perl 5.44. The choices below come from inspected upstream
 source and release metadata, checked on 2026-11-07.
 
+## Product scope
+
+The selected products are a core library and a separate workspace
+distribution. MCP is explicitly excluded from this port. This is a scope
+decision, independent of future SDK availability.
+
+Runtime code should use Perl's standard library where possible and stable
+Perl 5.44 features. Keep any justified non-core runtime dependencies explicit.
+MakeMaker, the cpanfile adapter, cpm, and Perl::Tidy are configure or author
+tools; they do not belong to the library's runtime dependency set.
+
+Workspace functionality uses public core APIs and may consume other libtmux
+core distributions. The cores own tmux protocol, targeting, transport, and
+resource lifetimes. The workspace layer owns its configuration and orchestration.
+
 ## Selected tools
 
 | Responsibility | Selection | Reason |

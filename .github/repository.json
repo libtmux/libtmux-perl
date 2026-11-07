@@ -7,6 +7,13 @@
     "origin": "public",
     "tony": "private"
   },
+  "publishing": {
+    "remote": "origin",
+    "branch": "master",
+    "excluded_remotes": [
+      "tony"
+    ]
+  },
   "default_branch": "master",
   "description": "Perl library for tmux (scaffold)",
   "topics": [

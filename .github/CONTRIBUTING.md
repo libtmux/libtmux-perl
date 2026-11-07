@@ -172,14 +172,14 @@ does not establish a release process or qualify a supported platform.
 
 ## Repository metadata
 
-[repository.json](repository.json) records repository identities, visibility,
-default branch, description, topics, and issue labels. Apply changes through
-the GitHub CLI or API and verify both repositories; GitHub does not apply
-this file automatically.
+[repository.json](repository.json) records repository identities and the
+canonical repository's description, topics, and issue labels. Its publishing
+policy permits only `origin`. Apply authorized settings changes through the
+GitHub CLI or API; GitHub does not apply this file automatically.
 
 - `origin`: public
   [libtmux/libtmux-perl](https://github.com/libtmux/libtmux-perl).
-- `tony`: private [tony/libtmux-perl](https://github.com/tony/libtmux-perl).
+- `tony`: an existing private remote, excluded from publishing and syncing.
 
-Both repositories are independent, with `master` as the default branch.
-The personal repository is not a GitHub fork.
+Push only to `origin`. Leave every `tony` remote and its repository untouched;
+its workflows incur costs. [AGENTS.md](../AGENTS.md#publishing) owns this rule.

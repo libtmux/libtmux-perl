@@ -5,6 +5,23 @@ Keep bootstrap work limited to package metadata, tool configuration, CI, and
 contributor instructions. Start architecture or implementation only when
 requested.
 
+## Product and dependency policy
+
+- The products are a Perl core library and a separate workspace distribution.
+  MCP is excluded. Preserve this scope in architecture plans and goal epics.
+- Prefer the Perl standard library and stable Perl 5.44 features at runtime.
+  Add a non-core dependency only for a verified need and document the reason.
+  Keep configure and author tools separate from runtime dependencies.
+- The workspace distribution uses public APIs from the core distribution and
+  may consume other libtmux core distributions. Keep tmux protocol, targeting,
+  transport, and resource ownership in the cores.
+
+## Publishing
+
+Use only `origin`, the canonical `libtmux/libtmux-perl` repository, for pushes
+and GitHub settings changes. Leave every `tony` remote and its repository
+untouched. Do not mirror pushes there; its workflows incur costs.
+
 ## Change discipline
 
 - Check the branch and working tree. Preserve unrelated work and symlinks.
