@@ -7,26 +7,28 @@
 *.log
 
 # Perl build and packaging output
-/blib/
-/_build/
-/cover_db/
-/Makefile
-/Makefile.old
-/MYMETA.json
-/MYMETA.yml
-/pm_to_blib
-/META.json
-/META.yml
-/MANIFEST
-/MANIFEST.bak
-/LibTmux-*/
-/local/
+blib/
+_build/
+cover_db/
+Makefile
+!/Makefile
+Makefile.old
+MYMETA.json
+MYMETA.yml
+pm_to_blib
+META.json
+META.yml
+MANIFEST
+MANIFEST.bak
+LibTmux-*/
+local/
 *.bs
 *.o
 *.so
 *.tdy
 *.ERR
 /*.tar.gz
+/packages/*/*.tar.gz
 
 # Editors and operating systems
 .idea/

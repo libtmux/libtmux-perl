@@ -6,9 +6,9 @@ use ExtUtils::MakeMaker::CPANfile 0.11;
 my $prereqs = Module::CPANfile->load('cpanfile')->prereqs;
 
 WriteMakefile(
-    NAME             => 'LibTmux',
+    NAME             => 'LibTmux::Workspace',
     VERSION          => '0.001_001',
-    ABSTRACT         => 'Perl library for tmux (scaffold)',
+    ABSTRACT         => 'Workspace configuration for libtmux (scaffold)',
     AUTHOR           => 'libtmux contributors',
     LICENSE          => 'mit',
     MIN_PERL_VERSION => $prereqs->requirements_for('runtime', 'requires')
@@ -27,7 +27,8 @@ WriteMakefile(
             repository => {
                 type => 'git',
                 url  => 'https://github.com/libtmux/libtmux-perl.git',
-                web  => 'https://github.com/libtmux/libtmux-perl',
+                web  =>
+'https://github.com/libtmux/libtmux-perl/tree/master/packages/workspace',
             },
         },
     },

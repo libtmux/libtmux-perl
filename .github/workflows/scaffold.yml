@@ -35,20 +35,8 @@ jobs:
           install-modules-with: cpm
           install-modules-args: >-
             --top-level-phase configure,runtime,test,develop
-      - name: Check Perl syntax
-        run: perl -Ilocal/lib/perl5 -c Makefile.PL
-      - name: Check native package metadata
-        run: |
-          perl -Ilocal/lib/perl5 Makefile.PL
-          perl -MCPAN::Meta -e 'CPAN::Meta->load_file("MYMETA.json", {lazy_validation => 0})'
-      - name: Check formatting
-        run: |
-          mkdir -p .cache
-          perl -Ilocal/lib/perl5 local/bin/perltidy \
-            --assert-tidy \
-            --output-path=.cache \
-            --standard-error-output \
-            Makefile.PL cpanfile
+      - name: Check both distribution roots and formatting
+        run: make check
       - name: Check the instruction link and whitespace
         run: |
           test -L CLAUDE.md
