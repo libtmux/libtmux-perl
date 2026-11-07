@@ -1,8 +1,8 @@
 # Contributing
 
-This is the package scaffold for a Perl port of libtmux. Core and workspace
-distribution metadata, formatting, and bootstrap CI are configured. Library
-implementation and runtime tests await separate work. MCP is excluded.
+The core, optional async, and workspace distributions share author tooling.
+Runtime behavior is checked with pure units, owned tmux fixtures, extracted
+archives, installed consumers, and runnable examples. MCP is excluded.
 
 [AGENTS.md](../AGENTS.md) governs scope and change discipline.
 [WRITING.md](WRITING.md) governs prose and commit messages.
@@ -27,7 +27,7 @@ $ mise exec -- perl -v
 ```
 
 The root `cpanfile` owns the shared author environment. Each distribution in
-`packages/core` and `packages/workspace` owns a separate `cpanfile` and
+`packages/core`, `packages/async`, and `packages/workspace` owns a separate `cpanfile` and
 `Makefile.PL`. MakeMaker consumes each package's dependencies and generates
 ignored Makefile and metadata outputs. Edit the declarations instead of the
 generated files. The handwritten root `Makefile` runs shared checks.
@@ -97,11 +97,10 @@ Apply the shared formatter profile:
 $ mise exec -- make format
 ```
 
-The [Scaffold workflow](workflows/scaffold.yml) runs the same root check on
-Linux. It checks package configuration; runtime tests, installed consumers,
-and releases need their own checks when implementation begins. Workspace's
-declared `LibTmux` dependency has no implemented API yet. Configuration alone
-does not establish that the workspace can load or execute the core.
+The [Perl checks workflow](workflows/scaffold.yml) runs metadata, units, POD,
+formatting, generated checks, pinned Linux/tmux cells, and native artifact
+consumers on canonical public CI. Individual conclusions at the current source
+revision are required; local success alone is not hosted evidence.
 
 Check whitespace in unstaged changes:
 
@@ -144,7 +143,7 @@ handoff, and the outer loop before a commit or pull request.
 
 ## tmux isolation
 
-Verify future tmux behavior against a real server. Each test or probe must
+Verify tmux behavior against a real server. Each test or probe must
 own a unique socket and temporary directory with a `libtmux-perl-` prefix.
 Address the socket explicitly with `-S` or `-L`. Clear inherited `TMUX` and
 `TMUX_PANE` in child environments.
@@ -182,3 +181,113 @@ GitHub CLI or API; GitHub does not apply this file automatically.
 
 Push only to `origin`. Leave every `tony` remote and its repository untouched;
 its workflows incur costs. [AGENTS.md](../AGENTS.md#publishing) owns this rule.
+
+## Implementation verification commands
+
+Provision pinned tmux source builds outside all test loops. The lock records
+release URLs, archive digests, and upstream tag commits. Build provenance
+records compiler, configure flags, and executable digests.
+
+```console
+$ mise exec -- python3 scripts/compatibility.py --provision
+```
+
+Focused critical tests (inner loop):
+
+```console
+$ mise exec -- prove \
+    -Ilocal/lib/perl5 \
+    -Ipackages/core/lib \
+    packages/core/t/unit/selection.t
+```
+
+All units, generated readers, native POD targets, metadata, and formatting
+(mid loop):
+
+```console
+$ mise exec -- make check
+```
+
+Owned real-tmux integration (outer loop):
+
+```console
+$ mise exec -- make integration
+```
+
+Complete examples (outer loop; source libraries by default):
+
+```console
+$ mise exec -- make examples
+```
+
+Archive checks configure and test extracted native distributions, install
+core then workspace then async into the separately provisioned consumer
+prefix, and verify module/POD origins without checkout runtime fallbacks:
+
+```console
+$ mise exec -- make artifacts
+```
+
+Provision the external consumer runtime outside test loops:
+
+```console
+$ mise exec -- python3 scripts/provision-consumer.py
+```
+
+The consumer prefix is an author-created temporary directory outside the
+checkout, recorded in ignored `.cache/consumer-prefix`. Provision Future,
+IO::Async, and optional caller-side Future::AsyncAwait there with cpm's
+`--local-lib-contained` and `--final-install runtime` before this outer gate;
+configuration/test tools stay in the root author environment. No check
+silently downloads dependencies.
+
+Run the exact Linux release cells plus a separate 3.3 rejection check:
+
+```console
+$ mise exec -- make compatibility
+```
+
+The matrix includes core graph/query, async, workspace, and runnable examples.
+Inspect every cell in `.cache/compatibility/evidence-all.json`; missing builds are
+UNVERIFIED. CI runs the same cell command with an explicit version.
+
+Native API export uses PPI 1.291 for declared signatures and Pod::Simple for
+POD. This author-only parser preserves signatures that B::Deparse lowers into
+argument checks. Exporting without --allow-dirty verifies every public input
+against the selected committed library revision and independently verifies the
+executing exporter revision:
+
+```console
+$ mise exec -- perl scripts/export-api.pl
+```
+
+Provision the independent filter evaluator before the mid loop, from its
+source-pinned sibling checkout (or the canonical checkout in CI):
+
+```console
+$ mise exec -- python3 scripts/conformance.py --provision
+```
+
+Regenerate the pinned Python behavior inventory only after reviewing mapping
+changes:
+
+```console
+$ mise exec -- python3 scripts/inventory.py
+```
+
+The benchmark is a separate tier. It compares stable results and query identity
+before reporting timings; process counts use a separate exec-wrapper probe so
+that its overhead does not contaminate native timings:
+
+```console
+$ mise exec -- make benchmark
+```
+
+Native archives contain the portable unit suites. Repository-only live suites
+use the shared owned fixture and explicit subreaper wrapper; installed artifact
+qualification executes those suites and examples against an external prefix.
+Record exact tree/command evidence without changing the check command:
+
+```console
+$ mise exec -- python3 scripts/evidence.py mid -- make check
+```

@@ -1,4 +1,4 @@
-name: Scaffold
+name: Perl checks
 
 on:
   push:
@@ -15,7 +15,8 @@ concurrency:
 
 jobs:
   scaffold:
-    name: Package metadata and formatting
+    name: Metadata, units, POD and generated checks
+    if: github.repository == 'libtmux/libtmux-perl'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
@@ -35,7 +36,14 @@ jobs:
           install-modules-with: cpm
           install-modules-args: >-
             --top-level-phase configure,runtime,test,develop
-      - name: Check both distribution roots and formatting
+      - name: Prepare the pinned independent filter evaluator
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: tmux-python/libtmux
+          ref: 699f72a507ef63d97792acc51e9eaa61649c538a
+          path: .cache/reference-python
+          persist-credentials: false
+      - name: Check all distributions, documentation, and units
         run: make check
       - name: Check the instruction link and whitespace
         run: |
@@ -43,3 +51,76 @@ jobs:
           test "$(readlink CLAUDE.md)" = AGENTS.md
           git diff --check
           git diff --exit-code
+
+  linux-tmux:
+    name: Linux Perl 5.44.0 / tmux ${{ matrix.tmux }}
+    if: github.repository == 'libtmux/libtmux-perl'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        tmux: ['3.3', '3.3a', '3.4', '3.5', '3.5a', '3.6', '3.6a', '3.6b', '3.7', '3.7a', '3.7b', '3.7c', '3.8']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shogo82148/actions-setup-perl@eebc5c886de14ebbfcd2493d49a12007d2c30477 # v1.44.5
+        with:
+          perl-version: '5.44.0'
+          install-modules-with: cpm
+          install-modules-args: --top-level-phase configure,runtime,test,develop
+      - name: Provision pinned tmux outside the test loop
+        run: python3 scripts/compatibility.py --provision --version '${{ matrix.tmux }}'
+      - name: Qualify owned real tmux, workspace and example workflows
+        run: python3 scripts/compatibility.py --check --version '${{ matrix.tmux }}'
+      - name: Retain per-cell qualification evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: linux-tmux-${{ matrix.tmux }}
+          path: .cache/compatibility/
+          retention-days: 7
+      - name: Verify no source changes
+        if: always()
+        run: git diff --check
+
+  native-artifacts:
+    name: Installed native archives
+    if: github.repository == 'libtmux/libtmux-perl'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shogo82148/actions-setup-perl@eebc5c886de14ebbfcd2493d49a12007d2c30477 # v1.44.5
+        with:
+          perl-version: '5.44.0'
+          install-modules-with: cpm
+          install-modules-args: --top-level-phase configure,runtime,test,develop
+      - name: Provision a verified installer and external consumer runtime
+        run: |
+          mkdir -p .cache
+          curl --fail --silent --show-error --location --output .cache/cpm https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
+          printf '%s  %s\n' 2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 .cache/cpm | sha256sum --check
+          python3 scripts/provision-consumer.py
+          python3 scripts/compatibility.py --provision --version 3.8
+      - name: Build and install exact archives, then execute installed consumers
+        run: |
+          make artifacts
+          prefix=$(cat .cache/consumer-prefix)
+          perl scripts/run-examples.pl --installed "$prefix"
+          python3 scripts/compatibility.py --check --version 3.8 --installed "$prefix"
+      - name: Verify no source changes
+        if: always()
+        run: git diff --check
+      - name: Retain exact verified native archives and consumer evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: perl-native-archives
+          path: |
+            .cache/artifacts/
+            .cache/compatibility/
+          retention-days: 7

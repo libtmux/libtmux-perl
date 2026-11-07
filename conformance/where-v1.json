@@ -1,0 +1,742 @@
+{
+  "schema": "libtmux.where.conformance/v1",
+  "cases": [
+    {
+      "key": "false",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "active": false
+      },
+      "ids": [
+        "%0",
+        "%2"
+      ],
+      "python": {
+        "kwargs": {
+          "active": false
+        }
+      }
+    },
+    {
+      "key": "numeric-zero",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "width": 0
+      },
+      "ids": [
+        "%0"
+      ],
+      "python": {
+        "kwargs": {
+          "width": 0
+        }
+      }
+    },
+    {
+      "key": "text-zero",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "title": "0"
+      },
+      "ids": [
+        "%0"
+      ],
+      "python": {
+        "kwargs": {
+          "title": "0"
+        }
+      }
+    },
+    {
+      "key": "empty-text",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "title": ""
+      },
+      "ids": [
+        "%2"
+      ],
+      "python": {
+        "kwargs": {
+          "title": ""
+        }
+      }
+    },
+    {
+      "key": "known-null",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "exitStatus": null
+      },
+      "ids": [
+        "%0",
+        "%2"
+      ],
+      "python": {
+        "unsupported": "Pinned QueryList.filter rejects a None field before lookup_exact; Perl deliberately matches known null. Initial attempted equivalence failed and is retained as conformance-initial evidence."
+      }
+    },
+    {
+      "key": "literal-period",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "title": {
+          "contains": "build.v2"
+        }
+      },
+      "ids": [
+        "%1"
+      ],
+      "python": {
+        "kwargs": {
+          "title__contains": "build.v2"
+        }
+      }
+    },
+    {
+      "key": "prefix",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "title": {
+          "startsWith": "build."
+        }
+      },
+      "ids": [
+        "%1"
+      ],
+      "python": {
+        "kwargs": {
+          "title__startswith": "build."
+        }
+      }
+    },
+    {
+      "key": "suffix",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "title": {
+          "endsWith": ".v2"
+        }
+      },
+      "ids": [
+        "%1"
+      ],
+      "python": {
+        "kwargs": {
+          "title__endswith": ".v2"
+        }
+      }
+    },
+    {
+      "key": "membership",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "currentCommand": {
+          "in": [
+            "cat",
+            "perl"
+          ]
+        }
+      },
+      "ids": [
+        "%1",
+        "%3"
+      ],
+      "python": {
+        "kwargs": {
+          "currentCommand__in": [
+            "cat",
+            "perl"
+          ]
+        }
+      }
+    },
+    {
+      "key": "empty-in",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "width": {
+          "in": []
+        }
+      },
+      "ids": [],
+      "python": {
+        "kwargs": {
+          "width__in": []
+        }
+      }
+    },
+    {
+      "key": "empty-not-in",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "width": {
+          "notIn": []
+        }
+      },
+      "ids": [
+        "%0",
+        "%1",
+        "%2",
+        "%3"
+      ],
+      "python": {
+        "kwargs": {
+          "width__nin": []
+        }
+      }
+    },
+    {
+      "key": "numeric-order",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "width": {
+          "gt": "10"
+        }
+      },
+      "ids": [
+        "%1",
+        "%3"
+      ],
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "unknown-field-empty",
+      "entity": "pane",
+      "records": [],
+      "where": {
+        "typo": 1
+      },
+      "error": "InvalidFilter",
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "bad-operator-empty",
+      "entity": "pane",
+      "records": [],
+      "where": {
+        "title": {
+          "regex": "x"
+        }
+      },
+      "error": "InvalidFilter",
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "alias-policy-canonical-only",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "active": false,
+          "width": 0,
+          "title": "0",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%1",
+          "active": true,
+          "width": 20,
+          "title": "build.v2",
+          "currentCommand": "cat",
+          "exitStatus": 0
+        },
+        {
+          "id": "%2",
+          "active": false,
+          "width": 2,
+          "title": "",
+          "currentCommand": "sleep",
+          "exitStatus": null
+        },
+        {
+          "id": "%3",
+          "active": true,
+          "width": 120,
+          "title": "buildXv2",
+          "currentCommand": "perl",
+          "exitStatus": 1
+        }
+      ],
+      "where": {
+        "current_command": "sleep"
+      },
+      "error": "InvalidFilter",
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "missing-property",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0"
+        }
+      ],
+      "where": {
+        "width": 1
+      },
+      "error": "Unloaded",
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "empty-relation-every",
+      "entity": "pane",
+      "records": [
+        {
+          "id": "%0",
+          "window": {
+            "panes": []
+          }
+        }
+      ],
+      "where": {
+        "window": {
+          "is": {
+            "panes": {
+              "every": {}
+            }
+          }
+        }
+      },
+      "ids": [
+        "%0"
+      ],
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    },
+    {
+      "key": "null-relation",
+      "entity": "pane",
+      "records": [],
+      "where": {
+        "window": {
+          "is": null
+        }
+      },
+      "error": "InvalidFilter",
+      "python": {
+        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
+      }
+    }
+  ]
+}

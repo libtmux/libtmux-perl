@@ -1,15 +1,14 @@
 # Agent instructions
 
-This repository contains the package scaffold for a Perl port of libtmux.
-Keep bootstrap work limited to package metadata, tool configuration, CI, and
-contributor instructions. Start architecture or implementation only when
-requested.
+This repository contains the Perl core, optional async transport, and workspace
+distributions for libtmux. Preserve their independent native package boundaries.
 
 ## Product and dependency policy
 
-- The products are the core distribution in `packages/core` and the workspace
-  distribution in `packages/workspace`. MCP is excluded. Preserve this scope
-  in architecture plans and goal epics.
+- The products are core in `packages/core`, optional async in `packages/async`,
+  and workspace in `packages/workspace`. Async owns its Future/IO::Async runtime
+  dependencies; core and workspace remain usable without them. MCP is excluded.
+  Preserve this scope in architecture plans and goal epics.
 - Prefer the Perl standard library and stable Perl 5.44 features at runtime.
   Add a non-core dependency only for a verified need and document the reason.
   Keep configure and author tools separate from runtime dependencies.
@@ -19,6 +18,12 @@ requested.
 - Each distribution owns its MakeMaker declaration, dependencies, README, and
   license. Keep author tooling at the repository root. Configure a package
   from its own directory and run shared checks with `mise exec -- make check`.
+
+## Native documentation
+
+Use POD L<> cross-references for public classes, methods, return types, and
+errors. Link real qualified symbols/sections and preserve them through the
+shared-site exporter. Validate native POD and unresolved public API links.
 
 ## Publishing
 

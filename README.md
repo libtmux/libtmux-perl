@@ -13,21 +13,50 @@
 
 </div>
 
-A Perl port of libtmux, currently at the package scaffold stage. Core and
-workspace distribution metadata, formatting, and bootstrap CI target Perl 5.44.
-The client API, workspace implementation, and runtime tests are not implemented.
+Control tmux with explicit commands, captured graphs, and ordinary Perl arrays.
+Targets stable Perl 5.44.0 and Linux x86_64, including WSL. These development
+distributions are not published on CPAN.
 
-| Distribution | Location | Role |
+```perl
+use v5.44;
+use LibTmux::Server;
+
+my $server = LibTmux::Server->new(socket_name => 'example');
+my $snapshot = $server->snapshot;  # Explicit I/O; server must already exist.
+my $active = $snapshot->panes
+    ->where({ active => true, width => { -gte => 80 } })
+    ->grep(sub ($pane) { $pane->current_command eq 'sleep' });
+
+for my $pane ($active->@*) {
+    say $pane->id, ' ', $pane->window->name;
+}
+```
+
+| Distribution | Location | Runtime dependencies |
 | --- | --- | --- |
-| `LibTmux` | [packages/core](packages/core) | Core tmux library; standard-library-first runtime. |
-| `LibTmux-Workspace` | [packages/workspace](packages/workspace) | Workspace configuration and orchestration using core APIs. |
+| `LibTmux` | [packages/core](packages/core) | Perl standard library. |
+| `LibTmux-Async` | [packages/async](packages/async) | Versioned core, Future, IO::Async; caller-owned loop. |
+| `LibTmux-Workspace` | [packages/workspace](packages/workspace) | Versioned core; packaged JSON loader CLI. |
 
-MCP is excluded from this port. Runtime code should use Perl's standard
-library where possible; build and author tools have separate dependencies.
+Start with [installation](docs/installation.md),
+[basic orchestration](docs/orchestration.md), and
+[filtering](docs/filtering.md). Read [graph identity](docs/graph.md) before
+working with linked windows, [query planning](docs/query-planning.md) for
+explicit native filters, [errors and recovery](docs/errors.md),
+[async execution](docs/async.md), and [workspace loading](docs/workspace.md).
+Installed API documentation uses native POD; for example `perldoc
+LibTmux::Server` and `perldoc LibTmux::Selection`.
 
-See [contributing](.github/CONTRIBUTING.md) for the development environment
-and [Perl tooling choices](.github/PERL.md) for the source-backed packaging
-decisions. [Branding assets](docs/branding.md) covers logos and social cards.
+[Complete examples](examples) run against uniquely owned tmux sockets and
+assert results and cleanup. [Compatibility](docs/compatibility.md) records the
+required release cells and qualification limits. Captured selections perform
+no tmux I/O; their methods preserve order and duplicates and return one fixed
+type in every calling context. Native array access remains available.
 
-Both distributions use unpublished development version `0.001_001`.
-Installation and usage instructions will accompany working APIs.
+MCP is excluded. Persistent control mode, streaming APIs, tmux command lists,
+serialized regexes, and relation pushdown are deferred. Package publication
+and shared-site deployment require separate authority.
+
+See [contributing](.github/CONTRIBUTING.md) for exact checks and tool setup,
+[Perl choices](.github/PERL.md) for source-backed decisions, and
+[branding assets](docs/branding.md) for logos and social cards.

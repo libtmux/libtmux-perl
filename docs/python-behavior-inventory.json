@@ -1,0 +1,2115 @@
+{
+  "schema": 1,
+  "source": {
+    "repository": "https://github.com/tmux-python/libtmux",
+    "revision": "699f72a507ef63d97792acc51e9eaa61649c538a"
+  },
+  "scope": "Declared public methods/properties of the pinned core entity, common, and QueryList classes; tmux fields remain governed by the independent Perl catalog. Excluded wrappers are deliberate and do not transfer Python error suppression or implicit I/O.",
+  "rows": [
+    {
+      "python": "PKRequiredException.__init__",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 318,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "OpNotFound.__init__",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 323,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "QueryList.__init__",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 479,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "QueryList.items",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 482,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "Native Perl arrays and map",
+      "reason": "Use indexing or explicit ID projection; duplicate occurrence semantics stay visible."
+    },
+    {
+      "python": "QueryList.filter",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 510,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter list of objects.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::where / grep",
+      "reason": "Validated criteria data and native callbacks replace QueryList lookup spelling."
+    },
+    {
+      "python": "QueryList.get",
+      "file": "src/libtmux/_internal/query_list.py",
+      "line": 552,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Retrieve exactly one object.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::one / one_or_undef",
+      "reason": "Fixed cardinality returns; ambiguity is a typed failure."
+    },
+    {
+      "python": "Client.refresh",
+      "file": "src/libtmux/client.py",
+      "line": 93,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Refresh client attributes from tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot",
+      "reason": "New observations do not mutate retained snapshots."
+    },
+    {
+      "python": "Client.from_client_name",
+      "file": "src/libtmux/client.py",
+      "line": 112,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create Client from an existing client_name.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / LibTmux::Selection::one",
+      "reason": "Acquire explicitly, then resolve the stable ID or validated name; do not select arbitrary context."
+    },
+    {
+      "python": "Client.attached_session",
+      "file": "src/libtmux/client.py",
+      "line": 126,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the :class:`Session` this client is currently attached to.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Client::session",
+      "reason": "Captured nullable session relation with explicit availability."
+    },
+    {
+      "python": "Client.attached_window",
+      "file": "src/libtmux/client.py",
+      "line": 157,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the :class:`Window` this client is currently viewing.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::WindowLink::active",
+      "reason": "Session-relative active context is represented explicitly."
+    },
+    {
+      "python": "Client.attached_pane",
+      "file": "src/libtmux/client.py",
+      "line": 170,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the :class:`Pane` this client is currently viewing.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::active_pane",
+      "reason": "Physical pane active state differs from session-relative link state."
+    },
+    {
+      "python": "EnvironmentMixin.__init__",
+      "file": "src/libtmux/common.py",
+      "line": 61,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "EnvironmentMixin.set_environment",
+      "file": "src/libtmux/common.py",
+      "line": 64,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set environment ``$ tmux set-environment <name> <value>``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::set_environment",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "EnvironmentMixin.unset_environment",
+      "file": "src/libtmux/common.py",
+      "line": 117,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Unset environment variable ``$ tmux set-environment -u <name>``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::unset_environment",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "EnvironmentMixin.remove_environment",
+      "file": "src/libtmux/common.py",
+      "line": 146,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Remove environment variable ``$ tmux set-environment -r <name>``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "EnvironmentMixin.show_environment",
+      "file": "src/libtmux/common.py",
+      "line": 175,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show environment ``$ tmux show-environment -t [session]``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::get_environment",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "EnvironmentMixin.getenv",
+      "file": "src/libtmux/common.py",
+      "line": 207,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show environment variable ``$ tmux show-environment -t [session] <name>``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::get_environment",
+      "reason": "Explicit named global/session read; unset values remain failures."
+    },
+    {
+      "python": "tmux_cmd.__init__",
+      "file": "src/libtmux/common.py",
+      "line": 312,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "Pane.refresh",
+      "file": "src/libtmux/pane.py",
+      "line": 150,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Refresh pane attributes from tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot",
+      "reason": "New observations do not mutate retained snapshots."
+    },
+    {
+      "python": "Pane.from_pane_id",
+      "file": "src/libtmux/pane.py",
+      "line": 183,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create Pane from existing pane_id.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / LibTmux::Selection::one",
+      "reason": "Acquire explicitly, then resolve the stable ID or validated name; do not select arbitrary context."
+    },
+    {
+      "python": "Pane.from_env",
+      "file": "src/libtmux/pane.py",
+      "line": 227,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the pane this process is running inside of.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.window",
+      "file": "src/libtmux/pane.py",
+      "line": 293,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Parent window of pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::window",
+      "reason": "Resolve the retained physical window without I/O."
+    },
+    {
+      "python": "Pane.session",
+      "file": "src/libtmux/pane.py",
+      "line": 301,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Parent session of pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::links / WindowLink::session",
+      "reason": "A physical window or pane has no arbitrary singular session context."
+    },
+    {
+      "python": "Pane.cmd",
+      "file": "src/libtmux/pane.py",
+      "line": 309,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute tmux subcommand within pane context.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.resize",
+      "file": "src/libtmux/pane.py",
+      "line": 349,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Resize tmux pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::resize_pane",
+      "reason": "Explicit dimensions and stable pane targeting."
+    },
+    {
+      "python": "Pane.capture_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 451,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::capture_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.capture_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 472,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::capture_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.capture_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 492,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Capture text from pane.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::capture_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.send_keys",
+      "file": "src/libtmux/pane.py",
+      "line": 694,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "``$ tmux send-keys`` to the pane.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::send_keys",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.display_message",
+      "file": "src/libtmux/pane.py",
+      "line": 853,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Pane.display_message",
+      "file": "src/libtmux/pane.py",
+      "line": 869,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Pane.display_message",
+      "file": "src/libtmux/pane.py",
+      "line": 884,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Display message to pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Pane.kill",
+      "file": "src/libtmux/pane.py",
+      "line": 1018,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill :class:`Pane`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::kill_pane",
+      "reason": "Explicit mutation on Server; captured entities do not own transport or destruct borrowed resources."
+    },
+    {
+      "python": "Pane.select",
+      "file": "src/libtmux/pane.py",
+      "line": 1089,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::select_pane",
+      "reason": "Window selection requires a WindowLink; pane selection uses a physical pane ID."
+    },
+    {
+      "python": "Pane.select_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 1191,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select pane.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::select_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.split",
+      "file": "src/libtmux/pane.py",
+      "line": 1206,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Split window and return :class:`Pane`, by default beneath current pane.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.new_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 1433,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create a floating :class:`Pane` via ``$ tmux new-pane`` (tmux 3.7+).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Choose the pane explicitly; a Window caller can select its captured active_pane."
+    },
+    {
+      "python": "Pane.set_width",
+      "file": "src/libtmux/pane.py",
+      "line": 1597,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set pane width.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::resize_pane",
+      "reason": "Set the explicit width or height option without implicit refresh."
+    },
+    {
+      "python": "Pane.set_height",
+      "file": "src/libtmux/pane.py",
+      "line": 1613,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set pane height.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::resize_pane",
+      "reason": "Set the explicit width or height option without implicit refresh."
+    },
+    {
+      "python": "Pane.set_title",
+      "file": "src/libtmux/pane.py",
+      "line": 1629,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set pane title via ``select-pane -T``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::set_title",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.enter",
+      "file": "src/libtmux/pane.py",
+      "line": 1655,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Send carriage return to pane.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::send_keys",
+      "reason": "Pass the named Enter key to the explicit pane target."
+    },
+    {
+      "python": "Pane.display_popup",
+      "file": "src/libtmux/pane.py",
+      "line": 1663,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Display a popup overlay via ``$ tmux display-popup``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.paste_buffer",
+      "file": "src/libtmux/pane.py",
+      "line": 1864,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Paste a buffer into the pane via ``$ tmux paste-buffer``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.pipe",
+      "file": "src/libtmux/pane.py",
+      "line": 1931,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Pipe pane output to a shell command via ``$ tmux pipe-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.copy_mode",
+      "file": "src/libtmux/pane.py",
+      "line": 1978,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter copy mode via ``$ tmux copy-mode``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.clock_mode",
+      "file": "src/libtmux/pane.py",
+      "line": 2043,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter clock mode via ``$ tmux clock-mode``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.display_panes",
+      "file": "src/libtmux/pane.py",
+      "line": 2052,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show pane numbers via ``$ tmux display-panes``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.choose_buffer",
+      "file": "src/libtmux/pane.py",
+      "line": 2086,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter buffer chooser via ``$ tmux choose-buffer``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.choose_client",
+      "file": "src/libtmux/pane.py",
+      "line": 2095,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter client chooser via ``$ tmux choose-client``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.choose_tree",
+      "file": "src/libtmux/pane.py",
+      "line": 2104,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter tree chooser via ``$ tmux choose-tree``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.customize_mode",
+      "file": "src/libtmux/pane.py",
+      "line": 2166,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Enter customize mode via ``$ tmux customize-mode``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.find_window",
+      "file": "src/libtmux/pane.py",
+      "line": 2175,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Search for a window matching a string via ``$ tmux find-window``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.send_prefix",
+      "file": "src/libtmux/pane.py",
+      "line": 2231,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Send the prefix key to the pane via ``$ tmux send-prefix``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.respawn",
+      "file": "src/libtmux/pane.py",
+      "line": 2252,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Respawn the pane process via ``$ tmux respawn-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.move",
+      "file": "src/libtmux/pane.py",
+      "line": 2299,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Move this pane to another window via ``$ tmux move-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.join",
+      "file": "src/libtmux/pane.py",
+      "line": 2370,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Join this pane into another window/pane via ``$ tmux join-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.break_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 2441,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Break this pane out into a new window via ``$ tmux break-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.swap",
+      "file": "src/libtmux/pane.py",
+      "line": 2502,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Swap this pane with another via ``$ tmux swap-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.clear_history",
+      "file": "src/libtmux/pane.py",
+      "line": 2576,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Clear pane history buffer via ``$ tmux clear-history``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.clear",
+      "file": "src/libtmux/pane.py",
+      "line": 2605,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Clear pane.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.reset",
+      "file": "src/libtmux/pane.py",
+      "line": 2610,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Reset terminal state and clear pane history.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.id",
+      "file": "src/libtmux/pane.py",
+      "line": 2652,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Pane.pane_id`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::id",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Pane.index",
+      "file": "src/libtmux/pane.py",
+      "line": 2664,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Pane.pane_index`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::index",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Pane.height",
+      "file": "src/libtmux/pane.py",
+      "line": 2676,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Pane.pane_height`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::height",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Pane.width",
+      "file": "src/libtmux/pane.py",
+      "line": 2688,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Pane.pane_width`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::width",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Pane.title",
+      "file": "src/libtmux/pane.py",
+      "line": 2700,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias for :attr:`pane_title`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Pane::title",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Pane.at_top",
+      "file": "src/libtmux/pane.py",
+      "line": 2712,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Typed, converted wrapper around :attr:`Pane.pane_at_top`.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.at_bottom",
+      "file": "src/libtmux/pane.py",
+      "line": 2724,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Typed, converted wrapper around :attr:`Pane.pane_at_bottom`.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.at_left",
+      "file": "src/libtmux/pane.py",
+      "line": 2736,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Typed, converted wrapper around :attr:`Pane.pane_at_left`.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.at_right",
+      "file": "src/libtmux/pane.py",
+      "line": 2748,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Typed, converted wrapper around :attr:`Pane.pane_at_right`.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Pane.split_window",
+      "file": "src/libtmux/pane.py",
+      "line": 2762,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Split window at pane and return newly created :class:`Pane`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Pane.get",
+      "file": "src/libtmux/pane.py",
+      "line": 2800,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return key-based lookup. Deprecated by attributes.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::one / one_or_undef",
+      "reason": "Fixed cardinality returns; ambiguity is a typed failure."
+    },
+    {
+      "python": "Pane.resize_pane",
+      "file": "src/libtmux/pane.py",
+      "line": 2830,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Resize pane, deprecated by :meth:`Pane.resize`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::resize_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.__init__",
+      "file": "src/libtmux/server.py",
+      "line": 170,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::new / captured entity readers",
+      "reason": "Construct only connection settings; entity handles come from explicit snapshots and never own transport."
+    },
+    {
+      "python": "Server.from_env",
+      "file": "src/libtmux/server.py",
+      "line": 203,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the tmux server this process's pane is attached to.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.is_alive",
+      "file": "src/libtmux/server.py",
+      "line": 290,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return True if tmux server alive.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot / LibTmux::Selection",
+      "reason": "Explicit acquisition propagates operational failures; local predicates test captured membership or attachment count."
+    },
+    {
+      "python": "Server.raise_if_dead",
+      "file": "src/libtmux/server.py",
+      "line": 302,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Raise if server not connected.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot / LibTmux::Selection",
+      "reason": "Explicit acquisition propagates operational failures; local predicates test captured membership or attachment count."
+    },
+    {
+      "python": "Server.cmd",
+      "file": "src/libtmux/server.py",
+      "line": 340,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute tmux command respective of socket name and file, return output.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.attached_sessions",
+      "file": "src/libtmux/server.py",
+      "line": 414,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return active :class:`Session` instances.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot / LibTmux::Selection",
+      "reason": "Explicit acquisition propagates operational failures; local predicates test captured membership or attachment count."
+    },
+    {
+      "python": "Server.has_session",
+      "file": "src/libtmux/server.py",
+      "line": 429,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return True if session exists.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot / LibTmux::Selection",
+      "reason": "Explicit acquisition propagates operational failures; local predicates test captured membership or attachment count."
+    },
+    {
+      "python": "Server.kill",
+      "file": "src/libtmux/server.py",
+      "line": 457,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill tmux server.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::kill_server",
+      "reason": "Explicit mutation on Server; captured entities do not own transport or destruct borrowed resources."
+    },
+    {
+      "python": "Server.kill_session",
+      "file": "src/libtmux/server.py",
+      "line": 483,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill tmux session.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::kill_session",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.run_shell",
+      "file": "src/libtmux/server.py",
+      "line": 506,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute a shell command via ``$ tmux run-shell``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.wait_for",
+      "file": "src/libtmux/server.py",
+      "line": 620,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Wait for, signal, or lock a channel via ``$ tmux wait-for``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.bind_key",
+      "file": "src/libtmux/server.py",
+      "line": 664,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Bind a key to a command via ``$ tmux bind-key``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.unbind_key",
+      "file": "src/libtmux/server.py",
+      "line": 710,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Unbind a key via ``$ tmux unbind-key``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.list_keys",
+      "file": "src/libtmux/server.py",
+      "line": 754,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "List key bindings via ``$ tmux list-keys``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.list_commands",
+      "file": "src/libtmux/server.py",
+      "line": 801,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "List tmux commands via ``$ tmux list-commands``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.lock_server",
+      "file": "src/libtmux/server.py",
+      "line": 831,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Lock the tmux server via ``$ tmux lock-server``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.server_access",
+      "file": "src/libtmux/server.py",
+      "line": 843,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Manage server access control via ``$ tmux server-access``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.refresh_client",
+      "file": "src/libtmux/server.py",
+      "line": 918,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Refresh a client's display via ``$ tmux refresh-client``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.suspend_client",
+      "file": "src/libtmux/server.py",
+      "line": 961,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Suspend a client via ``$ tmux suspend-client``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.lock_client",
+      "file": "src/libtmux/server.py",
+      "line": 985,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Lock a client via ``$ tmux lock-client``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.detach_client",
+      "file": "src/libtmux/server.py",
+      "line": 1009,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Detach a specific client via ``$ tmux detach-client``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::detach_client",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.detach_all_clients",
+      "file": "src/libtmux/server.py",
+      "line": 1058,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Detach every client on this server via ``$ tmux detach-client -a``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.confirm_before",
+      "file": "src/libtmux/server.py",
+      "line": 1105,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Run a command after confirmation via ``$ tmux confirm-before``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.command_prompt",
+      "file": "src/libtmux/server.py",
+      "line": 1191,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Open a command prompt via ``$ tmux command-prompt``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.display_menu",
+      "file": "src/libtmux/server.py",
+      "line": 1337,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Display a popup menu via ``$ tmux display-menu``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.start_server",
+      "file": "src/libtmux/server.py",
+      "line": 1489,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Start the tmux server via ``$ tmux start-server``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.show_messages",
+      "file": "src/libtmux/server.py",
+      "line": 1501,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show server message log via ``$ tmux show-messages``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.display_message",
+      "file": "src/libtmux/server.py",
+      "line": 1559,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Server.display_message",
+      "file": "src/libtmux/server.py",
+      "line": 1574,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Server.display_message",
+      "file": "src/libtmux/server.py",
+      "line": 1588,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Display message at server scope via ``$ tmux display-message``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Server.show_prompt_history",
+      "file": "src/libtmux/server.py",
+      "line": 1733,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show prompt history via ``$ tmux show-prompt-history``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.clear_prompt_history",
+      "file": "src/libtmux/server.py",
+      "line": 1776,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Clear prompt history via ``$ tmux clear-prompt-history``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.set_buffer",
+      "file": "src/libtmux/server.py",
+      "line": 1808,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set a paste buffer via ``$ tmux set-buffer``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::set_buffer",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.show_buffer",
+      "file": "src/libtmux/server.py",
+      "line": 1846,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show content of a paste buffer via ``$ tmux show-buffer``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::show_buffer",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.delete_buffer",
+      "file": "src/libtmux/server.py",
+      "line": 1876,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Delete a paste buffer via ``$ tmux delete-buffer``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::delete_buffer",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.save_buffer",
+      "file": "src/libtmux/server.py",
+      "line": 1899,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Save a paste buffer to a file via ``$ tmux save-buffer``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.load_buffer",
+      "file": "src/libtmux/server.py",
+      "line": 1938,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Load a file into a paste buffer via ``$ tmux load-buffer``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.list_buffers",
+      "file": "src/libtmux/server.py",
+      "line": 1971,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "List paste buffers via ``$ tmux list-buffers``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.if_shell",
+      "file": "src/libtmux/server.py",
+      "line": 2054,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute a tmux command conditionally via ``$ tmux if-shell``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.source_file",
+      "file": "src/libtmux/server.py",
+      "line": 2101,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Source a tmux configuration file via ``$ tmux source-file``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.list_clients",
+      "file": "src/libtmux/server.py",
+      "line": 2146,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "List connected clients via ``$ tmux list-clients``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::listings",
+      "reason": "Raw contextual rows retain ordering/multiplicity; normalized Snapshot collections are a separate API."
+    },
+    {
+      "python": "Server.switch_client",
+      "file": "src/libtmux/server.py",
+      "line": 2165,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Switch tmux client.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Server.attach_session",
+      "file": "src/libtmux/server.py",
+      "line": 2183,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Attach tmux session.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::attach_argv",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.new_session",
+      "file": "src/libtmux/server.py",
+      "line": 2200,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create new session, returns new :class:`Session`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::new_session",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.sessions",
+      "file": "src/libtmux/server.py",
+      "line": 2403,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Sessions contained in server.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::sessions",
+      "reason": "Explicit acquisition replaces implicit live collection access."
+    },
+    {
+      "python": "Server.windows",
+      "file": "src/libtmux/server.py",
+      "line": 2426,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Windows contained in server's sessions.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::windows / Session::window_links",
+      "reason": "Physical identity is unique; session associations remain WindowLink records."
+    },
+    {
+      "python": "Server.panes",
+      "file": "src/libtmux/server.py",
+      "line": 2445,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Panes contained in tmux server (across all windows in all sessions).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::panes / Window::panes",
+      "reason": "Captured physical membership is local and repeatable."
+    },
+    {
+      "python": "Server.clients",
+      "file": "src/libtmux/server.py",
+      "line": 2464,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Clients attached to this tmux server.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::clients",
+      "reason": "Explicit acquisition returns captured client data."
+    },
+    {
+      "python": "Server.search_sessions",
+      "file": "src/libtmux/server.py",
+      "line": 2497,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Sessions, optionally filtered by tmux before rows are returned.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Server.search_windows",
+      "file": "src/libtmux/server.py",
+      "line": 2555,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "All windows across sessions, optionally filtered by tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Server.search_panes",
+      "file": "src/libtmux/server.py",
+      "line": 2612,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "All panes across the server, optionally filtered by tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Server.kill_server",
+      "file": "src/libtmux/server.py",
+      "line": 2700,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill tmux server.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::kill_server",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Server.get_by_id",
+      "file": "src/libtmux/server.py",
+      "line": 2752,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return session by id. Deprecated in favor of :meth:`.sessions.get()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::*_by_id",
+      "reason": "Local identity lookup returns one handle or undef, scoped to the captured server generation."
+    },
+    {
+      "python": "Server.where",
+      "file": "src/libtmux/server.py",
+      "line": 2766,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through sessions, return list of :class:`Session`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::where",
+      "reason": "Eager, nonmutating captured selection with an explicit schema."
+    },
+    {
+      "python": "Server.find_where",
+      "file": "src/libtmux/server.py",
+      "line": 2780,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through sessions, return first :class:`Session`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::first",
+      "reason": "Optional criteria and explicit absence; no context-sensitive return."
+    },
+    {
+      "python": "Server.list_sessions",
+      "file": "src/libtmux/server.py",
+      "line": 2855,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return list of :class:`Session` from the ``tmux(1)`` session.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::listings",
+      "reason": "Raw contextual rows retain ordering/multiplicity; normalized Snapshot collections are a separate API."
+    },
+    {
+      "python": "Server.children",
+      "file": "src/libtmux/server.py",
+      "line": 2873,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Was used by TmuxRelationalObject (but that's longer used in this class).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / Session::window_links / Window::panes",
+      "reason": "Use typed captured graph relations without hidden acquisition."
+    },
+    {
+      "python": "Session.refresh",
+      "file": "src/libtmux/session.py",
+      "line": 149,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Refresh session attributes from tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot",
+      "reason": "New observations do not mutate retained snapshots."
+    },
+    {
+      "python": "Session.from_session_id",
+      "file": "src/libtmux/session.py",
+      "line": 168,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create Session from existing session_id.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / LibTmux::Selection::one",
+      "reason": "Acquire explicitly, then resolve the stable ID or validated name; do not select arbitrary context."
+    },
+    {
+      "python": "Session.from_env",
+      "file": "src/libtmux/session.py",
+      "line": 203,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the session this process's pane belongs to.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.windows",
+      "file": "src/libtmux/session.py",
+      "line": 263,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Windows contained by session.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::windows / Session::window_links",
+      "reason": "Physical identity is unique; session associations remain WindowLink records."
+    },
+    {
+      "python": "Session.panes",
+      "file": "src/libtmux/session.py",
+      "line": 283,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Panes contained by session's windows.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::panes / Window::panes",
+      "reason": "Captured physical membership is local and repeatable."
+    },
+    {
+      "python": "Session.search_windows",
+      "file": "src/libtmux/session.py",
+      "line": 302,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Windows in this session, optionally filtered by tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Session.search_panes",
+      "file": "src/libtmux/session.py",
+      "line": 357,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Panes in this session, optionally filtered by tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Session.cmd",
+      "file": "src/libtmux/session.py",
+      "line": 416,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute tmux subcommand within session context.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.lock_session",
+      "file": "src/libtmux/session.py",
+      "line": 465,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Lock this session via ``$ tmux lock-session``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.detach_client",
+      "file": "src/libtmux/session.py",
+      "line": 474,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Detach every client attached to this session.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::detach_client",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.last_window",
+      "file": "src/libtmux/session.py",
+      "line": 513,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select the last (previously selected) window.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.next_window",
+      "file": "src/libtmux/session.py",
+      "line": 536,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select the next window.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.previous_window",
+      "file": "src/libtmux/session.py",
+      "line": 558,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select the previous window.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.select_window",
+      "file": "src/libtmux/session.py",
+      "line": 580,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select window and return the selected window.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::select_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.active_pane",
+      "file": "src/libtmux/session.py",
+      "line": 614,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the active :class:`Pane` object.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::active_pane",
+      "reason": "Local captured active-pane relation; unknown completeness cannot prove absence."
+    },
+    {
+      "python": "Session.active_window",
+      "file": "src/libtmux/session.py",
+      "line": 619,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the active :class:`Window` object.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Session::window_links",
+      "reason": "Filter the session link active flag, then resolve its physical window."
+    },
+    {
+      "python": "Session.attach",
+      "file": "src/libtmux/session.py",
+      "line": 633,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return ``$ tmux attach-session`` aka alias: ``$ tmux attach``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::attach_argv",
+      "reason": "Caller owns the interactive terminal/client lifetime."
+    },
+    {
+      "python": "Session.kill",
+      "file": "src/libtmux/session.py",
+      "line": 664,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill :class:`Session`, closes linked windows and detach all clients.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::kill_session",
+      "reason": "Explicit mutation on Server; captured entities do not own transport or destruct borrowed resources."
+    },
+    {
+      "python": "Session.switch_client",
+      "file": "src/libtmux/session.py",
+      "line": 751,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Switch client to session.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Session.rename_session",
+      "file": "src/libtmux/session.py",
+      "line": 764,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Rename session and return new :class:`Session` object.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::rename_session",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.new_window",
+      "file": "src/libtmux/session.py",
+      "line": 794,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create new window, returns new :class:`Window`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::new_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.kill_window",
+      "file": "src/libtmux/session.py",
+      "line": 959,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Close a tmux window, and all panes inside it, ``$ tmux kill-window``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::kill_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.id",
+      "file": "src/libtmux/session.py",
+      "line": 1012,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Session.session_id`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Session::id",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Session.name",
+      "file": "src/libtmux/session.py",
+      "line": 1024,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Session.session_name`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Session::name",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Session.attached_pane",
+      "file": "src/libtmux/session.py",
+      "line": 1039,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the active :class:`Pane` object.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::active_pane",
+      "reason": "Physical pane active state differs from session-relative link state."
+    },
+    {
+      "python": "Session.attached_window",
+      "file": "src/libtmux/session.py",
+      "line": 1055,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the active :class:`Window` object.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::WindowLink::active",
+      "reason": "Session-relative active context is represented explicitly."
+    },
+    {
+      "python": "Session.attach_session",
+      "file": "src/libtmux/session.py",
+      "line": 1070,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return ``$ tmux attach-session`` aka alias: ``$ tmux attach``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::attach_argv",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.kill_session",
+      "file": "src/libtmux/session.py",
+      "line": 1085,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Destroy session.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::kill_session",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Session.get",
+      "file": "src/libtmux/session.py",
+      "line": 1100,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return key-based lookup. Deprecated by attributes.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::one / one_or_undef",
+      "reason": "Fixed cardinality returns; ambiguity is a typed failure."
+    },
+    {
+      "python": "Session.get_by_id",
+      "file": "src/libtmux/session.py",
+      "line": 1130,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return window by id. Deprecated in favor of :meth:`.windows.get()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::*_by_id",
+      "reason": "Local identity lookup returns one handle or undef, scoped to the captured server generation."
+    },
+    {
+      "python": "Session.where",
+      "file": "src/libtmux/session.py",
+      "line": 1144,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through windows, return list of :class:`Window`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::where",
+      "reason": "Eager, nonmutating captured selection with an explicit schema."
+    },
+    {
+      "python": "Session.find_where",
+      "file": "src/libtmux/session.py",
+      "line": 1158,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through windows, return first :class:`Window`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::first",
+      "reason": "Optional criteria and explicit absence; no context-sensitive return."
+    },
+    {
+      "python": "Session.list_windows",
+      "file": "src/libtmux/session.py",
+      "line": 1201,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return a list of :class:`Window` from the ``tmux(1)`` session.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::listings",
+      "reason": "Raw contextual rows retain ordering/multiplicity; normalized Snapshot collections are a separate API."
+    },
+    {
+      "python": "Session.children",
+      "file": "src/libtmux/session.py",
+      "line": 1216,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Was used by TmuxRelationalObject (but that's longer used in this class).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / Session::window_links / Window::panes",
+      "reason": "Use typed captured graph relations without hidden acquisition."
+    },
+    {
+      "python": "Window.refresh",
+      "file": "src/libtmux/window.py",
+      "line": 166,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Refresh window attributes from tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::snapshot",
+      "reason": "New observations do not mutate retained snapshots."
+    },
+    {
+      "python": "Window.from_window_id",
+      "file": "src/libtmux/window.py",
+      "line": 200,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create Window from existing window_id.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / LibTmux::Selection::one",
+      "reason": "Acquire explicitly, then resolve the stable ID or validated name; do not select arbitrary context."
+    },
+    {
+      "python": "Window.from_env",
+      "file": "src/libtmux/window.py",
+      "line": 242,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return the window containing the pane this process runs inside of.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.session",
+      "file": "src/libtmux/window.py",
+      "line": 298,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Parent session of window.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::links / WindowLink::session",
+      "reason": "A physical window or pane has no arbitrary singular session context."
+    },
+    {
+      "python": "Window.linked_sessions",
+      "file": "src/libtmux/window.py",
+      "line": 306,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Every session this window is reachable from.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::links",
+      "reason": "Resolve each WindowLink session locally; preserve repeated associations."
+    },
+    {
+      "python": "Window.panes",
+      "file": "src/libtmux/window.py",
+      "line": 382,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Panes contained by window.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::panes / Window::panes",
+      "reason": "Captured physical membership is local and repeatable."
+    },
+    {
+      "python": "Window.search_panes",
+      "file": "src/libtmux/window.py",
+      "line": 401,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Panes in this window, optionally filtered by tmux.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::query_panes / LibTmux::Selection",
+      "reason": "Portable eager criteria and explicit native filters replace Python search spelling; regex is a local callback capability, not implicit native translation."
+    },
+    {
+      "python": "Window.cmd",
+      "file": "src/libtmux/window.py",
+      "line": 461,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Execute tmux subcommand within window context.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.select_pane",
+      "file": "src/libtmux/window.py",
+      "line": 503,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select pane and return selected :class:`Pane`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::select_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.split",
+      "file": "src/libtmux/window.py",
+      "line": 526,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Split window on active pane and return the created :class:`Pane`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.new_pane",
+      "file": "src/libtmux/window.py",
+      "line": 619,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create a floating :class:`Pane` in this window (``$ tmux new-pane``).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Choose the pane explicitly; a Window caller can select its captured active_pane."
+    },
+    {
+      "python": "Window.resize",
+      "file": "src/libtmux/window.py",
+      "line": 717,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Resize tmux window.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.last_pane",
+      "file": "src/libtmux/window.py",
+      "line": 794,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select the last (previously active) pane via ``$ tmux last-pane``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.select_layout",
+      "file": "src/libtmux/window.py",
+      "line": 848,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select layout for window.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::select_layout",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.next_layout",
+      "file": "src/libtmux/window.py",
+      "line": 936,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Cycle to the next layout via ``$ tmux next-layout``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.previous_layout",
+      "file": "src/libtmux/window.py",
+      "line": 950,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Cycle to the previous layout via ``$ tmux previous-layout``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.link",
+      "file": "src/libtmux/window.py",
+      "line": 964,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Link this window to another session via ``$ tmux link-window``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::link_window",
+      "reason": "Link creation uses physical identity; unlinking requires explicit WindowLink context."
+    },
+    {
+      "python": "Window.unlink",
+      "file": "src/libtmux/window.py",
+      "line": 1029,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Unlink this window from the current session via ``$ tmux unlink-window``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::unlink_window",
+      "reason": "Link creation uses physical identity; unlinking requires explicit WindowLink context."
+    },
+    {
+      "python": "Window.rotate",
+      "file": "src/libtmux/window.py",
+      "line": 1054,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Rotate pane positions in the window via ``$ tmux rotate-window``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.respawn",
+      "file": "src/libtmux/window.py",
+      "line": 1101,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Respawn the window process via ``$ tmux respawn-window``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.swap",
+      "file": "src/libtmux/window.py",
+      "line": 1148,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Swap this window with another via ``$ tmux swap-window``.",
+      "disposition": "excluded-wrapper",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "No dedicated wrapper in the selected initial surface. Native tmux commands remain explicit argument vectors with caller-selected targeting and ownership; no Python wrapper parity is claimed."
+    },
+    {
+      "python": "Window.display_message",
+      "file": "src/libtmux/window.py",
+      "line": 1192,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Window.display_message",
+      "file": "src/libtmux/window.py",
+      "line": 1207,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Window.display_message",
+      "file": "src/libtmux/window.py",
+      "line": 1221,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Display message at window scope via ``$ tmux display-message``.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Use explicit display-message argv, -p, and the stable target ID. Native formats remain an expert interface."
+    },
+    {
+      "python": "Window.rename_window",
+      "file": "src/libtmux/window.py",
+      "line": 1360,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Rename window.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::rename_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.kill",
+      "file": "src/libtmux/window.py",
+      "line": 1399,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill :class:`Window`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::kill_window",
+      "reason": "Explicit mutation on Server; captured entities do not own transport or destruct borrowed resources."
+    },
+    {
+      "python": "Window.move_window",
+      "file": "src/libtmux/window.py",
+      "line": 1461,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Move current :class:`Window` object ``$ tmux move-window``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::move_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.new_window",
+      "file": "src/libtmux/window.py",
+      "line": 1546,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Create new window respective of current window's position.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::new_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.select",
+      "file": "src/libtmux/window.py",
+      "line": 1604,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select window.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::select_window",
+      "reason": "Window selection requires a WindowLink; pane selection uses a physical pane ID."
+    },
+    {
+      "python": "Window.active_pane",
+      "file": "src/libtmux/window.py",
+      "line": 1639,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return attached :class:`Pane`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::active_pane",
+      "reason": "Local captured active-pane relation; unknown completeness cannot prove absence."
+    },
+    {
+      "python": "Window.id",
+      "file": "src/libtmux/window.py",
+      "line": 1666,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Window.window_id`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::id",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Window.name",
+      "file": "src/libtmux/window.py",
+      "line": 1678,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Window.window_name`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::name",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Window.index",
+      "file": "src/libtmux/window.py",
+      "line": 1690,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Window.window_index`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::WindowLink::index",
+      "reason": "Window index is session-relative link context, not a physical-window field."
+    },
+    {
+      "python": "Window.height",
+      "file": "src/libtmux/window.py",
+      "line": 1702,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Window.window_height`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::height",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Window.width",
+      "file": "src/libtmux/window.py",
+      "line": 1714,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Alias of :attr:`Window.window_width`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::width",
+      "reason": "Schema-backed captured reader; no implicit I/O or live refresh."
+    },
+    {
+      "python": "Window.split_window",
+      "file": "src/libtmux/window.py",
+      "line": 1728,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Split window and return the created :class:`Pane`.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::split_pane",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.attached_pane",
+      "file": "src/libtmux/window.py",
+      "line": 1762,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return attached :class:`Pane`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Window::active_pane",
+      "reason": "Physical pane active state differs from session-relative link state."
+    },
+    {
+      "python": "Window.select_window",
+      "file": "src/libtmux/window.py",
+      "line": 1777,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Select window.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::select_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.kill_window",
+      "file": "src/libtmux/window.py",
+      "line": 1792,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Kill the current :class:`Window` object. ``$ tmux kill-window``.",
+      "disposition": "mapped-operation",
+      "perl": "LibTmux::Server::kill_window",
+      "reason": "Explicit Server operation with stable ID or captured handle; native argument/result contracts are authoritative."
+    },
+    {
+      "python": "Window.set_window_option",
+      "file": "src/libtmux/window.py",
+      "line": 1807,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Set option for tmux window. Deprecated by :meth:`Window.set_option()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::set_option / get_option",
+      "reason": "Pass scope=window and an explicit physical-window ID; inherited reads are explicit."
+    },
+    {
+      "python": "Window.show_window_options",
+      "file": "src/libtmux/window.py",
+      "line": 1826,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Show options for tmux window. Deprecated by :meth:`Window.show_options()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::cmd",
+      "reason": "Bulk show-options -w output remains a native command result."
+    },
+    {
+      "python": "Window.show_window_option",
+      "file": "src/libtmux/window.py",
+      "line": 1845,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return option for target window. Deprecated by :meth:`Window.show_option()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::set_option / get_option",
+      "reason": "Pass scope=window and an explicit physical-window ID; inherited reads are explicit."
+    },
+    {
+      "python": "Window.get",
+      "file": "src/libtmux/window.py",
+      "line": 1868,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return key-based lookup. Deprecated by attributes.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::one / one_or_undef",
+      "reason": "Fixed cardinality returns; ambiguity is a typed failure."
+    },
+    {
+      "python": "Window.get_by_id",
+      "file": "src/libtmux/window.py",
+      "line": 1898,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return pane by id. Deprecated in favor of :meth:`.panes.get()`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot::*_by_id",
+      "reason": "Local identity lookup returns one handle or undef, scoped to the captured server generation."
+    },
+    {
+      "python": "Window.where",
+      "file": "src/libtmux/window.py",
+      "line": 1912,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through panes, return list of :class:`Pane`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::where",
+      "reason": "Eager, nonmutating captured selection with an explicit schema."
+    },
+    {
+      "python": "Window.find_where",
+      "file": "src/libtmux/window.py",
+      "line": 1926,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Filter through panes, return first :class:`Pane`.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Selection::first",
+      "reason": "Optional criteria and explicit absence; no context-sensitive return."
+    },
+    {
+      "python": "Window.list_panes",
+      "file": "src/libtmux/window.py",
+      "line": 1969,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Return list of :class:`Pane` for the window.",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Server::listings",
+      "reason": "Raw contextual rows retain ordering/multiplicity; normalized Snapshot collections are a separate API."
+    },
+    {
+      "python": "Window.children",
+      "file": "src/libtmux/window.py",
+      "line": 1984,
+      "source_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+      "behavior": "Was used by TmuxRelationalObject (but that's longer used in this class).",
+      "disposition": "native-adaptation",
+      "perl": "LibTmux::Snapshot / Session::window_links / Window::panes",
+      "reason": "Use typed captured graph relations without hidden acquisition."
+    }
+  ]
+}

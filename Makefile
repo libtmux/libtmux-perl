@@ -1,12 +1,13 @@
 PERL ?= perl
-PACKAGES := core workspace
+PACKAGES := core async workspace
 LOCAL_LIB := $(CURDIR)/local/lib/perl5
+LIBS := -I"$(LOCAL_LIB)" $(foreach package,$(PACKAGES),-Ipackages/$(package)/lib)
 TIDY := $(PERL) -I"$(LOCAL_LIB)" "$(CURDIR)/local/bin/perltidy"
 PERL_FILES := cpanfile $(foreach package,$(PACKAGES),packages/$(package)/Makefile.PL packages/$(package)/cpanfile)
 
-.PHONY: check check-metadata check-format format
+.PHONY: benchmark check-inventory conformance check-snippets check check-metadata check-format format check-generated check-pod unit integration examples artifacts compatibility
 
-check: check-metadata check-format
+check: check-metadata check-format check-generated check-pod check-snippets check-inventory unit conformance
 
 check-metadata:
 	@set -eu; for package in $(PACKAGES); do \
@@ -18,13 +19,42 @@ check-metadata:
 	done
 
 check-format:
-	@mkdir -p .cache/tidy/root
-	@$(TIDY) --assert-tidy --profile=.perltidyrc --output-path=.cache/tidy/root --standard-error-output cpanfile
-	@set -eu; for package in $(PACKAGES); do \
-		mkdir -p ".cache/tidy/$$package"; \
-		$(TIDY) --assert-tidy --profile=.perltidyrc --output-path=".cache/tidy/$$package" --standard-error-output \
-			"packages/$$package/Makefile.PL" "packages/$$package/cpanfile"; \
-	done
+	@$(PERL) scripts/format.pl --check
 
 format:
-	@$(TIDY) --profile=.perltidyrc -b -bext=/ $(PERL_FILES)
+	@$(PERL) scripts/format.pl --write
+
+check-generated:
+	@$(PERL) scripts/generate.pl --check
+
+check-pod:
+	@$(PERL) scripts/check-pod.pl
+
+unit:
+	@prove $(LIBS) packages/core/t/unit/*.t packages/async/t/unit/*.t packages/workspace/t/unit/*.t
+
+integration:
+	@set -eu; for suite in packages/core/t/integration/*.t packages/async/t/integration/*.t packages/workspace/t/integration/*.t; do \
+		python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
+	done
+
+examples:
+	@$(PERL) scripts/run-examples.pl
+
+artifacts:
+	@$(PERL) scripts/check-artifacts.pl
+
+compatibility:
+	@python3 scripts/compatibility.py --check
+
+check-snippets:
+	@$(PERL) scripts/check-snippets.pl
+
+conformance:
+	@python3 scripts/conformance.py
+
+benchmark:
+	@python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl
+
+check-inventory:
+	@python3 scripts/inventory.py --check

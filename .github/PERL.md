@@ -1,13 +1,12 @@
 # Perl packaging and CI
 
-Use MakeMaker, a `cpanfile` per distribution, cpm, and Perl::Tidy for this
-scaffold. Both distributions target Perl 5.44. The choices below come from
+Use MakeMaker, a `cpanfile` per distribution, cpm, and Perl::Tidy for the
+three native distributions. Runtime code targets stable Perl 5.44.0. The choices below come from
 inspected upstream source and release metadata, checked on 2026-11-07.
 
 ## Product scope
 
-The selected products are a core library and a separate workspace
-distribution. MCP is explicitly excluded from this port. This is a scope
+The selected products are core, optional async, and workspace distributions. MCP is explicitly excluded from this port. This is a scope
 decision, independent of future SDK availability.
 
 Runtime code should use Perl's standard library where possible and stable
@@ -25,6 +24,7 @@ orchestration.
 | Directory | CPAN distribution | Runtime requirements |
 | --- | --- | --- |
 | `packages/core` | `LibTmux` | Perl 5.44; prefer its standard library. |
+| `packages/async` | `LibTmux-Async` | Versioned core, Future 0.54, IO::Async 0.805; no effect on core requirements. |
 | `packages/workspace` | `LibTmux-Workspace` | Perl 5.44 and the versioned `LibTmux` core. |
 
 Each directory is a native CPAN distribution root with its own `Makefile.PL`,
@@ -40,8 +40,8 @@ distribution boundaries as peer directories in one repository.
 The workspace declares its core dependency through ordinary CPAN metadata.
 It does not own tmux protocol or transport. Additional libtmux core
 distributions can be selected when implementation needs their public APIs.
-The current checks validate metadata and formatting; executing a workspace
-against an installed core remains an implementation gate.
+Native archives and installed consumers are separate gates from metadata.
+Only verified artifact and runtime evidence establishes consumer behavior.
 
 ## Selected tools
 
@@ -117,18 +117,25 @@ versions. Reuse their workflow structure after checking current action
 releases. The selected [checkout v7.0.1][checkout] and [Perl setup action][setup]
 are pinned to their verified release commits.
 
-The current workflow checks syntax, native metadata, formatting, the instruction
-symlink, and whitespace. Add real runtime tests, built-distribution checks,
-installed consumers, and the promised tmux matrix with the implementation.
-Keep publication in a separately authorized release workflow.
+The checks workflow preserves syntax, native metadata, formatting, instruction
+symlink, and whitespace checks, and adds units, native POD, conformance, pinned
+Linux/tmux cells, and installed native archives. Publication remains separately
+authorized. Actions and installer assets use verified commit or digest pins.
 
 ## Language and package status
 
 The [Perl 5.44 class reference][perlclass] still marks `class` experimental.
-An object-system choice belongs to the later architecture work. The bootstrap
-adds package metadata without creating an empty module or a dummy test suite.
-`LibTmux` and `0.001_001` identify unpublished development metadata; no CPAN
-release or implemented client API is claimed.
+The implementation uses ordinary packages and stable positional signatures.
+No object framework or experimental class/named signatures are required.
+`0.001_001` identifies unpublished development distributions; working source
+and installed archive checks do not imply a CPAN release.
+
+PPI 1.291 is an author-only documentation dependency. A native B::Deparse probe
+lowered signatures to argument checks and lost authored defaults; PPI retains
+the declared syntax while Pod::Simple parses native documentation. Runtime
+consumers do not load either author parser or formatter. The optional async
+runtime dependencies meet demonstrated concurrency and loop/reaping needs;
+Future::AsyncAwait remains optional caller syntax.
 
 [makemaker]: https://metacpan.org/release/BINGOS/ExtUtils-MakeMaker-7.78
 [adapter]: https://github.com/charsbar/ExtUtils-MakeMaker-CPANfile/blob/0b2e68289810e4eb220be0956eed6023dea33605/lib/ExtUtils/MakeMaker/CPANfile.pm

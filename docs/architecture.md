@@ -26,6 +26,13 @@ and reaping. Argument vectors have no shell wrapper. Creating a pane from an
 explicit shell command is a separate caller choice. A single-item command
 array uses a fixed exec-ARGV shim because tmux otherwise invokes a shell.
 
+The supervisor uses Linux's child-subreaper facility so orphaned descendants
+remain owned and can be reaped before cleanup is reported complete. The
+qualified syscall adapter is Linux x86_64 LP64; other ABIs fail before dispatch.
+The syscall number and `PR_SET_CHILD_SUBREAPER` constant come from the pinned
+Linux v6.18 syscall table and prctl header. This avoids a non-core runtime
+dependency without claiming untested architectures.
+
 The listing codec escapes backslashes, tabs, and newlines with one field lookup
 per value. Length-prefixing through two lookups is unsafe for dynamic fields.
 Text decoding is strict UTF-8; paths are octets. Non-UTF-8 path operands remain
@@ -37,9 +44,31 @@ require. Probes do not make multiple subprocess calls transactional.
 
 Workspace owns JSON configuration and orchestration through public core APIs.
 Its native distribution depends on the versioned core. Runtime code prefers
-Perl's standard library. MCP is excluded. Persistent control, parallel
-submission, notification streaming, and command lists are deferred; the first
-implementation selects subprocess execution and ordered independent batches.
+Perl's standard library. MCP is excluded.
+
+The optional `LibTmux-Async` distribution adds bounded concurrent subprocess
+submission through an injected caller-owned IO::Async loop. Standard Future
+objects yield one result; Future::AsyncAwait is optional caller syntax. Core
+command preparation, framing, graph parsing, and errors are shared through
+Operation and ProcessJob. Core and workspace have no async runtime dependency.
+Cancelling a Future requests cleanup; only successful close-observer completion
+proves owned jobs and pipes exited. Cancelling observers cannot cancel private
+cleanup. The caller keeps driving and retains ownership of its loop.
+
+| Capability | Decision | Evidence and boundary |
+| --- | --- | --- |
+| Literal subprocess I/O | Selected default | Standard-library supervisor; bounded outputs/deadlines; separate status/error channels. |
+| Ordered independent batches | Selected | One result/error record per request in input order; no tmux command-list attribution claim. |
+| Bounded concurrency | Selected in async only | Future/IO::Async already provide loop ownership, readiness, and process reaping; FIFO pipe tests require overlapping progress. |
+| Persistent control mode | Deferred | Unsolicited notifications, framing, client lifetime, and daemon-loss recovery need a separate qualification project. |
+| Streaming output API | Deferred | Current transport drains pipes but returns bounded completed results; no public subscription/backpressure API is promised. |
+| tmux command chaining | Deferred | Group-level completion cannot establish per-command outcomes without a distinct contract. |
+
+The optional dependencies are runtime requirements only of async. PPI is an
+author-only documentation parser: native B::Deparse inspection lowers signatures
+into argument checks and cannot preserve authored defaults. Pod::Simple remains
+the native POD parser; runtime consumers need neither tool. No core object
+framework or experimental syntax is selected.
 
 The declarations describe the implementation contract. Runtime, artifact,
 compatibility, documentation, and independent adoption checks establish which
