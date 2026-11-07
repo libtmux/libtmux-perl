@@ -1,0 +1,57 @@
+name: Scaffold
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  scaffold:
+    name: Package metadata and formatting
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read the development Perl pin
+        id: perl
+        run: |
+          version=$(awk '$1 == "perl" { print $2 }' .tool-versions)
+          test -n "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      - name: Set up Perl and author dependencies
+        uses: shogo82148/actions-setup-perl@eebc5c886de14ebbfcd2493d49a12007d2c30477 # v1.44.5
+        with:
+          perl-version: ${{ steps.perl.outputs.version }}
+          install-modules-with: cpm
+          install-modules-args: >-
+            --top-level-phase configure,runtime,test,develop
+      - name: Check Perl syntax
+        run: perl -Ilocal/lib/perl5 -c Makefile.PL
+      - name: Check native package metadata
+        run: |
+          perl -Ilocal/lib/perl5 Makefile.PL
+          perl -MCPAN::Meta -e 'CPAN::Meta->load_file("MYMETA.json", {lazy_validation => 0})'
+      - name: Check formatting
+        run: |
+          mkdir -p .cache
+          perl -Ilocal/lib/perl5 local/bin/perltidy \
+            --assert-tidy \
+            --output-path=.cache \
+            --standard-error-output \
+            Makefile.PL cpanfile
+      - name: Check the instruction link and whitespace
+        run: |
+          test -L CLAUDE.md
+          test "$(readlink CLAUDE.md)" = AGENTS.md
+          git diff --check
+          git diff --exit-code
