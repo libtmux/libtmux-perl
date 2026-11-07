@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "python_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
+  "tmux_source_revision": "089ad94e13c560db99fd4989b2774a5c6ad37a17",
+  "core_owner": "LibTmux::Server",
+  "methods": [
+    {
+      "key": "new",
+      "contract": "new(executable => tmux, socket_name|socket_path => string, timeout => seconds, max_output => bytes, config_file => path, env => hashref); no I/O",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "execute",
+      "contract": "execute(argv => arrayref, stdin => bytes?, timeout => seconds?, cancel_fh => handle?); raw CommandResult including nonzero exits",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "cmd",
+      "contract": "cmd(@literal_arguments); checked CommandResult or typed error; no shell or implicit command list",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "new_session",
+      "contract": "new_session(name => string, command => arrayref?, shell_command => string?, width => integer?, height => integer?, cwd => bytes?); Session; command/shell_command exclusive",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "new_window",
+      "contract": "new_window(session => Session|session_id, name => string?, command => arrayref?, shell_command => string?, cwd => bytes?); Window",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "split_pane",
+      "contract": "split_pane(pane => Pane|pane_id, horizontal => boolean?, command => arrayref?, cwd => bytes?); Pane",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "snapshot",
+      "contract": "snapshot(); strict captured Snapshot; no partial success on operational failure",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "listings",
+      "contract": "listings(kind); fresh raw contextual hash rows, explicit I/O; kind session/window/pane/client",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "query_panes",
+      "contract": "query_panes(where => criteria|Filter?, pushdown => auto|never|require?, native_filter => string?); PaneSelection; native_filter exclusive",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "explain_panes",
+      "contract": "explain_panes(where => criteria|Filter, pushdown => policy?); QueryPlan; no I/O until execution; reports conditional capability needs",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "rename_session",
+      "contract": "rename_session(session => Session|session_id, name => string); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "rename_window",
+      "contract": "rename_window(window => Window|window_id, name => string); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "link_window",
+      "contract": "link_window(window => Window|window_id, session => Session|session_id, index => integer?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "unlink_window",
+      "contract": "unlink_window(link => WindowLink|session_id:index); void; contextual link only",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "move_window",
+      "contract": "move_window(link => WindowLink|session_id:index, session => Session|session_id, index => integer?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "select_window",
+      "contract": "select_window(link => WindowLink|session_id:index); void; contextual link only",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "select_pane",
+      "contract": "select_pane(pane => Pane|pane_id); void; physical active-pane change",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "select_layout",
+      "contract": "select_layout(window => Window|window_id, layout => string); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "resize_pane",
+      "contract": "resize_pane(pane => Pane|pane_id, width => positive_integer?, height => positive_integer?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "set_title",
+      "contract": "set_title(pane => Pane|pane_id, title => string); void; tmux sanitization remains observable",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "send_keys",
+      "contract": "send_keys(pane => Pane|pane_id, keys => arrayref); void; named keys interpreted by tmux",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "send_text",
+      "contract": "send_text(pane => Pane|pane_id, text => string|bytes, enter => boolean?); void; literal text then optional Enter",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "capture_pane",
+      "contract": "capture_pane(pane => Pane|pane_id, start => integer?, end => integer?); raw bytes including tmux final newline",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "kill_pane",
+      "contract": "kill_pane(pane => Pane|pane_id); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "kill_window",
+      "contract": "kill_window(window => Window|window_id); void; destroys physical window and all its links",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "kill_session",
+      "contract": "kill_session(session => Session|session_id); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "kill_server",
+      "contract": "kill_server(); explicit borrowed-server destruction requested by caller; void, no destructor alias",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "clients",
+      "contract": "clients(); captured ClientSelection via explicit snapshot acquisition",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "attach_argv",
+      "contract": "attach_argv(session => session_id); fresh literal tmux argv for caller-owned interactive terminal; no I/O",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "detach_client",
+      "contract": "detach_client(client => Client|client_name); void; acceptance, not client-exit proof",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "set_option",
+      "contract": "set_option(name => string, value => string|integer, scope => session|window|pane|server, target => id?, global => boolean?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "get_option",
+      "contract": "get_option(name => string, scope => scope, target => id?, global => boolean?, inherited => boolean?); bytes; missing option raises CommandError",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "unset_option",
+      "contract": "unset_option(name => string, scope => scope, target => id?, global => boolean?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "set_hook",
+      "contract": "set_hook(name => hook_or_hook[index], command => explicit_tmux_command_string, target => session_id?, global => boolean?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "show_hooks",
+      "contract": "show_hooks(target => session_id?, global => boolean?); raw tmux bytes preserving sparse indexes and native quoting",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "set_environment",
+      "contract": "set_environment(name => env_name, value => bytes, session => session_id?); void; global when session omitted",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "get_environment",
+      "contract": "get_environment(name => env_name, session => session_id?); bytes; unset/missing throws",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "unset_environment",
+      "contract": "unset_environment(name => env_name, session => session_id?); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "set_buffer",
+      "contract": "set_buffer(name => string, data => bytes); stdin-backed load-buffer; void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "show_buffer",
+      "contract": "show_buffer(name => string); raw bytes",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "delete_buffer",
+      "contract": "delete_buffer(name => string); void",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    },
+    {
+      "key": "batch",
+      "contract": "batch(arrayref_of_argv); arrayref CommandResults in input order; attempt all independent requests, retain per-request failures",
+      "minimum": "3.3a",
+      "required": true,
+      "verification": "UNVERIFIED"
+    }
+  ],
+  "adaptations": {
+    "entity_operations": "Captured read-only entities; all I/O uses explicit Server facade methods with ID or generation-checked handle.",
+    "querylist": "Concrete blessed-array Selection with fixed returns and declarative where/callback grep.",
+    "refresh": "New Snapshot acquisition, no mutation of captured handles.",
+    "window_context": "WindowLink is required for session-relative selection/movement/unlink.",
+    "interactive_attachment": "Caller-owned attach_argv; bounded capture transport does not own a TTY.",
+    "raw_hooks": "Sparse indexes/native quoted values retained in raw output, not flattened.",
+    "legacy_aliases": "Python deprecated aliases are excluded; named native Perl surface plus explicit cmd is authoritative.",
+    "ui_helpers": "Popup/menu/prompt/key-binding/clock/chooser wrappers are excluded; explicit cmd remains available where tmux supports the caller context.",
+    "other_operations": "Buffer save/load file, pane respawn/swap/join/break/pipe, server lock/access, wait-for, run-shell/source-file remain explicit cmd operations without wrapper parity claims.",
+    "errors": "Acquisition never converts failure to empty results.",
+    "mcp": "Explicitly excluded by user."
+  }
+}
