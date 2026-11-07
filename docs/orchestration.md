@@ -46,3 +46,15 @@ independent request, not per command inside a tmux command list.
 Interactive terminal ownership stays with the caller: `attach_argv` returns
 argv for a caller-owned terminal; `clients` captures client data and
 `detach_client` reports command acceptance. Observe client exit separately.
+
+The complete [quickstart program](../examples/quickstart.pl) creates a session,
+splits a pane, adds a window, selects a window link, and filters captured
+panes. Install core first, then run it from the source checkout:
+
+```console
+$ perl examples/quickstart.pl
+```
+
+The included standard-library fixture owns its private socket and verifies
+child exit. The standalone demo enables Linux x86_64 LP64 child reaping; the
+borrowed Server connection API does not change the application's reaper.

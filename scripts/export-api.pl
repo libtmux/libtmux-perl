@@ -427,10 +427,11 @@ for my $owner (sort keys %parents) {
 }
 my @examples;
 for my $example (
-    ['selection', 'LibTmux::Selection'],
-    ['workspace', 'LibTmux::Workspace::load'],
-    ['async',     'LibTmux::Async::Server::snapshot'],
-    ['await',     'LibTmux::Async::Server']
+    ['quickstart', 'LibTmux::Server'],
+    ['selection',  'LibTmux::Selection'],
+    ['workspace',  'LibTmux::Workspace::load'],
+    ['async',      'LibTmux::Async::Server::snapshot'],
+    ['await',      'LibTmux::Async::Server']
     )
 {
     my ($name, $owner) = @$example;
