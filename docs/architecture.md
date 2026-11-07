@@ -74,6 +74,10 @@ Native documentation treats each declared Perl package as its own namespace.
 A `::` name prefix does not create an enclosing class or package declaration.
 Methods retain their declaring package owner; `use parent` supplies the separate
 inheritance relation. Authored POD links keep their exact package/method targets.
+The exporter also records PPI function spans and code tokens for the shared
+command index. Each file binds those records to its source digest. POD/comments
+never become code evidence. Dynamic operation plans require reviewed command
+and scope claims rather than inferring dispatch from a string literal.
 
 The declarations describe the implementation contract. Runtime, artifact,
 compatibility, documentation, and independent adoption checks establish which

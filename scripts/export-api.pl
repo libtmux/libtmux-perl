@@ -2,6 +2,7 @@ use v5.44;
 use FindBin;
 use lib "$FindBin::Bin/../local/lib/perl5";
 use PPI 1.291;
+use Scalar::Util qw(refaddr);
 use Pod::Simple::SimpleTree;
 use JSON::PP       ();
 use Digest::SHA    qw(sha256_hex);
@@ -29,6 +30,7 @@ sub git (@args) {
 }
 chomp($revision          = git('rev-parse', $revision));
 chomp($exporter_revision = git('rev-parse', $exporter_revision));
+my %native_scan;
 my %internal = map { $_ => true } qw(LibTmux::Codec LibTmux::Platform::Linux);
 my (
     @symbols,          @files,       @packages,
@@ -123,6 +125,95 @@ sub block ($text) {
     $text =~ s/\A\s+|\s+\z//g;
     my ($summary, $body) = split /\n\s*\n/, $text, 2;
     return {summary => $summary // '', defined($body) ? (body => $body) : ()};
+}
+
+sub source_scan ($document, $bytes) {
+    my (@functions, @types, %function_nodes);
+    my $visit;
+    $visit = sub ($node, $owner) {
+        for my $child ($node->children) {
+            if ($child->isa('PPI::Statement::Package')) {
+                my $declared = $child->namespace;
+                push @types,
+                    {
+                    name  => $declared,
+                    start => $child->location->[0],
+                    end   => scalar(split /\n/, $bytes)
+                    };
+                my $body = $child->find_first('PPI::Structure::Block');
+                if ($body) { $visit->($body, $declared) }
+                else       { $owner = $declared }
+                next;
+            }
+            if ($child->isa('PPI::Statement::Sub') && defined($child->name)) {
+                my $block = $child->block;
+                next unless $block;
+                $function_nodes{refaddr($child)} = scalar @functions;
+                push @functions,
+                    {
+                    name     => $child->name,
+                    owner    => $owner,
+                    start    => $child->location->[0],
+                    nameLine => $child->location->[0],
+                    end      => $block->finish->location->[0],
+                    kind     => 'function'
+                    };
+            }
+            $visit->($child, $owner) if $child->isa('PPI::Node');
+        }
+    };
+    $visit->($document, '');
+    my @tokens;
+    for my $token ($document->tokens) {
+        next
+            if $token->isa('PPI::Token::Whitespace')
+            || $token->isa('PPI::Token::Comment')
+            || $token->isa('PPI::Token::Pod');
+        my $parent = $token->parent;
+        $parent = $parent->parent
+            while $parent && !exists($function_nodes{refaddr($parent)});
+        next unless $parent;
+        my @values;
+        my $kind = 'sym';
+        if ($token->isa('PPI::Token::QuoteLike::Words')) {
+            @values = $token->literal;
+            $kind   = 'str';
+        }
+        elsif ($token->isa('PPI::Token::Quote')) {
+            next unless $token->can('string');
+            my $value = $token->string;
+            next
+                if $token->isa('PPI::Token::Quote::Double')
+                && $value =~ /[\$\@]/;
+            @values = ($value);
+            $kind   = 'str';
+        }
+        elsif ($token->isa('PPI::Token::QuoteLike')
+            || $token->isa('PPI::Token::Regexp')
+            || $token->isa('PPI::Token::HereDoc'))
+        {
+            next;
+        }
+        else {
+            @values = ($token->content);
+            $kind   = 'id' if $token->isa('PPI::Token::Word');
+        }
+        push @tokens, map {
+            +{
+                t        => $kind,
+                v        => $_,
+                line     => $token->location->[0],
+                col      => $token->location->[1],
+                function => $function_nodes{refaddr($parent)}
+            }
+        } @values;
+    }
+    return {
+        sha256    => sha256_hex($bytes),
+        functions => \@functions,
+        types     => \@types,
+        tokens    => \@tokens
+    };
 }
 
 sub walk ($node, $owner, $file, $package, $product) {
@@ -279,6 +370,7 @@ for my $distribution (qw(core async workspace)) {
         my $package_node = $doc->find_first('PPI::Statement::Package');
         next unless $package_node;
         my $module = $package_node->namespace;
+        $native_scan{$file} = source_scan($doc, $bytes);
         next if $internal{$module};
         docs($file, $module);
         walk($doc, $module, $file, $package, $product);
@@ -375,6 +467,11 @@ my $artifact = {
             perl         => "$^V",
             working_tree => $allow_dirty ? true : false
         }
+    },
+    nativeScan => {
+        schema   => 'libtmux.perl-source/v1',
+        revision => $revision,
+        files    => \%native_scan
     },
     examples => \@examples,
     sources  => [
