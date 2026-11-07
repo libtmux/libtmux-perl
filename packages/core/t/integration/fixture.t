@@ -46,11 +46,31 @@ LibTmuxFixture->run(
         }
         catch ($error) { $signal = $error }
         T2->ok(
-            defined($signal) && "$signal" =~ /interrupted by TERM/,
+            scalar(defined($signal) && "$signal" =~ /interrupted by TERM/),
 'catchable cancellation runs teardown before returning the signal failure'
         );
         T2->is($borrowed->snapshot->sessions->count,
             1, 'signal teardown preserves borrowed fixture resources');
     }
+);
+my $diagnostic = LibTmux::Transport->run(
+    argv => [
+        $^X, (map { ('-I', $_) } grep { !ref($_) } @INC), '-e', q{
+            use v5.44; use LibTmuxFixture;
+            LibTmuxFixture->run(sub ($server, $root) {
+                die LibTmux::X::Creation->new(
+                    message => 'accepted creation',
+                    cause => LibTmux::X::AcquisitionRace->new(
+                        message => 'observed topology changed')
+                );
+            });
+        }
+    ]
+);
+T2->ok(!$diagnostic->success, 'fixture preserves a failing process exit');
+T2->like(
+    $diagnostic->stderr,
+qr/AcquisitionRace: observed topology changed.*Creation: accepted creation/s,
+    'failed fixture reports acquisition cause and primary failure'
 );
 T2->done_testing;

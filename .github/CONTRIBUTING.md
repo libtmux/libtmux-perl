@@ -291,3 +291,9 @@ Record exact tree/command evidence without changing the check command:
 ```console
 $ mise exec -- python3 scripts/evidence.py mid -- make check
 ```
+
+A method call does not apply a function prototype to its arguments. Keep
+`T2->ok` predicates in scalar context: use `T2->like($text, qr/pattern/,
+$description)` for regex checks, or wrap a combined predicate in `scalar(...)`.
+A failing list-context match can otherwise remove the predicate argument and
+turn the description into a false passing assertion.

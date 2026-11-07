@@ -68,7 +68,8 @@ LibTmux::X - Typed failures with readable diagnostics
 
 =head1 DESCRIPTION
 
-Errors stringify with class, path, and concrete cause. C<details> returns
+Errors stringify with class, path, and message. L</Creation> retains its
+original acquisition exception separately through C<cause>. C<details> returns
 diagnostic fields. Acquisition failures never represent an empty selection.
 
 =head1 METHODS

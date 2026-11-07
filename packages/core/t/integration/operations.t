@@ -52,8 +52,8 @@ LibTmuxFixture->run(
         T2->is($server->snapshot->pane_by_id($split->id)->width,
             70, 'explicit pane resize is observed');
         $server->select_layout(window => $window, layout => 'even-horizontal');
-        T2->ok($server->snapshot->window_by_id($window->id)->layout =~ /,/,
-            'layout result is a native captured layout');
+        T2->like($server->snapshot->window_by_id($window->id)->layout,
+            qr/,/, 'layout result is a native captured layout');
         $server->set_option(
             name   => '@inherited',
             value  => 'global',

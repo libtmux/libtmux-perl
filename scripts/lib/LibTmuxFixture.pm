@@ -105,6 +105,10 @@ sub run ($class, $code, %args) {
     }
     remove_tree($root);
     if (defined $failure) {
+        if (ref($failure) && $failure isa LibTmux::X::Creation) {
+            my $cause = $failure->cause;
+            warn "fixture acquisition cause: $cause\n" if defined $cause;
+        }
         warn "fixture cleanup also failed: $cleanup_error"
             if defined $cleanup_error;
         die $failure;

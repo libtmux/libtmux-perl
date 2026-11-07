@@ -62,7 +62,7 @@ LibTmuxFixture->run(
         $server->detach_client(client => $client);
         my $exit = $job->wait;
         T2->ok(
-            $exit->success && $exit->stdout =~ /client_exit=0/,
+            scalar($exit->success && $exit->stdout =~ /client_exit=0/),
             'detach acceptance is followed by observed owned client exit'
         );
         T2->is($server->clients->count, 0, 'detached client no longer appears');

@@ -137,10 +137,8 @@ T2->is(
 );
 my $explain =
     $server->explain_panes(where => {title => {-contains => 'literal.v2'}});
-T2->ok(
-    $explain->summary =~ /residual|local/,
-    'unsupported exact lowering is explained'
-);
+T2->like($explain->summary, qr/residual|local/,
+    'unsupported exact lowering is explained');
 
 my $link = $server->snapshot->window_links->one(
     {session => {-is => {id => $session->id}}, index => 3});

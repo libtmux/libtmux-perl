@@ -82,9 +82,11 @@ LibTmuxFixture->run(
             $failure = $error
         }
         T2->ok(
-            blessed($failure)
-                && $failure->isa('LibTmux::Workspace::X::Load')
-                && $failure->report->{failed_step} =~ /layout/,
+            scalar(
+                       blessed($failure)
+                    && $failure->isa('LibTmux::Workspace::X::Load')
+                    && $failure->report->{failed_step} =~ /layout/
+            ),
             'failed step retains a partial report'
         );
         T2->is([map { $_->name } $server->snapshot->sessions->@*],
@@ -101,15 +103,17 @@ LibTmuxFixture->run(
         push @cli, $ENV{LIBTMUX_TEST_CLI}
             // 'packages/workspace/bin/libtmux-workspace';
         my $help = LibTmux::Transport->run(argv => [@cli, '--help']);
-        T2->ok($help->success && $help->stdout =~ /Usage:/,
+        T2->ok(scalar($help->success && $help->stdout =~ /Usage:/),
             'packaged CLI help works');
         my $plan = LibTmux::Transport->run(
             argv => [
                 @cli, 'load', $file, '--dry-run', '--tmux', '/missing-libtmux'
             ]
         );
-        T2->ok($plan->success && $plan->stdout =~ /"mutates"\s*:\s*false/,
-            'CLI dry-run performs no process acquisition');
+        T2->ok(
+            scalar($plan->success && $plan->stdout =~ /"mutates"\s*:\s*false/),
+            'CLI dry-run performs no process acquisition'
+        );
         open $out, '>:raw', $file or die $!;
         print {$out} JSON::PP->new->utf8->encode(
             {
