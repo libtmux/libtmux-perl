@@ -70,6 +70,11 @@ into argument checks and cannot preserve authored defaults. Pod::Simple remains
 the native POD parser; runtime consumers need neither tool. No core object
 framework or experimental syntax is selected.
 
+Native documentation treats each declared Perl package as its own namespace.
+A `::` name prefix does not create an enclosing class or package declaration.
+Methods retain their declaring package owner; `use parent` supplies the separate
+inheritance relation. Authored POD links keep their exact package/method targets.
+
 The declarations describe the implementation contract. Runtime, artifact,
 compatibility, documentation, and independent adoption checks establish which
 parts are qualified; architecture review alone does not establish support.

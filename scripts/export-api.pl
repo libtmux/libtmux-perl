@@ -306,8 +306,9 @@ for my $name (sort keys %modules) {
         exists($module_summaries{$name})
         ? {summary => $module_summaries{$name}, body => $documentation // ''}
         : block($documentation // $name);
-    (my $parent = $name) =~ s/::[^:]+\z//;
-    $symbol->{parent} = $parent if $parent ne $name && $modules{$parent};
+
+    # Package prefixes are namespaces, not enclosing Perl declarations.
+    # Inheritance remains explicit in extends; methods keep their package owner.
     push @public, $symbol;
 }
 
