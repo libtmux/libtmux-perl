@@ -7,14 +7,18 @@ requested.
 
 ## Product and dependency policy
 
-- The products are a Perl core library and a separate workspace distribution.
-  MCP is excluded. Preserve this scope in architecture plans and goal epics.
+- The products are the core distribution in `packages/core` and the workspace
+  distribution in `packages/workspace`. MCP is excluded. Preserve this scope
+  in architecture plans and goal epics.
 - Prefer the Perl standard library and stable Perl 5.44 features at runtime.
   Add a non-core dependency only for a verified need and document the reason.
   Keep configure and author tools separate from runtime dependencies.
 - The workspace distribution uses public APIs from the core distribution and
   may consume other libtmux core distributions. Keep tmux protocol, targeting,
   transport, and resource ownership in the cores.
+- Each distribution owns its MakeMaker declaration, dependencies, README, and
+  license. Keep author tooling at the repository root. Configure a package
+  from its own directory and run shared checks with `mise exec -- make check`.
 
 ## Publishing
 

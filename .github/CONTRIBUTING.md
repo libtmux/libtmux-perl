@@ -1,8 +1,8 @@
 # Contributing
 
-This is the package scaffold for a Perl port of libtmux. Package metadata,
-formatting, and bootstrap CI are configured. Library implementation and
-runtime tests await separate work.
+This is the package scaffold for a Perl port of libtmux. Core and workspace
+distribution metadata, formatting, and bootstrap CI are configured. Library
+implementation and runtime tests await separate work. MCP is excluded.
 
 [AGENTS.md](../AGENTS.md) governs scope and change discipline.
 [WRITING.md](WRITING.md) governs prose and commit messages.
@@ -26,9 +26,11 @@ Check the selected interpreter:
 $ mise exec -- perl -v
 ```
 
-`cpanfile` owns dependency declarations. `Makefile.PL` consumes them through
-ExtUtils::MakeMaker::CPANfile and generates ignored Makefile and metadata
-outputs. Edit the declarations instead of the generated files.
+The root `cpanfile` owns the shared author environment. Each distribution in
+`packages/core` and `packages/workspace` owns a separate `cpanfile` and
+`Makefile.PL`. MakeMaker consumes each package's dependencies and generates
+ignored Makefile and metadata outputs. Edit the declarations instead of the
+generated files. The handwritten root `Makefile` runs shared checks.
 
 Download the pinned, standalone cpm installer into the local cache:
 
@@ -54,8 +56,8 @@ $ printf '%s  %s\n' \
     .cache/cpm | sha256sum --check
 ```
 
-Install the configure and author dependencies into ignored `local/`, outside
-the test loops:
+Install the shared configure and author dependencies into ignored `local/`,
+outside the test loops:
 
 ```console
 $ mise exec -- perl .cache/cpm install \
@@ -70,39 +72,36 @@ and confirm that `CLAUDE.md` remains a relative symlink to `AGENTS.md`. Check
 that ignore rules exclude local artifacts and keep shared configuration and
 source files visible to Git.
 
-Check the build declaration's Perl syntax:
+Check both package declarations, generate and validate their native CPAN
+metadata, compare their license copies, and check formatting:
 
 ```console
-$ mise exec -- perl -Ilocal/lib/perl5 -c Makefile.PL
+$ mise exec -- make check
 ```
 
-Generate native package metadata:
+Run only the metadata checks:
 
 ```console
-$ mise exec -- perl -Ilocal/lib/perl5 Makefile.PL
+$ mise exec -- make check-metadata
 ```
 
-Validate the generated metadata against CPAN's schema:
+Run only the formatting checks:
 
 ```console
-$ mise exec -- perl -MCPAN::Meta \
-    -e 'CPAN::Meta->load_file("MYMETA.json", {lazy_validation => 0})'
+$ mise exec -- make check-format
 ```
 
-Check formatting without changing the inputs:
+Apply the shared formatter profile:
 
 ```console
-$ mise exec -- perl -Ilocal/lib/perl5 local/bin/perltidy \
-    --assert-tidy \
-    --output-path=.cache \
-    --standard-error-output \
-    Makefile.PL cpanfile
+$ mise exec -- make format
 ```
 
-The [Scaffold workflow](workflows/scaffold.yml) runs these checks on Linux
-with the same interpreter and dependency declarations. It checks package
-configuration; runtime tests, installed consumers, and releases need their
-own checks when implementation begins.
+The [Scaffold workflow](workflows/scaffold.yml) runs the same root check on
+Linux. It checks package configuration; runtime tests, installed consumers,
+and releases need their own checks when implementation begins. Workspace's
+declared `LibTmux` dependency has no implemented API yet. Configuration alone
+does not establish that the workspace can load or execute the core.
 
 Check whitespace in unstaged changes:
 

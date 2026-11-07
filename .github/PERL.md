@@ -1,8 +1,8 @@
 # Perl packaging and CI
 
-Use MakeMaker, a single `cpanfile`, cpm, and Perl::Tidy for this scaffold.
-The package targets Perl 5.44. The choices below come from inspected upstream
-source and release metadata, checked on 2026-11-07.
+Use MakeMaker, a `cpanfile` per distribution, cpm, and Perl::Tidy for this
+scaffold. Both distributions target Perl 5.44. The choices below come from
+inspected upstream source and release metadata, checked on 2026-11-07.
 
 ## Product scope
 
@@ -17,7 +17,31 @@ tools; they do not belong to the library's runtime dependency set.
 
 Workspace functionality uses public core APIs and may consume other libtmux
 core distributions. The cores own tmux protocol, targeting, transport, and
-resource lifetimes. The workspace layer owns its configuration and orchestration.
+resource lifetimes. The workspace layer owns its configuration and
+orchestration.
+
+## Distribution boundaries
+
+| Directory | CPAN distribution | Runtime requirements |
+| --- | --- | --- |
+| `packages/core` | `LibTmux` | Perl 5.44; prefer its standard library. |
+| `packages/workspace` | `LibTmux-Workspace` | Perl 5.44 and the versioned `LibTmux` core. |
+
+Each directory is a native CPAN distribution root with its own `Makefile.PL`,
+`cpanfile`, README, and license. Package configuration reads only its own
+declarations. Generated metadata stays in that directory. The root `cpanfile`,
+formatter profile, and `Makefile` own the shared development environment.
+
+The [OpenTelemetry SDK declarations][otel-sdk] show a maintained 2026 example
+of a consumer distribution requiring a versioned core API. Its distributions
+live in separate repositories. This project's choice is to keep the native
+distribution boundaries as peer directories in one repository.
+
+The workspace declares its core dependency through ordinary CPAN metadata.
+It does not own tmux protocol or transport. Additional libtmux core
+distributions can be selected when implementation needs their public APIs.
+The current checks validate metadata and formatting; executing a workspace
+against an installed core remains an implementation gate.
 
 ## Selected tools
 
@@ -25,7 +49,7 @@ resource lifetimes. The workspace layer owns its configuration and orchestration
 | --- | --- | --- |
 | Development interpreter | Perl 5.44.0 | Current stable Perl; pinned with mise. |
 | Distribution configuration | ExtUtils::MakeMaker 7.78 or newer | Native CPAN metadata and configure support. |
-| Dependency declarations | `cpanfile` | Configure and author requirements have one source. |
+| Dependency declarations | One `cpanfile` per distribution | Each artifact owns its requirements. |
 | MakeMaker adapter | ExtUtils::MakeMaker::CPANfile 0.11 or newer | Reads the declarations during configuration. |
 | Dependency installation | cpm 1.1.6 | Local dependencies, explicit phases, and reusable builds. |
 | Formatting | Perl::Tidy 20260826 | A fixed formatter version keeps results consistent. |
@@ -121,3 +145,4 @@ release or implemented client API is claimed.
 [checkout]: https://github.com/actions/checkout/releases/tag/v7.0.1
 [setup]: https://github.com/shogo82148/actions-setup-perl/blob/eebc5c886de14ebbfcd2493d49a12007d2c30477/action.yml
 [perlclass]: https://perldoc.perl.org/5.44.0/perlclass
+[otel-sdk]: https://github.com/jjatria/perl-opentelemetry-sdk/blob/237daafb60d25e76aa5a2dc588837550fee512d3/cpanfile
