@@ -621,5 +621,556 @@
     }
   },
   "availability": "Absent keys are unloaded; nullable keys with null are known null. Live capture requires all baseline fields and adjacency, with unavailable version fields omitted.",
-  "bytes_wire": "UTF-8 representable byte operands encode as JSON text; invalid UTF-8 raises UnsupportedValue. Unicode local operands encode to UTF-8 octets; unflagged local scalars are octets."
+  "bytes_wire": "UTF-8 representable byte operands encode as JSON text; invalid UTF-8 raises UnsupportedValue. Unicode local operands encode to UTF-8 octets; unflagged local scalars are octets.",
+  "operations": {
+    "execute": {
+      "parameters": {
+        "argv": {
+          "type": "argv",
+          "required": true
+        },
+        "stdin": {
+          "type": "bytes",
+          "required": false
+        },
+        "timeout": {
+          "type": "seconds",
+          "required": false
+        },
+        "max_output": {
+          "type": "positive",
+          "required": false
+        },
+        "cancel_fh": {
+          "type": "handle",
+          "required": false
+        }
+      }
+    },
+    "cmd": {
+      "parameters": {
+        "argv": {
+          "type": "argv",
+          "required": true
+        }
+      }
+    },
+    "snapshot": {
+      "parameters": {}
+    },
+    "clients": {
+      "parameters": {}
+    },
+    "kill_server": {
+      "parameters": {}
+    },
+    "listings": {
+      "parameters": {
+        "kind": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "new_session": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "command": {
+          "type": "argv",
+          "required": false
+        },
+        "shell_command": {
+          "type": "text",
+          "required": false
+        },
+        "width": {
+          "type": "positive",
+          "required": false
+        },
+        "height": {
+          "type": "positive",
+          "required": false
+        },
+        "cwd": {
+          "type": "text",
+          "required": false
+        },
+        "environment": {
+          "type": "environment",
+          "required": false
+        }
+      }
+    },
+    "new_window": {
+      "parameters": {
+        "session": {
+          "type": "target",
+          "required": true
+        },
+        "name": {
+          "type": "text",
+          "required": false
+        },
+        "command": {
+          "type": "argv",
+          "required": false
+        },
+        "shell_command": {
+          "type": "text",
+          "required": false
+        },
+        "cwd": {
+          "type": "text",
+          "required": false
+        },
+        "environment": {
+          "type": "environment",
+          "required": false
+        }
+      }
+    },
+    "split_pane": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "horizontal": {
+          "type": "boolean",
+          "required": false
+        },
+        "command": {
+          "type": "argv",
+          "required": false
+        },
+        "shell_command": {
+          "type": "text",
+          "required": false
+        },
+        "cwd": {
+          "type": "text",
+          "required": false
+        },
+        "environment": {
+          "type": "environment",
+          "required": false
+        }
+      }
+    },
+    "link_window": {
+      "parameters": {
+        "window": {
+          "type": "target",
+          "required": true
+        },
+        "session": {
+          "type": "target",
+          "required": true
+        },
+        "index": {
+          "type": "nonnegative",
+          "required": false
+        }
+      }
+    },
+    "move_window": {
+      "parameters": {
+        "link": {
+          "type": "target",
+          "required": true
+        },
+        "session": {
+          "type": "target",
+          "required": true
+        },
+        "index": {
+          "type": "nonnegative",
+          "required": false
+        }
+      }
+    },
+    "rename_session": {
+      "parameters": {
+        "session": {
+          "type": "target",
+          "required": true
+        },
+        "name": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "rename_window": {
+      "parameters": {
+        "window": {
+          "type": "target",
+          "required": true
+        },
+        "name": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "unlink_window": {
+      "parameters": {
+        "link": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "select_window": {
+      "parameters": {
+        "link": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "select_pane": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "select_layout": {
+      "parameters": {
+        "window": {
+          "type": "target",
+          "required": true
+        },
+        "layout": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "resize_pane": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "width": {
+          "type": "positive",
+          "required": false
+        },
+        "height": {
+          "type": "positive",
+          "required": false
+        }
+      }
+    },
+    "set_title": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "title": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "send_keys": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "keys": {
+          "type": "keys",
+          "required": true
+        }
+      }
+    },
+    "send_text": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "text": {
+          "type": "text",
+          "required": true
+        },
+        "enter": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "capture_pane": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        },
+        "start": {
+          "type": "integer",
+          "required": false
+        },
+        "end": {
+          "type": "integer",
+          "required": false
+        }
+      }
+    },
+    "kill_pane": {
+      "parameters": {
+        "pane": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "kill_window": {
+      "parameters": {
+        "window": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "kill_session": {
+      "parameters": {
+        "session": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "detach_client": {
+      "parameters": {
+        "client": {
+          "type": "target",
+          "required": true
+        }
+      }
+    },
+    "set_option": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "value": {
+          "type": "text",
+          "required": true
+        },
+        "scope": {
+          "type": "text",
+          "required": false
+        },
+        "target": {
+          "type": "text",
+          "required": false
+        },
+        "global": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "get_option": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "scope": {
+          "type": "text",
+          "required": false
+        },
+        "target": {
+          "type": "text",
+          "required": false
+        },
+        "global": {
+          "type": "boolean",
+          "required": false
+        },
+        "inherited": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "unset_option": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "scope": {
+          "type": "text",
+          "required": false
+        },
+        "target": {
+          "type": "text",
+          "required": false
+        },
+        "global": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "set_hook": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "command": {
+          "type": "text",
+          "required": true
+        },
+        "target": {
+          "type": "text",
+          "required": false
+        },
+        "global": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "show_hooks": {
+      "parameters": {
+        "target": {
+          "type": "text",
+          "required": false
+        },
+        "global": {
+          "type": "boolean",
+          "required": false
+        }
+      }
+    },
+    "set_environment": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "value": {
+          "type": "text",
+          "required": true
+        },
+        "session": {
+          "type": "text",
+          "required": false
+        }
+      }
+    },
+    "get_environment": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "session": {
+          "type": "text",
+          "required": false
+        }
+      }
+    },
+    "unset_environment": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "session": {
+          "type": "text",
+          "required": false
+        }
+      }
+    },
+    "set_buffer": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        },
+        "data": {
+          "type": "bytes",
+          "required": true
+        }
+      }
+    },
+    "show_buffer": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "delete_buffer": {
+      "parameters": {
+        "name": {
+          "type": "text",
+          "required": true
+        }
+      }
+    },
+    "batch": {
+      "parameters": {
+        "requests": {
+          "type": "requests",
+          "required": true
+        }
+      }
+    },
+    "query_panes": {
+      "parameters": {
+        "where": {
+          "type": "criteria",
+          "required": false
+        },
+        "pushdown": {
+          "type": "text",
+          "required": false
+        },
+        "native_filter": {
+          "type": "text",
+          "required": false
+        }
+      }
+    },
+    "explain_panes": {
+      "parameters": {
+        "where": {
+          "type": "criteria",
+          "required": false
+        },
+        "pushdown": {
+          "type": "text",
+          "required": false
+        },
+        "native_filter": {
+          "type": "text",
+          "required": false
+        }
+      }
+    },
+    "attach_argv": {
+      "parameters": {
+        "session": {
+          "type": "text",
+          "required": true
+        }
+      }
+    }
+  }
 }
