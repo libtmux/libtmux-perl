@@ -71,7 +71,10 @@ jobs:
           install-modules-with: cpm
           install-modules-args: --top-level-phase configure,runtime,test,develop
       - name: Provision pinned tmux outside the test loop
-        run: python3 scripts/compatibility.py --provision --version '${{ matrix.tmux }}'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends build-essential bison libevent-dev libncurses-dev pkg-config
+          python3 scripts/compatibility.py --provision --version '${{ matrix.tmux }}'
       - name: Qualify owned real tmux, workspace and example workflows
         run: python3 scripts/compatibility.py --check --version '${{ matrix.tmux }}'
       - name: Retain per-cell qualification evidence
@@ -79,7 +82,10 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: linux-tmux-${{ matrix.tmux }}
-          path: .cache/compatibility/
+          path: |
+            .cache/compatibility/
+            .cache/tmux-builds/*/provision.log
+            .cache/tmux-builds/*/libtmux-build.json
           retention-days: 7
       - name: Verify no source changes
         if: always()
@@ -101,6 +107,8 @@ jobs:
           install-modules-args: --top-level-phase configure,runtime,test,develop
       - name: Provision a verified installer and external consumer runtime
         run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends build-essential bison libevent-dev libncurses-dev pkg-config
           mkdir -p .cache
           curl --fail --silent --show-error --location --output .cache/cpm https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
           printf '%s  %s\n' 2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 .cache/cpm | sha256sum --check

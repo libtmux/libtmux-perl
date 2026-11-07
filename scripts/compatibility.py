@@ -46,8 +46,12 @@ def provision(row):
         tar.extractall(CACHE, filter='data')
     start = time.monotonic()
     with (source / 'provision.log').open('w') as log:
-        subprocess.run(['./configure', *row['configure']], cwd=source, stdout=log, stderr=subprocess.STDOUT, check=True)
-        subprocess.run(['make', '-j2'], cwd=source, stdout=log, stderr=subprocess.STDOUT, check=True)
+        try:
+            subprocess.run(['./configure', *row['configure']], cwd=source, stdout=log, stderr=subprocess.STDOUT, check=True)
+            subprocess.run(['make', '-j2'], cwd=source, stdout=log, stderr=subprocess.STDOUT, check=True)
+        except subprocess.CalledProcessError:
+            print((source / 'provision.log').read_text(errors='replace')[-6000:], flush=True)
+            raise
     identity = subprocess.check_output([str(source / 'tmux'), '-V'], text=True).strip()
     if identity != f'tmux {version}':
         raise RuntimeError(f'{version}: wrong binary identity {identity}')
