@@ -1,0 +1,49 @@
+# Generated output
+/build/
+/dist/
+/coverage/
+/tmp/
+/docs/_build/
+*.log
+
+# Perl build and packaging output
+/blib/
+/_build/
+/cover_db/
+/Makefile
+/Makefile.old
+/MYMETA.json
+/MYMETA.yml
+/pm_to_blib
+*.bs
+*.o
+*.so
+/*.tar.gz
+
+# Editors and operating systems
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Local environment and tool state
+/.cache/
+/.direnv/
+/.envrc.local
+.env
+.env.*
+!.env.example
+/mise.local.toml
+/.mise.local.toml
+
+# Worktrees and scratch files
+/.worktrees/
+/worktrees/
+/scratch/
+
+# Local agent configuration
+CLAUDE.local.md
+.claude/settings.local.json
