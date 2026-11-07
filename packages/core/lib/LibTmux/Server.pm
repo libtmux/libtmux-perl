@@ -1493,8 +1493,8 @@ L</detach_client> changes client state explicitly.
 C<attach_argv(session =E<gt> session_id)>.
 
 Return a fresh literal argument array for a caller-owned interactive terminal
-without I/O. The session target is a stable ID or captured
-L<LibTmux::Session>. The caller owns terminal/process setup and exit
+without I/O. The session target is a stable ID string; obtain it through
+L<LibTmux::Session/id>. The caller owns terminal/process setup and exit
 observation; the bounded capture transport does not allocate a TTY. Invalid
 inputs throw L<LibTmux::X/InvalidArgument>.
 
