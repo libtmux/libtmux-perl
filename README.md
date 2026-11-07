@@ -13,8 +13,13 @@
 
 </div>
 
-A Perl port of libtmux, currently at the repository scaffold stage.
-The client API, package metadata, tests, and CI are not implemented yet.
+A Perl port of libtmux, currently at the package scaffold stage.
+Package metadata, formatting, and bootstrap CI are configured for Perl 5.44.
+The client API and runtime tests are not implemented yet.
 
 See [contributing](.github/CONTRIBUTING.md) for the development environment
-and [branding assets](docs/branding.md) for logos, icons, and social cards.
+and [Perl tooling choices](.github/PERL.md) for the source-backed packaging
+decisions. [Branding assets](docs/branding.md) covers logos and social cards.
+
+The unpublished distribution metadata uses `LibTmux` and development version
+`0.001_001`. Installation and usage instructions will accompany a working API.

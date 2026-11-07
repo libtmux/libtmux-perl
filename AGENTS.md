@@ -1,8 +1,9 @@
 # Agent instructions
 
-This repository is the scaffold for a Perl port of libtmux. Keep bootstrap
-work limited to repository setup and contributor instructions. Start
-architecture or implementation only when requested.
+This repository contains the package scaffold for a Perl port of libtmux.
+Keep bootstrap work limited to package metadata, tool configuration, CI, and
+contributor instructions. Start architecture or implementation only when
+requested.
 
 ## Change discipline
 
@@ -30,6 +31,8 @@ architecture or implementation only when requested.
   [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
 - Documentation, comments, and commit messages:
   [.github/WRITING.md](.github/WRITING.md).
+- Perl package and CI choices, with pinned upstream examples:
+  [.github/PERL.md](.github/PERL.md).
 
 Each guide owns its subject. `CLAUDE.md` is a relative symlink to this file;
 keep shared instructions here.

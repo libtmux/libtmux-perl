@@ -1,16 +1,18 @@
 # Contributing
 
-This is the repository scaffold for a Perl port of libtmux. Library
-implementation, package metadata, tests, and CI await separate work.
+This is the package scaffold for a Perl port of libtmux. Package metadata,
+formatting, and bootstrap CI are configured. Library implementation and
+runtime tests await separate work.
 
 [AGENTS.md](../AGENTS.md) governs scope and change discipline.
 [WRITING.md](WRITING.md) governs prose and commit messages.
 
 ## Environment
 
-[.tool-versions](../.tool-versions) pins the development interpreter. The pin
-does not establish a supported Perl version range. Check the
-[upstream release page](https://www.perl.org/get.html) when updating it.
+[.tool-versions](../.tool-versions) pins Perl 5.44.0. The package declares Perl
+5.44 as its initial minimum; runtime compatibility still requires library
+tests. Check the [upstream release page](https://www.perl.org/get.html) when
+updating it. [PERL.md](PERL.md) records the packaging and CI choices.
 
 Install the pinned interpreter with mise, outside the test loops:
 
@@ -24,7 +26,42 @@ Check the selected interpreter:
 $ mise exec -- perl -v
 ```
 
-Document dependency, build, and package commands here when that tooling exists.
+`cpanfile` owns dependency declarations. `Makefile.PL` consumes them through
+ExtUtils::MakeMaker::CPANfile and generates ignored Makefile and metadata
+outputs. Edit the declarations instead of the generated files.
+
+Download the pinned, standalone cpm installer into the local cache:
+
+```console
+$ mkdir -p .cache
+```
+
+```console
+$ curl \
+    --fail \
+    --silent \
+    --show-error \
+    --location \
+    --output .cache/cpm \
+    https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
+```
+
+Verify the release asset's digest:
+
+```console
+$ printf '%s  %s\n' \
+    2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 \
+    .cache/cpm | sha256sum --check
+```
+
+Install the configure and author dependencies into ignored `local/`, outside
+the test loops:
+
+```console
+$ mise exec -- perl .cache/cpm install \
+    --top-level-phase configure,runtime,test,develop \
+    --show-build-log-on-failure
+```
 
 ## Validation
 
@@ -32,6 +69,40 @@ For scaffold changes, review the complete diff, check relative Markdown links,
 and confirm that `CLAUDE.md` remains a relative symlink to `AGENTS.md`. Check
 that ignore rules exclude local artifacts and keep shared configuration and
 source files visible to Git.
+
+Check the build declaration's Perl syntax:
+
+```console
+$ mise exec -- perl -Ilocal/lib/perl5 -c Makefile.PL
+```
+
+Generate native package metadata:
+
+```console
+$ mise exec -- perl -Ilocal/lib/perl5 Makefile.PL
+```
+
+Validate the generated metadata against CPAN's schema:
+
+```console
+$ mise exec -- perl -MCPAN::Meta \
+    -e 'CPAN::Meta->load_file("MYMETA.json", {lazy_validation => 0})'
+```
+
+Check formatting without changing the inputs:
+
+```console
+$ mise exec -- perl -Ilocal/lib/perl5 local/bin/perltidy \
+    --assert-tidy \
+    --output-path=.cache \
+    --standard-error-output \
+    Makefile.PL cpanfile
+```
+
+The [Scaffold workflow](workflows/scaffold.yml) runs these checks on Linux
+with the same interpreter and dependency declarations. It checks package
+configuration; runtime tests, installed consumers, and releases need their
+own checks when implementation begins.
 
 Check whitespace in unstaged changes:
 
