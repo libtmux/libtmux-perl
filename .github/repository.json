@@ -15,7 +15,7 @@
     ]
   },
   "default_branch": "master",
-  "description": "Perl library for tmux (scaffold)",
+  "description": "Perl tmux client library with snapshots, filtering, optional async execution, and JSON workspaces. Prerelease.",
   "topics": [
     "library",
     "libtmux",
