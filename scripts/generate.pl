@@ -46,8 +46,9 @@ for my $kind (sort keys $catalog->{entities}->%*) {
             ) . " Local captured data; no I/O.\n";
         push @table,
               "| $kind | $field | $f->{wire} | $f->{type} | "
-            . ($f->{nullable} ? 'yes'                        : 'no') . ' | '
-            . ($f->{source} ? "$f->{source} / $f->{minimum}" : 'captured graph')
+            . ($f->{nullable} ? 'yes' : 'no') . ' | '
+            . (
+            $f->{source} ? "`$f->{source}` / $f->{minimum}" : 'captured graph')
             . ' |';
     }
     (my $rel = $class) =~ s!::!/!g;
