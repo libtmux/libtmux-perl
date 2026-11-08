@@ -788,16 +788,26 @@ sub _prepare ($self, $name, %args) {
     }
     if ($name eq 'query_panes') {
         require LibTmux::QueryPlan;
-        my $plan = LibTmux::QueryPlan->new(%args);
+        my $observer = delete $args{on_verification};
+        my $plan     = LibTmux::QueryPlan->new(%args);
+        my $finish   = sub ($selection, $report) {
+            $observer->($report) if defined $observer;
+            return $selection;
+        };
         return $self->_capture_op->then(
             sub ($snapshot) {
                 my $local = $snapshot->panes->where($plan->filter);
-                return $local if $plan->policy eq 'never';
+                return $finish->(
+                    $local, $plan->_verification_report($snapshot, $local, {})
+                ) if $plan->policy eq 'never';
                 my $lowered = $plan->lowering($snapshot->metadata->{version});
                 LibTmux::X::Unsupported->throw(message =>
                         'query has no complete exact native implementation')
                     if $plan->policy eq 'require' && !$lowered->{exact};
-                return $local unless defined $lowered->{filter};
+                return $finish->(
+                    $local,
+                    $plan->_verification_report($snapshot, $local, $lowered)
+                ) unless defined $lowered->{filter};
                 return $self->_cmd_op(
                     [
                         'list-panes', '-a',
@@ -806,31 +816,33 @@ sub _prepare ($self, $name, %args) {
                     ]
                 )->then(
                     sub ($r) {
-                        my %native;
+                        my (%native, @native);
                         for my $id (grep { length } split /\n/, $r->stdout) {
                             LibTmux::X::Codec->throw(
                                 message => 'invalid native candidate ID')
                                 unless $id =~ /\A%[0-9]+\z/;
-                            $native{$id} = true;
+                            push @native, $id unless $native{$id}++;
                         }
-                        my %expected = map { $_->id => true } @$local;
-                        my %captured =
-                            map { $_->id => true } $snapshot->panes->@*;
-                        if ($plan->_is_native) {
-                            LibTmux::X::AcquisitionRace->throw(message =>
-'native candidate was not present in the captured graph'
-                            ) if grep { !$captured{$_} } keys %native;
-                            return $snapshot->panes->grep(
-                                sub ($pane) { $native{$pane->id} });
+                        my $report =
+                            $plan->_verification_report($snapshot, $local,
+                            $lowered, \@native);
+                        if (
+                            $report->{status} eq 'disagreed'
+                            && ($plan->_is_native || $plan->policy eq 'require')
+                            )
+                        {
+                            LibTmux::X::QueryMismatch->throw(
+                                message =>
+'native candidates disagree with captured data; cause undetermined',
+                                verification => $report
+                            );
                         }
-                        my $disagree = grep { !$native{$_} } keys %expected;
-                        $disagree += grep { !$captured{$_} } keys %native;
-                        $disagree += grep { !$expected{$_} } keys %native
-                            if $lowered->{exact};
-                        LibTmux::X::AcquisitionRace->throw(message =>
-'native candidates disagree with captured evaluation'
-                        ) if $disagree && $plan->policy eq 'require';
-                        return $local;
+                        my $selection =
+                            $plan->_is_native
+                            ? $snapshot->panes->grep(
+                            sub ($pane) { $native{$pane->id} })
+                            : $local;
+                        return $finish->($selection, $report);
                     }
                 );
             }
@@ -917,7 +929,8 @@ sub _validate_options ($self, $name, $args) {
                 && $value > 0
                 && $value <= 86400;
         }
-        elsif ($type eq 'handle') { $valid = defined(fileno($value)) }
+        elsif ($type eq 'callback') { $valid = ref($value) eq 'CODE' }
+        elsif ($type eq 'handle')   { $valid = defined(fileno($value)) }
         elsif ($type eq 'environment') {
             $valid = ref($value) eq 'HASH';
             if ($valid) {
@@ -1240,15 +1253,24 @@ Acquisition/codec failures propagate through L<LibTmux::X>.
 
 =head2 query_panes
 
-C<query_panes(where =E<gt> criteriaE<verbar>Filter?, pushdown =E<gt> autoE<verbar>neverE<verbar>require?, native_filter =E<gt> string?)>.
+C<query_panes(where =E<gt> criteriaE<verbar>Filter?, pushdown =E<gt> autoE<verbar>neverE<verbar>require?, native_filter =E<gt> string?, on_verification =E<gt> coderef?)>.
 
 Acquire and return a new L<LibTmux::PaneSelection> in captured physical-pane
 order. where accepts a hash reference or L<LibTmux::Filter>. auto verifies
-safe scalar pruning and keeps residual evaluation local; never disables native
-filtering; require throws L<LibTmux::X/Unsupported> unless lowering is exact.
+safe scalar candidates after complete local evaluation; never disables the
+native comparison. The default auto costs one extra command and supervisor
+when lowering is available; it does not reduce acquisition. Select never when
+only the captured answer is needed. require throws L<LibTmux::X/Unsupported>
+unless lowering is exact, or L<LibTmux::X/QueryMismatch> on disagreement.
 native_filter is an exclusive expert escape hatch. Empty successful matches
-remain a typed selection; acquisition/evaluation failures propagate. See
-L</explain_panes>.
+remain a typed selection; acquisition/evaluation failures propagate.
+
+C<on_verification> receives one detached report hashref in void context after a
+successful decision, including auto fallback. It runs inline once; its return
+is ignored and exceptions propagate unchanged unless the operation has already
+been cancelled. Cancellation suppresses subsequent result/error delivery.
+Failed queries do not invoke it. Report edits cannot change the returned selection. See
+L</VERIFICATION REPORT> and L</explain_panes>.
 
     my $panes = $server->query_panes(where => {active => true}, pushdown => 'auto');
 
@@ -1692,5 +1714,52 @@ execution. Invalid arguments or criteria throw L<LibTmux::X/InvalidArgument>
 or L<LibTmux::X/InvalidFilter> before submission.
 
     my $operation = $server->operation('snapshot');
+
+=head1 VERIFICATION REPORT
+
+L</query_panes> supplies a fresh, detached hashref to C<on_verification>.
+It contains no entity handles. Every ID array retains stable order; editing
+the report cannot mutate captured data or the query result.
+
+=over 4
+
+=item C<policy>, C<status>, C<comparison>
+
+Policy is auto, never, require, or native for the expert escape hatch. Status
+is disabled (never), local (no safe lowering), agreed, disagreed, or native.
+Comparison is none, exact_ids, candidate_superset, or captured_membership.
+Partial lowering checks inclusion of local matches; expert queries check only
+membership in the captured graph. Neither establishes full filter equivalence.
+
+=item C<native_checked>, C<translation_exact>, C<native_filter>, C<reasons>
+
+native_checked is Boolean. translation_exact is Boolean, or undef for never
+and expert queries. native_filter is the executed expression, or undef when no
+native check ran. reasons is a fresh arrayref of lowering limitations. Exact
+translation and agreement between two observations are separate facts.
+
+=item C<server_id>, C<generation>, C<daemon_version>, C<capture_start>, C<capture_end>
+
+Identity strings and the captured interval in wall-clock seconds since the
+epoch, from L<LibTmux::Snapshot/metadata>. This is not an atomic observation.
+
+=item C<captured_ids>, C<local_ids>, C<native_ids>
+
+captured_ids and local_ids follow physical capture order; local_ids is undef
+for expert queries. native_ids holds unique IDs in native first-occurrence
+order, or undef when no check ran. An empty array is an observed empty set.
+
+=item C<missing_ids>, C<unexpected_ids>, C<uncaptured_ids>
+
+missing_ids lists local matches absent natively, in local order. For exact
+lowering, unexpected_ids lists native matches absent locally. uncaptured_ids
+lists native IDs absent from the graph. The latter two follow native order;
+inapplicable lists are empty. Any applicable mismatch produces disagreed.
+L<LibTmux::X/QueryMismatch> carries this report for require or expert failures;
+the observer is not called for a failed query. A discrepancy has no inferred
+cause: concurrent changes, compiler defects and backend differences all need
+investigation.
+
+=back
 
 =cut

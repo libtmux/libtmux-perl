@@ -20,6 +20,32 @@ claim. Plans identify commands, lowered filters, residual reasons, and capabilit
 requirements. Numeric lowering uses tmux numeric expressions. Literal operands
 are escaped for the tmux grammar independently of argument-vector safety.
 
+`auto` is the default. It costs an extra command and supervisor when lowering
+is available. Select `never` when only the captured answer is needed. To inspect
+the comparison, supply `on_verification => sub ($report) { ... }`. The observer
+receives one detached hashref in void context; its return is ignored. It runs
+inline once after a successful decision, including fallback. Exceptions
+propagate unchanged unless the operation has already been cancelled;
+cancellation suppresses subsequent result/error delivery.
+Failed acquisition, decoding or native commands do not
+invoke it and remain failures.
+
+The report identifies `status`, `comparison`, capture generation/interval,
+executed filter, residual reasons, and captured/local/native ID arrays.
+`disabled` means `never`, and `local` means no safe lowering was available.
+`agreed` distinguishes exact equality from partial candidate inclusion;
+`disagreed` lists missing, unexpected and uncaptured IDs. `native` reports only
+captured membership for the expert escape hatch. See
+[`Server`'s report contract](../packages/core/lib/LibTmux/Server.pm)
+and the [tested query example](../examples/selection.pl).
+
+`require` disagreement throws `LibTmux::X::QueryMismatch`, with the report in
+`details->{verification}`. The observer does not run before that failure.
+A mismatch can reflect a race, a compiler defect or a backend difference;
+it does not establish which occurred. Matching observations also do not prove
+an atomic capture. [ADR 0003](dev/adr/0003-query-verification-diagnostics.md)
+records the diagnostic and default-policy decision.
+
 A partial AND conjunct can prune candidates. Partial OR/NOT cannot. Relations,
 null, bytes, and unsupported scalar operators remain local. Relation pushdown
 and serialized regex dialects are deferred. Complete relation domains are never

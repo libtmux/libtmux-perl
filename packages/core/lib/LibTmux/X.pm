@@ -54,6 +54,8 @@ package LibTmux::X::StaleReference { use parent -norequire, 'LibTmux::X' }
 
 package LibTmux::X::AcquisitionRace { use parent -norequire, 'LibTmux::X' }
 
+package LibTmux::X::QueryMismatch { use parent -norequire, 'LibTmux::X' }
+
 package LibTmux::X::Creation {
     use parent -norequire, 'LibTmux::X';
     sub created ($self) { $self->{created} }
@@ -166,7 +168,16 @@ A daemon or execution capability is unavailable.
 
 =head2 AcquisitionRace
 
-Observed generations, topology, or candidate results disagree.
+Observed generations or topology changed during capture.
+
+=head2 QueryMismatch
+
+Native candidates disagree with captured local matches, or an expert native
+query returned an uncaptured ID. C<details-E<gt>{verification}> contains the
+detached L<LibTmux::Server/VERIFICATION REPORT>. The cause may be concurrent
+change, a translation defect or backend semantics; the comparison does not
+identify it. L<LibTmux::Server/query_panes> throws this for require or expert
+queries, while auto reports fallback through its optional observer.
 
 =head2 StaleReference
 

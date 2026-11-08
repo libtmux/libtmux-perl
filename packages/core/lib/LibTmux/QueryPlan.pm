@@ -31,6 +31,51 @@ sub new ($class, %args) {
 sub filter ($self) { $self->{filter} }
 sub policy ($self) { $self->{policy} }
 
+sub _verification_report ($self, $snapshot, $local, $lowered, $native = undef) {
+    my $metadata = $snapshot->metadata;
+    my @captured = map { $_->id } $snapshot->panes->@*;
+    my @local    = map { $_->id } $local->@*;
+    my %captured = map { $_ => true } @captured;
+    my %local    = map { $_ => true } @local;
+    my %native   = map { $_ => true } ($native // [])->@*;
+    my $expert   = $self->_is_native;
+    my $checked  = defined $native;
+    my @missing  = $checked && !$expert ? grep { !$native{$_} } @local : ();
+    my @unexpected =
+        $checked && !$expert && $lowered->{exact}
+        ? grep { !$local{$_} } @$native
+        : ();
+    my @uncaptured = $checked ? grep { !$captured{$_} } @$native : ();
+    my $disagree   = @missing || @unexpected || @uncaptured;
+    return {
+        policy => $expert ? 'native' : $self->policy,
+        status => !$checked ? ($self->policy eq 'never' ? 'disabled' : 'local')
+        : $disagree ? 'disagreed'
+        : $expert   ? 'native'
+        : 'agreed',
+        comparison => !$checked ? 'none'
+        : $expert           ? 'captured_membership'
+        : $lowered->{exact} ? 'exact_ids'
+        : 'candidate_superset',
+        native_checked    => !!$checked,
+        translation_exact => $expert
+            || $self->policy eq 'never' ? undef : !!$lowered->{exact},
+        native_filter  => $checked ? $lowered->{filter} : undef,
+        reasons        => [($lowered->{reasons} // [])->@*],
+        server_id      => $snapshot->server_id,
+        generation     => $snapshot->generation,
+        daemon_version => $metadata->{version},
+        capture_start  => $metadata->{capture_start},
+        capture_end    => $metadata->{capture_end},
+        captured_ids   => [@captured],
+        local_ids      => $expert  ? undef      : [@local],
+        native_ids     => $checked ? [@$native] : undef,
+        missing_ids    => [@missing],
+        unexpected_ids => [@unexpected],
+        uncaptured_ids => [@uncaptured],
+    };
+}
+
 sub _is_native ($self) {
     exists $self->{native_filter} && defined $self->{native_filter};
 }
@@ -247,6 +292,8 @@ Return the compiled L<LibTmux::Filter>. Its matching remains local.
 Return auto, never, or require. L<LibTmux::Server/query_panes> executes the
 plan with complete captured local evaluation. Native candidates cannot hide
 errors or discard matches from that captured result. Only verified complete
-translation qualifies for require; runtime disagreement is a race error.
+translation qualifies for require; runtime disagreement throws
+L<LibTmux::X/QueryMismatch> without assigning a cause. The optional
+L<LibTmux::Server/query_panes> observer exposes completed comparisons.
 
 =cut

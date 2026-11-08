@@ -57,8 +57,15 @@ LibTmuxFixture->run(
             unless $same_child->count == 0 && $different_children->count == 1;
         my $where = {active => true, width => {-gte => 1}};
         my $local = $server->query_panes(where => $where, pushdown => 'never');
-        my $native =
-            $server->query_panes(where => $where, pushdown => 'require');
+        my $verification;
+        my $native = $server->query_panes(
+            where           => $where,
+            pushdown        => 'require',
+            on_verification => sub ($report) { $verification = $report },
+        );
+        die 'native verification was not observed'
+            unless $verification->{status} eq 'agreed'
+            && $verification->{comparison} eq 'exact_ids';
         die 'native/local disagreement'
             unless join(',', map { $_->id } @$local) eq
             join(',', map { $_->id } @$native);

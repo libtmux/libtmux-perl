@@ -25,12 +25,21 @@ LibTmuxFixture->run(
         {
             my $local =
                 $server->query_panes(where => $where, pushdown => 'never');
-            my $native =
-                $server->query_panes(where => $where, pushdown => 'require');
+            my $report;
+            my $native = $server->query_panes(
+                where           => $where,
+                pushdown        => 'require',
+                on_verification => sub ($observed) { $report = $observed }
+            );
             T2->is(
                 [map { $_->id } @$native],
                 [map { $_->id } @$local],
 'exact lowering preserves results with literal punctuation and Boolean composition'
+            );
+            T2->is(
+                [$report->{status}, $report->{comparison}],
+                ['agreed',          'exact_ids'],
+                'live comparison reports exact agreement'
             );
         }
         my $partial =

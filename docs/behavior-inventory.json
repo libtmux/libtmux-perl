@@ -105,7 +105,7 @@
     },
     {
       "key": "query_panes",
-      "contract": "query_panes(where => criteria|Filter?, pushdown => auto|never|require?, native_filter => string?); PaneSelection; native_filter exclusive",
+      "contract": "query_panes(where => criteria|Filter?, pushdown => auto|never|require?, native_filter => string?, on_verification => coderef?); PaneSelection; native_filter exclusive with criteria/policy; detached observer report; QueryMismatch for require/expert disagreement",
       "minimum": "3.3a",
       "required": true,
       "verification": "PASS",

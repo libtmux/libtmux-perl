@@ -30,13 +30,21 @@ LibTmuxFixture->run(
             [map { $_->id } $sync_snapshot->panes->@*],
             'sync and async graph identity agree'
         );
+        my $verification;
         my $query = $async->query_panes(
-            where    => {active => true, width => {-gt => 0}},
-            pushdown => 'require'
+            where           => {active => true, width => {-gt => 0}},
+            pushdown        => 'require',
+            on_verification => sub ($report) {
+                $verification = $report;
+                return $loop->new_future;
+            },
         );
         $loop->await($query);
         T2->is($query->get->count, 1,
             'async exact query returns one selection');
+        T2->is($verification->{status}, 'agreed',
+            'async observer reports agreement and its Future return is ignored'
+        );
         my $rename =
             $async->rename_session(session => $session, name => 'renamed');
         $loop->await($rename);
@@ -66,7 +74,18 @@ LibTmuxFixture->run(
         $loop->await($unset);
         T2->is($unset->get, undef,
             'async environment unset accepts a captured session');
-        my $closed = $async->close;
+        my ($cancel_query, $closed);
+        $cancel_query = $async->query_panes(
+            pushdown        => 'never',
+            on_verification => sub ($report) {
+                $closed = $async->close;
+                die bless {}, 'CancelledObserverFailure';
+            },
+        );
+        $loop->await($cancel_query);
+        T2->ok($cancel_query->is_cancelled,
+'observer close cancels its operation even if the observer then throws'
+        );
         $loop->await($closed);
         T2->ok($closed->is_done, 'facade close proves owned job cleanup');
         T2->is($sync->snapshot->sessions->count,

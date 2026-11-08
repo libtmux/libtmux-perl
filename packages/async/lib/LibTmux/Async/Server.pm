@@ -177,6 +177,10 @@ See L<LibTmux::Server/listings> for arguments, returned value, and completion.
 =head2 query_panes
 
 See L<LibTmux::Server/query_panes> for arguments, returned value, and completion.
+Its observer runs inline in void context; a returned L<Future> is ignored.
+Cancellation before the decision suppresses it. If the observer cancels its
+query or calls L</close>, cancellation takes precedence over subsequent return
+or exception delivery. Continue driving the loop until close cleanup completes.
 
 =head2 explain_panes
 

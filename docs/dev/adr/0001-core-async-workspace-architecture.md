@@ -11,7 +11,8 @@ work, not claims that the baseline already satisfies them.
 The review reproduced command-client locale and legacy output-escaping
 failures, an empty-record decoding defect, inherited descriptor leakage, a
 Workspace environment mutation after daemon replacement, and loss of typed
-cleanup errors. Native query verification also discards useful diagnostics.
+cleanup errors. The reviewed baseline also discarded native query diagnostics;
+[ADR 0003](0003-query-verification-diagnostics.md) resolves that contract.
 These reopen their affected runtime, installed-consumer and compatibility
 gates; unchanged graph and selection contracts remain accepted.
 
@@ -367,13 +368,14 @@ and runs; first use also discovers the executable version. This cost buys a
 backend comparison, not less acquisition. No capacity threshold follows from
 small shared-host measurements.
 
-Keep `auto`, `never` and `require` while resolving execution diagnostics.
-Agreement, fallback and discrepancy need an observable report or diagnostic
-surface without changing the selection return. A discrepancy can reflect a
-race, a translation defect or backend semantics; the baseline's
-`AcquisitionRace` label does not prove its cause. Operational failures remain
-failures. Changing the default requires a reasoned follow-up decision and
-caller evidence.
+[ADR 0003](0003-query-verification-diagnostics.md) retains `auto`, `never` and
+`require` with an optional `on_verification` observer. Its detached report
+exposes agreement, fallback and discrepancies while preserving the selection
+return. `require` and expert failures use cause-neutral `QueryMismatch`;
+operational failures retain their original errors. The default supplies a
+backend comparison to callers using the observer. Select `never` for the
+captured answer alone; a future default change needs caller evidence or a
+qualified acquisition optimization.
 
 An exact conjunct can prune candidates under AND. An OR branch alone cannot;
 negation needs an equivalent complete subtree. Numeric comparisons use tmux

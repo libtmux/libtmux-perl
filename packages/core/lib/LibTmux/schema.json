@@ -1134,6 +1134,10 @@
     },
     "query_panes": {
       "parameters": {
+        "on_verification": {
+          "type": "callback",
+          "required": false
+        },
         "where": {
           "type": "criteria",
           "required": false
