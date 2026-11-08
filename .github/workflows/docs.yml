@@ -42,7 +42,7 @@ concurrency:
 jobs:
   build:
     if: github.repository == 'libtmux/libtmux-perl'
-    uses: libtmux/docs/.github/workflows/port-docs.yml@322a7b11dd6c79c33d47626c632914e1fc4efbaa
+    uses: libtmux/docs/.github/workflows/port-docs.yml@a102b637c031b70ac7a4686030bde263c98d997c
     with:
       port: perl
       source-ref: ${{ inputs.source-ref }}
@@ -61,7 +61,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: libtmux/docs/.github/workflows/reusable-deploy.yml@322a7b11dd6c79c33d47626c632914e1fc4efbaa
+    uses: libtmux/docs/.github/workflows/reusable-deploy.yml@a102b637c031b70ac7a4686030bde263c98d997c
     with:
       path-prefix: perl/${{ matrix.version }}
       artifact: docs-perl-${{ matrix.version }}
