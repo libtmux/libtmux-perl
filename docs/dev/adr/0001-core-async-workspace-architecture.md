@@ -3,18 +3,20 @@
 ## Status
 
 Accepted architecture, amended 2026-11-08 after source review and owned
-counterexamples. This record introduces no new execution mode or dependency.
+counterexamples. Follow-up records govern reversible getters, query diagnostics
+and the async atomic-wait backend.
 The [source baseline](https://github.com/libtmux/libtmux-perl/tree/7ef1371b97fdaa48973f47fc7b0bc198ed4acc03)
-identifies the implementation reviewed. The corrections below are required
-work, not claims that the baseline already satisfies them.
+identifies the implementation reviewed.
 
 The review reproduced command-client locale and legacy output-escaping
 failures, an empty-record decoding defect, inherited descriptor leakage, a
 Workspace environment mutation after daemon replacement, and loss of typed
-cleanup errors. The reviewed baseline also discarded native query diagnostics;
-[ADR 0003](0003-query-verification-diagnostics.md) resolves that contract.
-These reopen their affected runtime, installed-consumer and compatibility
-gates; unchanged graph and selection contracts remain accepted.
+cleanup errors. These corrections and observable query diagnostics are
+implemented at [a8009a3](https://github.com/libtmux/libtmux-perl/tree/a8009a3ac43dec194224b84054f96d4d2d5d3ce9).
+Its [native qualification](https://github.com/libtmux/libtmux-perl/actions/runs/42512688081)
+passes all 17 jobs, including the required tmux matrix, dependency profiles
+and installed archives. Shared-site qualification and publication are separate
+gates; graph and selection contracts remain unchanged.
 
 ## Context
 
@@ -155,11 +157,10 @@ Cleanup has a separate allowance and continues after useful work expires.
 There is no admission-to-completion operation deadline. Async completion also
 requires the caller to keep driving the borrowed loop.
 
-Close unrelated inherited descriptors inside owned supervisor and command
-branches, preserving protocol descriptors and the parent's handles. The
-reviewed baseline closes sibling-job pipes but leaks other non-CLOEXEC
-descriptors into commands and newly started daemons; that is a required
-correction. Forking an application with native threads remains unqualified.
+Owned supervisor and command branches close unrelated inherited descriptors,
+preserving protocol descriptors and the parent's handles. This prevents
+non-CLOEXEC descriptors from reaching commands and newly started daemons.
+Forking an application with native threads remains unqualified.
 Intentionally detached tmux daemons have separate ownership from command
 process groups.
 
@@ -430,12 +431,11 @@ Existing targets use explicit `error` or `skip` behavior. `skip` preserves an
 existing session as a whole; it is not a reconciliation engine. On failure,
 rollback targets only sessions whose successful creation returned ownership
 evidence. The typed load error preserves the original cause, partial effects,
-and cleanup failures. The baseline stringifies secondary cleanup exceptions;
-required outcomes instead retain target identity, attempted action and the
-original error object, with a separate JSON-safe CLI export. Scoped
-environment operations must accept captured Session handles through the
-common target validator, and Workspace must pass those handles rather than
-bare IDs. This closes the reproduced restart gap while retaining the general
+and cleanup failures. Cleanup outcomes retain target identity, attempted
+action and the original error object, with a separate JSON-safe CLI export.
+Scoped environment operations accept captured Session handles through the
+common target validator, and Workspace passes those handles. This closes
+the reproduced restart gap while retaining the general
 probe/dispatch race qualification. Pre-existing resources are never rollback targets.
 Command acceptance and captured handles do not certify application readiness.
 
@@ -459,8 +459,9 @@ the [source lock](../../../scripts/tmux-lock.json) pins builds. Validation
 includes Test2::V1 units, isolated real-tmux fixtures, POD, runnable examples,
 native archives, and installed consumers outside the checkout. Fixtures own
 their sockets and prove process exit. The [contributor guide](../../../.github/CONTRIBUTING.md)
-owns exact commands and loop budgets. Research and source review do not qualify
-pending corrections, installed artifacts, hosted CI or production publication.
+owns exact commands and loop budgets. Qualification records identify their
+source revision and artifacts; a later implementation change reopens the
+affected checks.
 
 ## Alternatives considered
 
@@ -498,10 +499,10 @@ The critical contracts map to existing checks:
 | Contract | Evidence entry points |
 | --- | --- |
 | Stable returns, callback isolation, graph retention, criteria and wire data | [selection units](../../../packages/core/t/unit/selection.t), [availability units](../../../packages/core/t/unit/availability.t), [conformance runner](../../../scripts/conformance.py). |
-| Literal I/O, framing, signal ownership, timeout and cleanup | [transport units](../../../packages/core/t/unit/transport.t), [codec units](../../../packages/core/t/unit/codec.t), [lifecycle integration](../../../packages/core/t/integration/lifecycle.t). |
+| Literal I/O, framing, signal ownership, timeout and cleanup | [transport units](../../../packages/core/t/unit/transport.t), [live codec corpus](../../../packages/core/t/integration/codec.t), [descriptor isolation](../../../packages/core/t/integration/descriptors.t), [reversible getters](../../../packages/core/t/integration/getters.t), [lifecycle integration](../../../packages/core/t/integration/lifecycle.t). |
 | Linked graph identity and native/local equivalence | [tmux integration](../../../packages/core/t/integration/tmux.t), [query integration](../../../packages/core/t/integration/query-planning.t). |
-| Async admission, borrowed-loop lifetime and cancellation versus close | [async transport units](../../../packages/async/t/unit/transport.t), [async live integration](../../../packages/async/t/integration/tmux.t), [parent-loss integration](../../../packages/async/t/integration/parent-loss.t). |
-| Workspace dry-run, repeat behavior and owned rollback | [configuration units](../../../packages/workspace/t/unit/config.t), [load integration](../../../packages/workspace/t/integration/load.t), [creation-failure integration](../../../packages/workspace/t/integration/creation-failure.t). |
+| Async admission, borrowed-loop lifetime and cancellation versus close | [async transport units](../../../packages/async/t/unit/transport.t), [atomic-wait regression](../../../scripts/check-async-wakeup.py), [daemon signal policy](../../../packages/async/t/integration/daemon-exit.t), [parent-loss integration](../../../packages/async/t/integration/parent-loss.t). |
+| Workspace dry-run, repeat behavior and owned rollback | [configuration units](../../../packages/workspace/t/unit/config.t), [load integration](../../../packages/workspace/t/integration/load.t), [generation protection](../../../packages/workspace/t/integration/generation.t), [creation-failure integration](../../../packages/workspace/t/integration/creation-failure.t). |
 | Installed distributions and executed caller examples | [artifact checks](../../../scripts/check-artifacts.pl), [installed consumer](../../../scripts/installed-consumer.pl), [complete examples](../../../examples). |
 
 Reopen a decision when a caller needs a currently deferred capability, another
