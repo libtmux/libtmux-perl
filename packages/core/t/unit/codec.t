@@ -18,6 +18,29 @@ T2->is(
     [['', '']],
     'empty fields remain fields'
 );
+T2->is(LibTmux::Codec->decode("\n", 1), [['']], 'one empty field is a record');
+T2->is(
+    LibTmux::Codec->decode("\n\n", 1),
+    [[''], ['']],
+    'consecutive empty records preserve multiplicity'
+);
+T2->is(LibTmux::Codec->decode('', 1), [], 'no output means no records');
+
+T2->is(
+    LibTmux::Codec->decode('\a\b\f\v\r\$HOME\377' . "\n", 1),
+    [["\a\b\f\x0b\r" . '$HOME' . "\xff"]],
+    'legacy tmux print escapes compose with the field codec'
+);
+T2->is(LibTmux::Codec->decode('\\\\377\\\\n\\\\$HOME' . "\n", 1),
+    [['\377\n\$HOME']], 'literal escape text is decoded exactly once');
+for my $bad ('\400', '\38', '\12') {
+    my $error;
+    try { LibTmux::Codec->decode($bad . "\n", 1) } catch ($caught) {
+        $error = $caught;
+    }
+    T2->isa_ok($error, ['LibTmux::X::Codec'],
+        'invalid legacy octal escape is rejected');
+}
 
 for my $bad ("a\tb", "a\\q\tb\n", "a\\\tb\n", "a\tb\tc\n") {
     my $e;

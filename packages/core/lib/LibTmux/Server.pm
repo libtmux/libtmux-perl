@@ -71,7 +71,9 @@ sub _raw_op ($self, $argv, %options) {
             if !defined($_) || ref($_) || /\0/;
     }
     my @literal = map { my $value = "$_"; $value =~ s/;\z/\\;/; $value } @$argv;
-    $self->_process_op([$self->_prefix, @literal], %options);
+
+    # Preserve framing bytes even when the caller's locale is not UTF-8.
+    $self->_process_op([$self->_prefix, '-u', @literal], %options);
 }
 
 sub _checked ($self, $operation) {
