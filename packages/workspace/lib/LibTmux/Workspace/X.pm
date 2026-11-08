@@ -111,7 +111,7 @@ No I/O occurs; editing the export cannot change L</report> or L</cause>.
     my $data = $error->report_data;
     say JSON::PP->new->canonical->encode($data);
 
-The packaged L<libtmux-workspace> CLI uses this export. Use L</report> when
+The packaged C<libtmux-workspace> CLI uses this export. Use L</report> when
 recovery needs the original typed exceptions rather than diagnostic data.
 
 =head2 cause
