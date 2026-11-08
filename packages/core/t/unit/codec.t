@@ -50,4 +50,24 @@ for my $bad ("a\tb", "a\\q\tb\n", "a\\\tb\n", "a\tb\tc\n") {
     T2->ok(blessed($e) && $e->isa('LibTmux::X::Codec'),
         'malformed frames are failures');
 }
+for my $case (
+    [option      => "\@value \\q\n",                      '@value'],
+    [option      => "status-left \"unterminated\n",       'status-left'],
+    [option      => "status-left \"a\" \"b\"\n",          'status-left'],
+    [environment => "VALUE=\"\\q\"; export VALUE;\n",     'VALUE'],
+    [environment => "VALUE=\"text\"; export OTHER;\n",    'VALUE'],
+    [environment => "VALUE=\"a\" \"b\"; export VALUE;\n", 'VALUE']
+    )
+{
+    my ($kind, $bytes, $name) = @$case;
+    my $error;
+    try {
+        $kind eq 'option'
+            ? LibTmux::Codec->_option_value($bytes, $name)
+            : LibTmux::Codec->_environment_value($bytes, $name);
+    }
+    catch ($caught) { $error = $caught }
+    T2->isa_ok($error, ['LibTmux::X::Codec'],
+        'malformed quoted value is rejected');
+}
 T2->done_testing;

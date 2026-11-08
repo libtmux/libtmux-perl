@@ -43,10 +43,11 @@ LibTmuxFixture->run(
         T2->is($rename->get, undef, 'void operation yields one undef');
         T2->is($sync->snapshot->sessions->one->name,
             'renamed', 'async mutation observed through public sync API');
-        my $set = $async->set_environment(
+        my $environment_value = "raw-\xff literal-\\377 \$HOME";
+        my $set               = $async->set_environment(
             session => $session,
             name    => 'LIBTMUX_ASYNC',
-            value   => '0'
+            value   => $environment_value
         );
         $loop->await($set);
         T2->is($set->get, undef,
@@ -56,7 +57,7 @@ LibTmuxFixture->run(
             name    => 'LIBTMUX_ASYNC'
         );
         $loop->await($get);
-        T2->is($get->get, '0',
+        T2->is($get->get, $environment_value,
             'async environment returns one captured-target value');
         my $unset = $async->unset_environment(
             session => $session,

@@ -209,11 +209,12 @@ controls, literal escapes, UTF-8 and non-NUL byte values on every supported
 release. Window-name normalization before storage is a separate tmux rule;
 readers expose the stored value.
 
-Typed option/environment getters need reversible acquisition too. Their
-baseline unframed output can collapse a byte and a literal octal-looking
-escape into the same bytes on those older releases. A decoder cannot recover
-that lost distinction. Do not apply a blanket unescape to raw commands,
-capture-pane or direct buffers, whose output contracts differ.
+Typed option/environment getters use
+[native quoted representations](0002-reversible-native-getters.md). The
+baseline unframed output collapsed a byte and a literal octal-looking escape
+into the same bytes on older releases. Native quoting preserves that
+distinction before the print layer. Raw commands, capture-pane and direct
+buffers retain their separate output contracts.
 
 The upstream implementation of substitution is
 [`format_sub`](https://github.com/tmux/tmux/blob/3.8/format.c#L5127); format

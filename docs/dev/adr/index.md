@@ -8,6 +8,7 @@ describe how to use the library.
 | Record | Status | Subject |
 | --- | --- | --- |
 | [ADR 0001](0001-core-async-workspace-architecture.md) | Accepted; corrections open | Shared operations, captured graphs, and execution adapters. |
+| [ADR 0002](0002-reversible-native-getters.md) | Accepted | Reversible native option and environment values. |
 
 An accepted record describes the implementation baseline. It does not certify
 a release, an operating system, or a deployed documentation site. A change to

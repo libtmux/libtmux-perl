@@ -44,6 +44,9 @@ The listing codec escapes backslashes, tabs, and newlines with one field lookup
 per value. Length-prefixing through two lookups is unsafe for dynamic fields.
 Text decoding is strict UTF-8; paths are octets. Non-UTF-8 path operands remain
 usable locally and are refused by the initial JSON wire representation.
+Typed option and environment getters use native quoted representations to
+preserve literal escapes and arbitrary non-NUL bytes through older print
+paths. See [ADR 0002](dev/adr/0002-reversible-native-getters.md).
 
 Live query plans preserve captured local evaluation, including errors. Native
 candidate disagreement causes local fallback under auto and an error under

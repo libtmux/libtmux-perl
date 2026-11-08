@@ -700,7 +700,6 @@ sub _prepare ($self, $name, %args) {
         push @argv, $scope{$scope} if length $scope{$scope};
         push @argv, '-g'           if $args{global};
         push @argv, ('-t', $args{target}) if exists $args{target};
-        push @argv, ('-v')                if $name eq 'get_option';
         push @argv, '-A' if $name eq 'get_option' && $args{inherited};
         push @argv, '-u' if $name eq 'unset_option';
         push @argv, '--', $args{name};
@@ -708,9 +707,8 @@ sub _prepare ($self, $name, %args) {
         return $self->_cmd_op(\@argv)->then(
             sub ($result) {
                 return undef unless $name eq 'get_option';
-                my $value = $result->stdout;
-                $value =~ s/\n\z//;
-                return $value;
+                return LibTmux::Codec->_option_value($result->stdout,
+                    $args{name});
             }
         );
     }
@@ -739,18 +737,20 @@ sub _prepare ($self, $name, %args) {
                     : 'set-environment'
                 );
                 push @argv, defined($resolved) ? ('-t', $resolved->[0]) : '-g';
+                push @argv, '-s' if $name eq 'get_environment';
                 push @argv, '-u' if $name eq 'unset_environment';
                 push @argv, '--', $args{name};
                 push @argv, $args{value} if $name eq 'set_environment';
                 return $self->_cmd_op(\@argv)->then(
                     sub ($r) {
                         return undef unless $name eq 'get_environment';
-                        my $text = $r->stdout;
+                        my $text =
+                            LibTmux::Codec->_environment_value($r->stdout,
+                            $args{name});
                         LibTmux::X::Command->throw(
                             message => 'environment variable is unset',
                             result  => $r
-                        ) unless $text =~ s/\A\Q$args{name}\E=//;
-                        $text =~ s/\n\z//;
+                        ) unless defined $text;
                         return $text;
                     }
                 );
@@ -1541,10 +1541,15 @@ through L<LibTmux::X>. Captured objects are not modified.
 
 C<get_option(name =E<gt> string, scope =E<gt> scope, target =E<gt> id?, global =E<gt> boolean?, inherited =E<gt> boolean?)>.
 
-Read an option and return octets with one output-record newline removed. Empty
-text and '0' remain values. inherited => true requests tmux's -A behavior;
-without it only the selected local level is queried. Performs I/O; missing
-values throw L<LibTmux::X/Command>. See L</set_option> and L</unset_option>.
+Read an option and return its octets, decoding tmux's quoted string values.
+Literal backslashes and non-UTF-8 bytes remain distinct on older daemons.
+Key, numeric and command options retain native printed syntax. Array values are
+joined with newlines in native index order; an empty array returns C<''>.
+Empty text and '0' remain values. C<inherited =E<gt> true> requests tmux's
+C<-A> behavior; otherwise only the selected local level is queried. Performs
+I/O without mutation. Native missing-option errors throw L<LibTmux::X/Command>;
+malformed output throws L<LibTmux::X/Codec>. A built-in option without a local
+override may produce empty output. See L</set_option> and L</unset_option>.
 
     my $value = $server->get_option(scope => 'window', target => $window->id, name => '@build');
 
@@ -1607,10 +1612,12 @@ through L<LibTmux::X>. Captured objects are not modified.
 
 C<get_environment(name =E<gt> env_name, session =E<gt> session_target?)>.
 
-Read a session/global variable and return its octets with the NAME= prefix and
-final record newline removed. Empty text and '0' remain values. Performs I/O;
-missing or explicitly unset variables throw L<LibTmux::X/Command>. See
-L</set_environment>.
+Read a session/global variable and return its octets. The native quoted
+representation is parsed as data; no shell evaluates it. Literal backslashes,
+newlines and non-UTF-8 bytes remain distinct. Empty text and '0' remain values.
+Performs I/O without mutation; missing or explicitly unset variables throw
+L<LibTmux::X/Command>, and malformed output throws L<LibTmux::X/Codec>.
+Captured targets follow L</set_environment>'s generation checks.
 
     my $value = $server->get_environment(session => $session, name => 'BUILD');
 
