@@ -284,6 +284,11 @@ Complete examples (outer loop; source libraries by default):
 $ mise exec -- make examples
 ```
 
+The runner is an owned Linux subreaper. It checks the standalone async
+lifecycle example's success, rejected-command, and cancellation paths against
+a borrowed fixture server. The program itself imports only installed modules;
+the runner owns setup, assertions, and teardown.
+
 Archive checks configure and test extracted native distributions, install
 core then workspace then async into the separately provisioned consumer
 prefix, and verify module/POD origins without checkout runtime fallbacks:

@@ -40,6 +40,11 @@ captured selections remains synchronous and local. Cancellation requests process
 cleanup; only successful `close` completion proves cleanup finished. Closing a
 facade preserves the tmux server and borrowed loop.
 
+The [complete lifecycle example](https://github.com/libtmux/libtmux-perl/blob/master/examples/async-lifecycle.pl)
+uses installed packages, preserves operation failures, reports cleanup failures
+separately, and demonstrates cancellation. Always drive `close` to successful
+completion before leaving the loop.
+
 Install the core archive first, then configure this directory and install its
 explicit runtime dependencies. See the repository installation guide and
 installed POD for `LibTmux::Async::Server` and `LibTmux::Async::Transport`.
