@@ -39,8 +39,9 @@ captured membership for the expert escape hatch. See
 [`Server`'s report contract](../packages/core/lib/LibTmux/Server.pm)
 and the [tested query example](../examples/selection.pl).
 
-`require` disagreement throws `LibTmux::X::QueryMismatch`, with the report in
-`details->{verification}`. The observer does not run before that failure.
+`require` disagreement throws `LibTmux::X::QueryMismatch`, with the report under
+the `verification` key returned by `LibTmux::X::details`. The observer does not
+run before that failure.
 A mismatch can reflect a race, a compiler defect or a backend difference;
 it does not establish which occurred. Matching observations also do not prove
 an atomic capture. [ADR 0003](dev/adr/0003-query-verification-diagnostics.md)
