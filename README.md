@@ -44,6 +44,8 @@ Start with [installation](docs/installation.md),
 working with linked windows, [query planning](docs/query-planning.md) for
 explicit native filters, [errors and recovery](docs/errors.md),
 [async execution](docs/async.md), and [workspace loading](docs/workspace.md).
+The [architecture decisions](docs/dev/adr/index.md) explain these contracts,
+their alternatives, and the upstream source models behind them.
 Installed API documentation uses native POD; for example `perldoc
 LibTmux::Server` and `perldoc LibTmux::Selection`.
 
