@@ -49,10 +49,14 @@ preserve literal escapes and arbitrary non-NUL bytes through older print
 paths. See [ADR 0002](dev/adr/0002-reversible-native-getters.md).
 
 Live query plans preserve captured local evaluation, including errors. Native
-candidate disagreement causes local fallback under auto and an error under
-require. A mismatch does not establish its cause; the baseline's race label and
-hidden auto diagnostics require correction. Probes do not make multiple
-subprocess calls transactional. See [query planning](query-planning.md).
+candidate disagreement causes local fallback under `auto` and a typed
+`QueryMismatch` under `require`. An optional `on_verification` observer reports
+agreement, fallback and discrepancy without changing the selection return.
+The default `auto` policy adds a native check when lowering is available;
+`never` avoids that command when only the captured answer is needed. A mismatch
+does not establish its cause, and probes do not make multiple subprocess
+calls transactional. See [query planning](query-planning.md) and
+[ADR 0003](dev/adr/0003-query-verification-diagnostics.md).
 
 Workspace owns JSON configuration and orchestration through public core APIs.
 Its native distribution depends on the versioned core. Runtime code prefers
