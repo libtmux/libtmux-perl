@@ -1,0 +1,76 @@
+name: docs
+
+on:
+  workflow_dispatch:
+    inputs:
+      source-ref:
+        description: Source ref to build
+        required: true
+        default: master
+      version:
+        description: Documentation URL version
+        required: true
+        default: latest
+      version-kind:
+        description: Documentation version policy
+        required: true
+        type: choice
+        options: [trunk, branch, tag, alias]
+        default: trunk
+      is-default:
+        description: Make this the canonical documentation version
+        required: true
+        type: boolean
+        default: false
+      resolves-to:
+        description: Immutable target for an alias
+        required: false
+        default: ''
+      publish:
+        description: Publish the verified artifact with separate deployment authority
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.repository == 'libtmux/libtmux-perl'
+    uses: libtmux/docs/.github/workflows/port-docs.yml@3198ae8216efd824f2d9593e43511342ca36c7c5
+    with:
+      port: perl
+      source-ref: ${{ inputs.source-ref }}
+      version: ${{ inputs.version }}
+      version-kind: ${{ inputs.version-kind }}
+      is-default: ${{ inputs.is-default }}
+      resolves-to: ${{ inputs.resolves-to }}
+      publish: ${{ inputs.publish }}
+
+  publish:
+    needs: build
+    if: needs.build.outputs.should-publish == 'true' && inputs.publish
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.build.outputs.matrix) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: libtmux/docs/.github/workflows/reusable-deploy.yml@3198ae8216efd824f2d9593e43511342ca36c7c5
+    with:
+      path-prefix: en/perl/${{ matrix.version }}
+      artifact: docs-perl-${{ matrix.version }}
+      version-kind: ${{ matrix.kind }}
+      port: perl
+      version: ${{ matrix.version }}
+      is-default: ${{ matrix.isDefault }}
+      resolves-to: ${{ matrix.resolvesTo }}
+      environment: ${{ matrix.environment }}
+    secrets:
+      role-arn: ${{ secrets.LIBTMUX_DOCS_ROLE_ARN }}
+      bucket: ${{ secrets.LIBTMUX_DOCS_BUCKET }}

@@ -297,3 +297,29 @@ A method call does not apply a function prototype to its arguments. Keep
 $description)` for regex checks, or wrap a combined predicate in `scalar(...)`.
 A failing list-context match can otherwise remove the predicate argument and
 turn the description into a false passing assertion.
+
+## Shared documentation builds
+
+The manual [documentation workflow](workflows/docs.yml) builds the selected
+Perl source with the native exporter and shared site. Its builder and publisher
+use the same full documentation revision. The build checks native POD links,
+source and package inventory, rendering, and shared TypeScript/Astro types.
+It uploads a source-bound artifact for review.
+
+Run build-only verification on canonical origin:
+
+```console
+$ gh workflow run docs.yml \
+  --repo libtmux/libtmux-perl \
+  --ref master \
+  -f source-ref=master \
+  -f version=latest \
+  -f version-kind=trunk \
+  -F is-default=false \
+  -F publish=false
+```
+
+The workflow runs only by explicit dispatch and defaults to `publish=false`.
+Shared-site deployment requires its own authority. CPAN publication, tags, and
+releases are separate operations. Keep both shared workflow pins identical
+when updating the builder.
