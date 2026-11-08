@@ -14,6 +14,53 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  dependency-versions:
+    name: Direct dependency versions / ${{ matrix.profile }}
+    if: github.repository == 'libtmux/libtmux-perl'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [minimum, latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: shogo82148/actions-setup-perl@eebc5c886de14ebbfcd2493d49a12007d2c30477 # v1.44.5
+        id: perl
+        with:
+          perl-version: '5.44.0'
+      - name: Cache dependency downloads and builds
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.perl-cpm
+          key: perl-dependencies-${{ runner.os }}-${{ steps.perl.outputs.perl-hash }}-${{ matrix.profile }}-${{ hashFiles('cpanfile', 'packages/*/cpanfile', 'scripts/dependency-profile.pl') }}
+      - name: Provision the selected dependencies outside test loops
+        run: |
+          mkdir -p .cache
+          curl --fail --silent --show-error --location --output .cache/cpm https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
+          printf '%s  %s\n' 2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 .cache/cpm | sha256sum --check
+          perl .cache/cpm install --workers 2 --local-lib-contained .cache/dependency-bootstrap Module::CPANfile@1.1004
+          perl -I.cache/dependency-bootstrap/lib/perl5 scripts/dependency-profile.pl generate .cache/dependency-profile '${{ matrix.profile }}'
+          test ! -e local
+          perl .cache/cpm install --workers 2 --local-lib-contained local --reinstall --cpanfile .cache/dependency-profile/cpanfile --snapshot /dev/null --show-build-log-on-failure
+      - name: Verify loaded versions and run the native unit suites
+        env:
+          PERL5LIB: local/lib/perl5
+        run: |
+          python3 scripts/evidence.py dependency-versions -- perl scripts/dependency-profile.pl check .cache/dependency-profile local
+          python3 scripts/evidence.py dependency-unit -- make check-metadata unit check-pod
+      - name: Retain resolution and qualification evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: dependency-versions-${{ matrix.profile }}
+          path: |
+            .cache/dependency-profile/
+            .cache/evidence/dependency-*
+          retention-days: 7
+
   scaffold:
     name: Metadata, units, POD and generated checks
     if: github.repository == 'libtmux/libtmux-perl'

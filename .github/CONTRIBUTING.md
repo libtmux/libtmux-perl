@@ -141,6 +141,55 @@ handoff, and the outer loop before a commit or pull request.
 - Keep benchmarks separate: under ten minutes per run and one hour per sweep.
   Reduce the workload if needed.
 
+## Dependency qualification
+
+The `minimum` and `latest` CI profiles merge all three distributions and root
+author requirements. Minimum pins each direct requirement at its declared
+floor; latest resolves compatible releases again, retaining the PPI and
+Perl::Tidy author pins. The installer cache stores downloads/builds, while
+each CI job starts with an empty installation prefix. Generated constraints,
+loaded versions, module origins and test evidence are retained as artifacts.
+Transitive versions are resolved by cpm; this is not a minimal transitive tree.
+
+Generate one profile using the provisioned author environment. Substitute
+`latest` for `minimum` in these commands to check current compatible releases.
+
+```console
+$ mise exec -- perl \
+    -Ilocal/lib/perl5 \
+    scripts/dependency-profile.pl generate .cache/dependencies/minimum minimum
+```
+
+Provision the selected prefix outside test loops, using the verified cpm
+installer described above. Reinstallation forces fresh direct resolution.
+
+```console
+$ mise exec -- env -u PERL5LIB -u PERL5OPT perl .cache/cpm install \
+    --workers 2 \
+    --local-lib-contained .cache/dependencies/minimum/local \
+    --reinstall \
+    --cpanfile .cache/dependencies/minimum/cpanfile \
+    --snapshot /dev/null \
+    --show-build-log-on-failure
+```
+
+Reject mismatched versions or modules loaded outside that prefix before tests:
+
+```console
+$ mise exec -- env -u PERL5LIB -u PERL5OPT perl \
+    -I.cache/dependencies/minimum/local/lib/perl5 \
+    scripts/dependency-profile.pl check .cache/dependencies/minimum .cache/dependencies/minimum/local
+```
+
+Run native units with the selected dependencies; the installed-artifact job
+separately verifies core/workspace/async dependency relationships.
+
+```console
+$ mise exec -- make \
+    LOCAL_LIB="$PWD/.cache/dependencies/minimum/local/lib/perl5" \
+    check-metadata unit
+```
+
 ## tmux isolation
 
 Verify tmux behavior against a real server. Each test or probe must
