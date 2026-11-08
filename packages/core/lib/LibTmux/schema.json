@@ -1067,7 +1067,7 @@
           "required": true
         },
         "session": {
-          "type": "text",
+          "type": "target",
           "required": false
         }
       }
@@ -1079,7 +1079,7 @@
           "required": true
         },
         "session": {
-          "type": "text",
+          "type": "target",
           "required": false
         }
       }
@@ -1091,7 +1091,7 @@
           "required": true
         },
         "session": {
-          "type": "text",
+          "type": "target",
           "required": false
         }
       }

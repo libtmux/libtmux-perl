@@ -727,25 +727,33 @@ sub _prepare ($self, $name, %args) {
             message => 'invalid environment name')
             unless defined($args{name})
             && $args{name} =~ /\A[A-Za-z_][A-Za-z_0-9]*\z/;
-        my @argv = (
-            $name eq 'get_environment'
-            ? 'show-environment'
-            : 'set-environment'
-        );
-        push @argv, exists($args{session}) ? ('-t', $args{session}) : '-g';
-        push @argv, '-u' if $name eq 'unset_environment';
-        push @argv, '--', $args{name};
-        push @argv, $args{value} if $name eq 'set_environment';
-        return $self->_cmd_op(\@argv)->then(
-            sub ($r) {
-                return undef unless $name eq 'get_environment';
-                my $text = $r->stdout;
-                LibTmux::X::Command->throw(
-                    message => 'environment variable is unset',
-                    result  => $r
-                ) unless $text =~ s/\A\Q$args{name}\E=//;
-                $text =~ s/\n\z//;
-                return $text;
+        my $target =
+            exists($args{session})
+            ? $self->_target_op('session', $args{session})
+            : LibTmux::Operation->value(undef);
+        return $target->then(
+            sub ($resolved) {
+                my @argv = (
+                    $name eq 'get_environment'
+                    ? 'show-environment'
+                    : 'set-environment'
+                );
+                push @argv, defined($resolved) ? ('-t', $resolved->[0]) : '-g';
+                push @argv, '-u' if $name eq 'unset_environment';
+                push @argv, '--', $args{name};
+                push @argv, $args{value} if $name eq 'set_environment';
+                return $self->_cmd_op(\@argv)->then(
+                    sub ($r) {
+                        return undef unless $name eq 'get_environment';
+                        my $text = $r->stdout;
+                        LibTmux::X::Command->throw(
+                            message => 'environment variable is unset',
+                            result  => $r
+                        ) unless $text =~ s/\A\Q$args{name}\E=//;
+                        $text =~ s/\n\z//;
+                        return $text;
+                    }
+                );
             }
         );
     }
@@ -1579,32 +1587,36 @@ L<LibTmux::X>. See L</set_hook> for explicit command-string semantics.
 
 =head2 set_environment
 
-C<set_environment(name =E<gt> env_name, value =E<gt> bytes, session =E<gt> session_id?)>.
+C<set_environment(name =E<gt> env_name, value =E<gt> bytes, session =E<gt> session_target?)>.
 
-Set a literal environment value for an explicit session ID, or globally when
+Set a literal environment value for a L<LibTmux::Session> handle or explicit
+session ID, or globally when
 session is omitted. Empty text and '0' remain values. Existing pane processes
 are unaffected; creation-time environment belongs to L</new_session>,
 L</new_window>, and L</split_pane>.
+Captured handles are checked against the connected daemon generation before
+dispatch; stale handles throw L<LibTmux::X/StaleReference>. Raw IDs target the
+current session. The probe and mutation remain separate operations.
 
 Returns C<undef> after command acceptance. Performs I/O; failures propagate
 through L<LibTmux::X>. Captured objects are not modified.
 
-    $server->set_environment(session => $session->id, name => 'BUILD', value => '0');
+    $server->set_environment(session => $session, name => 'BUILD', value => '0');
 
 =head2 get_environment
 
-C<get_environment(name =E<gt> env_name, session =E<gt> session_id?)>.
+C<get_environment(name =E<gt> env_name, session =E<gt> session_target?)>.
 
 Read a session/global variable and return its octets with the NAME= prefix and
 final record newline removed. Empty text and '0' remain values. Performs I/O;
 missing or explicitly unset variables throw L<LibTmux::X/Command>. See
 L</set_environment>.
 
-    my $value = $server->get_environment(session => $session->id, name => 'BUILD');
+    my $value = $server->get_environment(session => $session, name => 'BUILD');
 
 =head2 unset_environment
 
-C<unset_environment(name =E<gt> env_name, session =E<gt> session_id?)>.
+C<unset_environment(name =E<gt> env_name, session =E<gt> session_target?)>.
 
 Unset the named session/global variable. This differs from setting an empty
 value; L</get_environment> reports the unset state as a command error.
@@ -1612,7 +1624,7 @@ value; L</get_environment> reports the unset state as a command error.
 Returns C<undef> after command acceptance. Performs I/O; failures propagate
 through L<LibTmux::X>. Captured objects are not modified.
 
-    $server->unset_environment(session => $session->id, name => 'BUILD');
+    $server->unset_environment(session => $session, name => 'BUILD');
 
 =head2 set_buffer
 

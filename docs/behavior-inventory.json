@@ -415,7 +415,7 @@
     },
     {
       "key": "set_environment",
-      "contract": "set_environment(name => env_name, value => bytes, session => session_id?); void; global when session omitted",
+      "contract": "set_environment(name => env_name, value => bytes, session => session_target?); void; global when session omitted",
       "minimum": "3.3a",
       "required": true,
       "verification": "PASS",
@@ -426,7 +426,7 @@
     },
     {
       "key": "get_environment",
-      "contract": "get_environment(name => env_name, session => session_id?); bytes; unset/missing throws",
+      "contract": "get_environment(name => env_name, session => session_target?); bytes; unset/missing throws",
       "minimum": "3.3a",
       "required": true,
       "verification": "PASS",
@@ -437,7 +437,7 @@
     },
     {
       "key": "unset_environment",
-      "contract": "unset_environment(name => env_name, session => session_id?); void",
+      "contract": "unset_environment(name => env_name, session => session_target?); void",
       "minimum": "3.3a",
       "required": true,
       "verification": "PASS",

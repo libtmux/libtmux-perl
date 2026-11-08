@@ -223,7 +223,7 @@ sub load ($self, %args) {
             for my $name (sort keys $session->{environment}->%*) {
                 $step = 'set environment ' . $session->{name} . '.' . $name;
                 $server->set_environment(
-                    session => $created->id,
+                    session => $created,
                     name    => $name,
                     value   => $session->{environment}{$name}
                 );
