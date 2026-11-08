@@ -11,6 +11,7 @@ use File::Find     ();
 use File::Path     qw(make_path);
 use File::Basename qw(dirname);
 use Cwd            qw(getcwd);
+use Encode         qw(encode FB_CROAK);
 chdir "$FindBin::Bin/.." or die $!;
 my ($output, $revision, $exporter_revision, $allow_dirty) =
     ('docs/_build/api.json', 'HEAD', 'HEAD', false);
@@ -56,6 +57,10 @@ sub inline ($node, $owner) {
         my $module = exists($attrs->{to}) ? text_of($attrs->{to}) : $owner;
         my $section =
             exists($attrs->{section}) ? text_of($attrs->{section}) : undef;
+        if (defined $section) {
+            $section = encode('UTF-8', $section, FB_CROAK);
+            $section =~ s/([^A-Za-z0-9_.~-])/sprintf '%%%02X', ord $1/eg;
+        }
         return
               '['
             . $body
