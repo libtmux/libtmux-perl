@@ -5,6 +5,7 @@ use LibTmux::Async::Server;
 use LibTmuxFixture;
 LibTmuxFixture->run(
     sub ($sync, $root) {
+        T2->note('creating the synchronous fixture session');
         my $session = $sync->new_session(
             name    => 'async',
             command => ['/bin/sleep', '120']
@@ -18,11 +19,15 @@ LibTmuxFixture->run(
             timeout        => 0.8,
             max_concurrent => 2
         );
+        T2->note('acquiring the asynchronous snapshot');
         my $snapshot = $async->snapshot;
         $loop->await($snapshot);
+        my $async_snapshot = $snapshot->get;
+        T2->note('acquiring the synchronous comparison snapshot');
+        my $sync_snapshot = $sync->snapshot;
         T2->is(
-            [map { $_->id } $snapshot->get->panes->@*],
-            [map { $_->id } $sync->snapshot->panes->@*],
+            [map { $_->id } $async_snapshot->panes->@*],
+            [map { $_->id } $sync_snapshot->panes->@*],
             'sync and async graph identity agree'
         );
         my $query = $async->query_panes(

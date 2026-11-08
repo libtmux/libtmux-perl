@@ -105,9 +105,27 @@ sub run ($class, $code, %args) {
     }
     remove_tree($root);
     if (defined $failure) {
+        my $reported = $failure;
         if (ref($failure) && $failure isa LibTmux::X::Creation) {
             my $cause = $failure->cause;
             warn "fixture acquisition cause: $cause\n" if defined $cause;
+            $reported = $cause                         if defined $cause;
+        }
+        if (ref($reported) && $reported isa LibTmux::X) {
+            if (my $result = $reported->result) {
+                my $dispatched     = $reported->dispatched;
+                my $dispatch_state = 'unknown';
+                $dispatch_state = $dispatched ? 'yes' : 'no'
+                    if defined $dispatched;
+                warn 'fixture process outcome: dispatched='
+                    . $dispatch_state
+                    . ' raw_status='
+                    . ($result->raw_status // 'unknown')
+                    . ' stdout_bytes='
+                    . length($result->stdout // '')
+                    . ' stderr_bytes='
+                    . length($result->stderr // '') . "\n";
+            }
         }
         warn "fixture cleanup also failed: $cleanup_error"
             if defined $cleanup_error;
