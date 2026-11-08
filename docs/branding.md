@@ -9,6 +9,11 @@ original paths, sizes, and SHA-256 digests. The directory includes SVG and
 PNG logos, favicons, touch and maskable icons, manifests, and light/dark
 social cards. The root README uses these local files.
 
+The core and workspace distributions each include their own README logo under
+`assets/`, with an SVG source and PNG fallback. Their `assets/source.json`
+records the library or workspace variant and its upstream digests. Relative
+image links work in the repository and the native distribution archives.
+
 `.github/social-preview.png` copies the library's 1200 × 630 light Open Graph
 card for manual upload in GitHub's Social preview settings. The dedicated
 1280 × 640 GitHub cards remain in the central kit.

@@ -1,4 +1,17 @@
+<!-- libtmux-logo -->
+<div align="center">
+  <picture>
+    <source srcset="assets/logo.svg" type="image/svg+xml">
+    <img src="assets/logo.png" width="128" height="128" alt="libtmux for Perl workspace">
+  </picture>
+</div>
+<!-- /libtmux-logo -->
+
+<div align="center">
+
 # LibTmux-Workspace
+
+</div>
 
 Validate, inspect, and load versioned JSON workspaces through public LibTmux
 core APIs. Requires stable Perl 5.44.0, the versioned LibTmux core, and its

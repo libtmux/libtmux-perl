@@ -1,4 +1,17 @@
+<!-- libtmux-logo -->
+<div align="center">
+  <picture>
+    <source srcset="assets/logo.svg" type="image/svg+xml">
+    <img src="assets/logo.png" width="128" height="128" alt="libtmux for Perl">
+  </picture>
+</div>
+<!-- /libtmux-logo -->
+
+<div align="center">
+
 # LibTmux
+
+</div>
 
 Explicit tmux commands and captured graph filtering for stable Perl 5.44.0.
 The runtime uses only the Perl standard library. Linux x86_64 LP64, including
