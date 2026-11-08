@@ -19,5 +19,10 @@ rejects new admissions, and returns a fresh cleanup observer. Only successful
 `is_done` proves cleanup. Cancelling that observer cannot cancel private cleanup.
 Keep driving the borrowed loop through shutdown; closing preserves the server.
 
+The default bounds are four active jobs and 64 queued requests. A command's
+timeout starts in its execution loop, after queue waiting and supervisor setup.
+It does not bound the total time of a multi-command operation. Cleanup has a
+separate allowance; see [failure recovery](errors.md).
+
 Persistent control, streaming subscriptions, and tmux command lists are deferred.
 Ordered batch requests are independent submissions with individual attribution.

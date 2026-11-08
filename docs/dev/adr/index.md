@@ -7,7 +7,7 @@ describe how to use the library.
 
 | Record | Status | Subject |
 | --- | --- | --- |
-| [ADR 0001](0001-core-async-workspace-architecture.md) | Accepted | Explicit snapshots, native selections, and optional execution adapters. |
+| [ADR 0001](0001-core-async-workspace-architecture.md) | Accepted; corrections open | Shared operations, captured graphs, and execution adapters. |
 
 An accepted record describes the implementation baseline. It does not certify
 a release, an operating system, or a deployed documentation site. A change to

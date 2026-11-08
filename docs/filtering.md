@@ -33,6 +33,19 @@ traverse lexically; logical arrays preserve their order. Short-circuiting may
 avoid unavailable reads once a result is known. Known-null ordering/text is
 false; negation reverses known results, never missing-data failures.
 
+Evaluation order affects failures as well as matches. For an inactive record
+with unloaded width, an AND array testing `active` before `width` can return
+false; reversing those nodes reads width first and throws. Flattening them into
+a hash instead selects lexical order. Wire serialization retains logical-array
+order; optimizers must preserve availability and error behavior. The depth-64
+and 10,000-node compilation limits do not cap membership operands or string bytes.
+
+Native arrays remain mutable. Every library method validates all N occurrences
+before returning even `first`, `count` or `exists`; that validation is O(N).
+Predicates may then stop early. `where` evaluates and validates its output;
+`iterator` also copies membership. Raw indexing and dereferencing retain normal
+Perl behavior. A mutable selection cannot safely cache a prior validation.
+
 `LibTmux::Filter` owns normalized criteria, supports plain records and explicit
 registered readers, and exports JSON with schema `"libtmux.where/v1"`.
 Wire names use camelCase and dash-free operators. Regex/coderefs/cycles/blessed

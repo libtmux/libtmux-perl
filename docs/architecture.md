@@ -1,6 +1,9 @@
-# Perl core and workspace
+# Perl core, async and workspace
 
-The core owns explicit tmux acquisition and commands. Captured entity handles
+Core Operation plans share preparation, target validation, parsing and recovery
+between synchronous and asynchronous executors. ProcessJob shares subprocess
+ownership. Server methods perform mutations using explicit targets; entity
+accessors read captured values. The core owns explicit tmux acquisition and commands. Captured entity handles
 retain a graph of records and ID adjacency; they retain no transport. Field
 readers and relationships perform no tmux I/O. A new snapshot observes new
 state without modifying old handles.
@@ -21,10 +24,14 @@ filters copy their input, use schema-directed comparisons, and validate the
 whole tree before evaluation. Missing data differs from known null.
 
 The process adapter uses a private supervisor, leaving application signal
-handlers intact. It owns child groups, bounded pipes, cancellation, deadlines,
+handlers intact. It owns child groups, bounded pipes, cancellation, command timeouts,
 and reaping. Argument vectors have no shell wrapper. Creating a pane from an
 explicit shell command is a separate caller choice. A single-item command
 array uses a fixed exec-ARGV shim because tmux otherwise invokes a shell.
+Trailing semicolons are escaped for tmux's command grammar independently of
+shell safety. Each request forks a supervisor and a command child. Command
+timeouts exclude queue waiting, setup and the total of a multi-command
+operation; cleanup has a separate allowance. See [failure recovery](errors.md).
 
 The supervisor uses Linux's child-subreaper facility so orphaned descendants
 remain owned and can be reaped before cleanup is reported complete. The
@@ -39,8 +46,10 @@ Text decoding is strict UTF-8; paths are octets. Non-UTF-8 path operands remain
 usable locally and are refused by the initial JSON wire representation.
 
 Live query plans preserve captured local evaluation, including errors. Native
-candidate disagreement causes local fallback under auto and a race error under
-require. Probes do not make multiple subprocess calls transactional.
+candidate disagreement causes local fallback under auto and an error under
+require. A mismatch does not establish its cause; the baseline's race label and
+hidden auto diagnostics require correction. Probes do not make multiple
+subprocess calls transactional. See [query planning](query-planning.md).
 
 Workspace owns JSON configuration and orchestration through public core APIs.
 Its native distribution depends on the versioned core. Runtime code prefers
@@ -57,7 +66,7 @@ cleanup. The caller keeps driving and retains ownership of its loop.
 
 | Capability | Decision | Evidence and boundary |
 | --- | --- | --- |
-| Literal subprocess I/O | Selected default | Standard-library supervisor; bounded outputs/deadlines; separate status/error channels. |
+| Literal subprocess I/O | Selected default | Standard-library supervisor; bounded outputs/command timeouts; separate status/error channels. |
 | Ordered independent batches | Selected | One result/error record per request in input order; no tmux command-list attribution claim. |
 | Bounded concurrency | Selected in async only | Future/IO::Async already provide loop ownership, readiness, and process reaping; FIFO pipe tests require overlapping progress. |
 | Persistent control mode | Deferred | Unsolicited notifications, framing, client lifetime, and daemon-loss recovery need a separate qualification project. |
@@ -82,3 +91,6 @@ and scope claims rather than inferring dispatch from a string literal.
 The declarations describe the implementation contract. Runtime, artifact,
 compatibility, documentation, and independent adoption checks establish which
 parts are qualified; architecture review alone does not establish support.
+The [architecture decision](dev/adr/0001-core-async-workspace-architecture.md)
+records required locale/framing, descriptor and Workspace ownership corrections
+separately from the accepted model.

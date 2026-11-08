@@ -33,6 +33,13 @@ Cancellation does not imply rollback or nonexecution. The isolated Linux
 supervisor reaps its owned process group; intentionally detached daemons have
 separate ownership. The current verified ABI is x86_64 LP64.
 
+Transport `timeout` bounds one command's execution loop, excluding supervisor
+setup and async queue waiting. A snapshot runs several commands, each with its
+own timeout; this setting is not a total snapshot deadline. Cleanup has a
+separate allowance and continues after useful work expires. Async callers must
+drive the borrowed loop until successful close-observer completion. Cancelling
+the observer or stopping the loop does not prove that processes have exited.
+
 `Creation` preserves a generation-scoped minimal created handle when the
 command succeeded but subsequent capture failed. Inspect `created` and `cause`
 before deciding cleanup. Other fields on that handle are unloaded. Workspace
