@@ -168,7 +168,10 @@ sub _supervise ($args, $alive_r) {
     close $exec_w;
     close $go_r;
     setpgid($pid, $pid);
-    POSIX::sigprocmask(SIG_SETMASK, $old);
+
+    # This private supervisor needs child-exit notifications. The program
+    # restored the caller's original mask in its own fork branch above.
+    POSIX::sigprocmask(SIG_UNBLOCK, $block);
     my $reads = IO::Select->new($out_r, $err_r, $exec_r, $notice_r, $alive_r);
     $reads->add($args->{cancel_fh}) if exists $args->{cancel_fh};
     $reads->add($args->{_cancel_r}) if $args->{_cancel_r};

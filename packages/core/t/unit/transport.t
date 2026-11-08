@@ -1,7 +1,7 @@
 use v5.44;
 use Test2::V1;
 use Scalar::Util qw(blessed);
-use POSIX        qw(WNOHANG);
+use POSIX        qw(WNOHANG SIGCHLD SIG_BLOCK SIG_SETMASK);
 use JSON::PP     ();
 
 my $loaded = eval { require LibTmux::Transport; 1 };
@@ -48,6 +48,36 @@ my $reaped = 0;
     T2->is($result->exit_code, 9,
         'caller reaper cannot destroy the program result');
     T2->is($SIG{CHLD}, $handler, 'caller SIGCHLD disposition preserved');
+}
+
+{
+    my $old     = POSIX::SigSet->new;
+    my $blocked = POSIX::SigSet->new(SIGCHLD);
+    POSIX::sigprocmask(SIG_BLOCK, $blocked, $old);
+    my ($observed, $failure);
+    try {
+        $observed = run(
+            $^X, '-e', q{
+            use POSIX ();
+            my $mask = POSIX::SigSet->new;
+            POSIX::sigprocmask(POSIX::SIG_BLOCK(), undef, $mask);
+            print $mask->ismember(POSIX::SIGCHLD());
+            close STDOUT;
+            close STDERR;
+            my $sum = 0;
+            $sum += $_ for 1..100000;
+        }
+        );
+    }
+    catch ($error) { $failure = $error }
+    my $after = POSIX::SigSet->new;
+    POSIX::sigprocmask(SIG_BLOCK, undef, $after);
+    POSIX::sigprocmask(SIG_SETMASK, $old);
+    T2->is($failure, undef,
+        'EOF before exit wakes the supervisor with caller CHLD blocked');
+    T2->is($observed ? $observed->stdout : undef,
+        '1', 'program retains the caller signal mask');
+    T2->ok($after->ismember(SIGCHLD), 'caller signal mask remains blocked');
 }
 
 sub throws ($code, $type) {
