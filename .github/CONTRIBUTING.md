@@ -323,3 +323,14 @@ The workflow runs only by explicit dispatch and defaults to `publish=false`.
 Shared-site deployment requires its own authority. CPAN publication, tags, and
 releases are separate operations. Keep both shared workflow pins identical
 when updating the builder.
+
+Manual documentation builds accept `trunk`, `tag`, and `alias` versions. The
+publisher uses the `docs` environment and takes `perl/<version>` as its
+prefix; the shared publisher adds the locale. It selects the builder's exact
+artifact through the publication descriptor.
+
+Validate workflow syntax after editing the caller:
+
+```console
+$ actionlint .github/workflows/docs.yml
+```
