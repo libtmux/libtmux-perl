@@ -1,4 +1,17 @@
+<!-- libtmux-logo -->
+<div align="center">
+  <picture>
+    <source srcset="assets/logo.svg" type="image/svg+xml">
+    <img src="assets/logo.png" width="128" height="128" alt="libtmux for Perl">
+  </picture>
+</div>
+<!-- /libtmux-logo -->
+
+<div align="center">
+
 # LibTmux-Async
+
+</div>
 
 Optional Future-based execution for [LibTmux](../core). Requires Perl 5.44,
 Future 0.54, IO::Async 0.805, Linux, and tmux 3.3a or newer. This development
