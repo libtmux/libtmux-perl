@@ -68,6 +68,37 @@ adding runtime dependencies. The profile uses four-space indentation and an
 The exact formatter version is an author dependency, outside the runtime
 requirements.
 
+## Dependency version policy
+
+Keep recent, tested minimum versions in each distribution's runtime,
+configure, and test requirements. A bare cpanfile version such as `0.54`
+means `>= 0.54`; only `== 0.54` requires that exact version. This lets new
+projects adopt newer compatible releases without waiting for a libtmux
+metadata change. Raise a minimum for a required API, bug fix, or a deliberate
+support decision. Add exclusions or upper bounds only for demonstrated
+incompatibility, with its reason and regression evidence.
+
+The root author environment deliberately pins Perl::Tidy and PPI. Formatter
+output and extracted declarations must be reproducible; those tools are not
+installed runtime requirements. Update their pins in focused changes that
+review the formatting or extraction diff. The development Perl pin selects
+the interpreter used for qualification; the package's Perl requirement is a
+minimum, not an exact interpreter lock.
+
+Qualify both direct minimum dependencies and freshly resolved compatible
+releases, preserving the two author pins in both environments. Record actual
+loaded versions and module origins. A minimum-version declaration alone is
+not evidence that it works, and an existing dependency cache is not evidence
+of testing the latest release. Minimum checks cover direct declarations;
+they do not imply a minimal version of every transitive dependency.
+
+An application may separately lock its resolved dependency graph in a
+`cpanfile.snapshot`. Do not copy that application's exact runtime versions
+into these libraries' published requirements. See the
+[cpanfile version rules](https://metacpan.org/pod/cpanfile#SYNTAX),
+[CPAN dependency phases](https://perldoc.perl.org/5.44.0/CPAN::Meta::Spec#Phases),
+and [cpm snapshot support](https://metacpan.org/pod/App::cpm::Tutorial#cpanfile-and-dist/url/mirror/git-syntax).
+
 ## Maintained examples
 
 The sample covers library, framework, test-toolchain, and package-installer

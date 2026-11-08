@@ -1,3 +1,4 @@
+# Bare versions are supported minimums; newer releases remain eligible.
 requires 'perl', '5.044000';
 
 on 'configure' => sub {
@@ -7,6 +8,8 @@ on 'configure' => sub {
 };
 
 on 'develop' => sub {
+
+    # Exact author-tool versions stabilize formatting and API extraction.
     requires 'PPI',                '== 1.291';
     requires 'Perl::Tidy',         '== 20260826';
     requires 'Test2::V1',          '1.302226';
