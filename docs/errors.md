@@ -33,6 +33,14 @@ Cancellation does not imply rollback or nonexecution. The isolated Linux
 supervisor reaps its owned process group; intentionally detached daemons have
 separate ownership. The current verified ABI is x86_64 LP64.
 
+Owned supervisor and command branches close unrelated inherited descriptors,
+including native descriptors without close-on-exec. The caller's handles stay
+open. Only standard streams and the job's explicit protocol/cancellation pipes
+survive where needed; a newly started tmux daemon cannot retain an unrelated
+caller file or socket. This requires the Linux `/proc/self/fd` interface.
+Descriptor enumeration/closure failure prevents dispatch and remains a typed
+transport or spawn failure. Forking a host with native threads is unqualified.
+
 Transport `timeout` bounds one command's execution loop, excluding supervisor
 setup and async queue waiting. A snapshot runs several commands, each with its
 own timeout; this setting is not a total snapshot deadline. Cleanup has a

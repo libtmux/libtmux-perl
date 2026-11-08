@@ -99,7 +99,7 @@ sub start ($class, %args) {
 }
 sub run ($class, %args) { $class->start(%args)->wait }
 
-sub _supervise ($args, $alive_r) {
+sub _supervise ($args, $alive_r, $result_w) {
     require LibTmux::Platform::Linux;
     LibTmux::Platform::Linux::_subreaper();
     my ($in_r,     $in_w)     = _pipe();
@@ -125,6 +125,15 @@ sub _supervise ($args, $alive_r) {
         $reason //= 'Cancelled';
         syswrite($notice_w, 't');
     };
+
+    # Allocate every pipe before raw descriptor closure. PerlIO still tracks
+    # inherited handles; reusing their numbers can retain protocol pipe ends.
+    LibTmux::Platform::Linux::_close_fds_except(
+        $alive_r, $result_w, $args->{_cancel_r},
+        $in_r,    $in_w,     $out_r, $out_w, $err_r,    $err_w,
+        $exec_r,  $exec_w,   $go_r,  $go_w,  $notice_r, $notice_w,
+        exists($args->{cancel_fh}) ? ($args->{cancel_fh}) : ()
+    );
     my $pid = fork();
     die "fork program: $!" unless defined $pid;
     if (!$pid) {
@@ -158,6 +167,8 @@ sub _supervise ($args, $alive_r) {
         close $in_r;
         close $out_w;
         close $err_w;
+        try { LibTmux::Platform::Linux::_close_fds_except($exec_w) }
+        catch ($error) { $fail->("$error") }
         %ENV = (%ENV, %{$args->{env} // {}});
         delete @ENV{qw(TMUX TMUX_PANE)};
         exec {$args->{argv}[0]} $args->{argv}->@* or $fail->("exec: $!");
@@ -350,9 +361,12 @@ LibTmux::Transport - Supervised literal process execution
 =head2 run
 
 C<run(argv =E<gt> [...], stdin =E<gt> $octets, timeout =E<gt> $seconds,
-max_output =E<gt> $bytes, cancel_fh =E<gt> $handle)> returns a CommandResult.
+max_output =E<gt> $bytes, cancel_fh =E<gt> $handle)> returns a
+L<LibTmux::CommandResult>.
 Stdout/stderr are separate octet strings. Nonzero exits are results; spawn,
-timeout, cancellation, output limits, and supervision failures are typed errors.
+timeout, cancellation, output limits, and supervision failures throw
+L<LibTmux::X> exceptions. C<timeout> bounds one command's execution loop,
+excluding supervisor setup, async queue waiting, and separate cleanup time.
 
 =head2 start
 
@@ -360,12 +374,20 @@ Return a L<LibTmux::ProcessJob> for an executor adapter.
 
 =head1 RESULTS
 
-LibTmux::CommandResult exposes stdout, stderr, exit_code, signal, raw_status,
+L<LibTmux::CommandResult> exposes stdout, stderr, exit_code, signal, raw_status,
 and success. Output remains octets.
 
 The private supervisor owns program signals/groups and reaps the program.
 Application SIGCHLD handlers remain intact; SIGCHLD=IGNORE is refused.
 Cancellation handles are borrowed and remain open. Cancellation after release
 can have effects and never implies rollback. Parent death triggers cleanup.
+
+Owned supervisor and command branches close unrelated inherited descriptors
+through Linux C</proc/self/fd>, preserving the caller's handles. Native
+descriptors without close-on-exec cannot leak into a newly started tmux daemon.
+Only standard streams and each branch's required protocol/cancellation pipes
+remain open. Enumeration or closure failures prevent execution and throw
+L<LibTmux::X/Transport> or L<LibTmux::X/Spawn>. No arbitrary descriptor-passing
+API is selected. Forking hosts with native threads remains unqualified.
 
 =cut

@@ -39,7 +39,10 @@ sub start ($class, %input) {
         $SIG{PIPE} = 'IGNORE';
         $SIG{CHLD} = 'DEFAULT';
         my $record;
-        try { $record = LibTmux::Transport::_supervise(\%args, $alive_r) }
+        try {
+            $record =
+                LibTmux::Transport::_supervise(\%args, $alive_r, $result_w)
+        }
         catch ($error) {
             my $type =
                 Scalar::Util::blessed($error)
