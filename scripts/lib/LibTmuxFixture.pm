@@ -49,7 +49,7 @@ sub run ($class, $code, %args) {
     try { $result = $code->($server, $root) } catch ($error) {
         $failure = $error
     }
-    my $cleanup_error;
+    my @cleanup_errors;
     {
         local $SIG{TERM} = 'IGNORE';
         local $SIG{INT}  = 'IGNORE';
@@ -62,7 +62,7 @@ sub run ($class, $code, %args) {
                         $server->cmd('display-message', '-p', '#{pid}')->stdout
                 }
                 catch ($error) {
-                    die $error
+                    push @cleanup_errors, $error
                         unless ref($error)
                         && $error->isa('LibTmux::X::NoServer')
                 }
@@ -71,7 +71,7 @@ sub run ($class, $code, %args) {
             if (-S "$root/s") {
                 try { $server->kill_server }
                 catch ($error) {
-                    die $error
+                    push @cleanup_errors, $error
                         unless ref($error)
                         && $error->isa('LibTmux::X::NoServer')
                 }
@@ -101,9 +101,19 @@ sub run ($class, $code, %args) {
             }
             alarm 0;
         }
-        catch ($error) { alarm 0; $cleanup_error = $error }
+        catch ($error) { alarm 0; push @cleanup_errors, $error }
     }
-    remove_tree($root);
+    try {
+        my $errors;
+        remove_tree($root, {error => \$errors});
+        for my $entry (@$errors) {
+            push @cleanup_errors,
+                map { "remove fixture $_: $entry->{$_}" } sort keys %$entry;
+        }
+    }
+    catch ($error) { push @cleanup_errors, $error }
+    $failure = shift @cleanup_errors
+        if !defined($failure) && @cleanup_errors;
     if (defined $failure) {
         my $reported = $failure;
         if (ref($failure) && $failure isa LibTmux::X::Creation) {
@@ -127,11 +137,9 @@ sub run ($class, $code, %args) {
                     . length($result->stderr // '') . "\n";
             }
         }
-        warn "fixture cleanup also failed: $cleanup_error"
-            if defined $cleanup_error;
+        warn "fixture cleanup also failed: $_" for @cleanup_errors;
         die $failure;
     }
-    die $cleanup_error if defined $cleanup_error;
     return $result;
 }
 

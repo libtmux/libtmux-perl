@@ -335,6 +335,10 @@ $ mise exec -- make benchmark
 Native archives contain the portable unit suites. Repository-only live suites
 use the shared owned fixture and explicit subreaper wrapper; installed artifact
 qualification executes those suites and examples against an external prefix.
+Fixture teardown continues through owned-process termination, reaping and
+directory removal if a discovery or `kill-server` command fails. The test's
+original exception remains primary; cleanup failures are reported separately.
+Without a test failure, the first cleanup exception is rethrown unchanged.
 Record exact tree/command evidence without changing the check command:
 
 ```console
