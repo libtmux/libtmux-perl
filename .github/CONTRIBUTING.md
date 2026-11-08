@@ -305,7 +305,8 @@ $ mise exec -- python3 scripts/provision-consumer.py
 
 The consumer prefix is an author-created temporary directory outside the
 checkout, recorded in ignored `.cache/consumer-prefix`. Provision Future,
-IO::Async, and optional caller-side Future::AsyncAwait there with cpm's
+IO::Async, IO::Async::Loop::Ppoll, IO::Ppoll, and optional caller-side
+Future::AsyncAwait there with cpm's
 `--local-lib-contained` and `--final-install runtime` before this outer gate;
 configuration/test tools stay in the root author environment. No check
 silently downloads dependencies.

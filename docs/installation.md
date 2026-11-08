@@ -25,8 +25,11 @@ $ cpm install \
     ./packages/async
 ```
 
-Core and workspace need only the Perl standard library at runtime. Async
-adds Future and IO::Async. Configure/test/develop requirements remain separate.
+Core and workspace need only the Perl standard library at runtime. Async adds
+Future, IO::Async, IO::Async::Loop::Ppoll and IO::Ppoll. Its caller supplies a
+Ppoll loop; IO::Ppoll includes an XS extension. See the
+[async guide](async.md) for construction and cleanup.
+Configure/test/develop requirements remain separate.
 To inspect installed documentation:
 
 ```console
