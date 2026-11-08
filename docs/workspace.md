@@ -51,3 +51,14 @@ On failure, inspect completed steps, failed step, created IDs, dispatch
 uncertainty, and cleanup errors. Rollback targets only sessions proven created
 by this invocation. Application readiness requires caller-specific assertions.
 CLI exit statuses: success 0; usage/configuration 2; loading 3; conflict 4.
+
+`LibTmux::Workspace::X::Load->report` retains each cleanup exception with its
+captured target identity and attempted action. These entries replace the
+earlier string-only `cleanup_errors` values. `cause` remains the original load
+failure; a cleanup failure never replaces it. Catch and inspect the exception
+class, dispatch evidence, and bounded native result when choosing recovery.
+
+`report_data` returns a detached diagnostic export for JSON, including the
+primary cause and cleanup error classes. Native stdout/stderr use explicit
+base64 fields to preserve arbitrary octets. The CLI prints this export on
+standard error; the library report keeps the original exception objects.

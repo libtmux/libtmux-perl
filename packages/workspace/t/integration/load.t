@@ -151,6 +151,24 @@ LibTmuxFixture->run(
             'repeat CLI skip is idempotent for existing sessions'
         );
         open $out, '>:raw', $file or die $!;
+        print {$out} JSON::PP->new->utf8->encode(
+            {
+                schema   => 'libtmux.workspace/v1',
+                sessions => $bad->plan->{sessions}
+            }
+        );
+        close $out;
+        my $failed_cli = LibTmux::Transport->run(argv => \@load);
+        T2->is($failed_cli->exit_code, 3,
+            'CLI partial failure retains its exit status');
+        my $diagnostic = $failed_cli->stderr =~ s/\A[^\n]*\n//r;
+        my $export     = JSON::PP->new->utf8->decode($diagnostic);
+        T2->is($export->{cause}{class},
+            'LibTmux::X::InvalidArgument',
+            'CLI emits the typed primary cause in valid JSON');
+        T2->is($export->{cleanup_errors},
+            [], 'CLI reports successful rollback separately');
+        open $out, '>:raw', $file or die $!;
         print {$out} '{bad';
         close $out;
         T2->is(

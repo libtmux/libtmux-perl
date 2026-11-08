@@ -79,7 +79,7 @@ try {
 catch ($error) {
     print STDERR "$error\n";
     if (blessed($error) && $error->isa('LibTmux::Workspace::X::Load')) {
-        print STDERR $json->encode($error->report);
+        print STDERR $json->encode($error->report_data);
         $exit = 3;
     }
     elsif (blessed($error) && $error->isa('LibTmux::Workspace::X::Conflict')) {

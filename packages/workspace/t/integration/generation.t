@@ -71,6 +71,18 @@ LibTmuxFixture->run(
             'set environment original.LIBTMUX_RESTART',
             'generation is checked before the environment mutation'
         );
+        my $cleanup = $error->report->{cleanup_errors}[0];
+        T2->isa_ok(
+            $cleanup->{error},
+            ['LibTmux::X::StaleReference'],
+            'rollback preserves its own stale-generation exception'
+        );
+        T2->is(
+            $cleanup->{target},
+            $server->{original}->identity,
+            'rollback failure names the original captured target'
+        );
+
         for my $operation (
             qw(set_environment get_environment unset_environment))
         {

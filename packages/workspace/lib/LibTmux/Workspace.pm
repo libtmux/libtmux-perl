@@ -294,7 +294,14 @@ sub load ($self, %args) {
             : true;
         for my $owned (reverse @owned) {
             try { $server->kill_session(session => $owned) }
-            catch ($cleanup) { push $report->{cleanup_errors}->@*, "$cleanup" }
+            catch ($cleanup) {
+                push $report->{cleanup_errors}->@*,
+                    {
+                    target => $owned->identity,
+                    action => 'kill_session',
+                    error  => $cleanup,
+                    };
+            }
         }
         LibTmux::Workspace::X::Load->throw(
             message => 'workspace load failed at ' . $step,
