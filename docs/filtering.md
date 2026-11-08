@@ -34,9 +34,10 @@ avoid unavailable reads once a result is known. Known-null ordering/text is
 false; negation reverses known results, never missing-data failures.
 
 `LibTmux::Filter` owns normalized criteria, supports plain records and explicit
-registered readers, and exports `libtmux.where/v1` JSON. Wire names use camelCase
-and dash-free operators. Regex/coderefs/cycles/blessed values are refused at
-that data boundary. Native Perl `qr//` remains available in callbacks.
+registered readers, and exports JSON with schema `"libtmux.where/v1"`.
+Wire names use camelCase and dash-free operators. Regex/coderefs/cycles/blessed
+values are refused at that data boundary. Native Perl `qr//` remains available
+in callbacks.
 
 The complete example below is copied from an executed program. The fixture
 helper uses an owned socket, observes process exit, and cleans up on failures.

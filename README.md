@@ -34,9 +34,9 @@ for my $pane ($active->@*) {
 
 | Distribution | Location | Runtime dependencies |
 | --- | --- | --- |
-| `LibTmux` | [packages/core](packages/core) | Perl standard library. |
-| `LibTmux-Async` | [packages/async](packages/async) | Versioned core, Future, IO::Async; caller-owned loop. |
-| `LibTmux-Workspace` | [packages/workspace](packages/workspace) | Versioned core; packaged JSON loader CLI. |
+| [`LibTmux`](packages/core/README.md) | [packages/core](packages/core) | Perl standard library. |
+| [`LibTmux-Async`](packages/async/README.md) | [packages/async](packages/async) | Versioned core, Future, IO::Async; caller-owned loop. |
+| [`LibTmux-Workspace`](packages/workspace/README.md) | [packages/workspace](packages/workspace) | Versioned core; packaged JSON loader CLI. |
 
 Start with [installation](docs/installation.md),
 [basic orchestration](docs/orchestration.md), and

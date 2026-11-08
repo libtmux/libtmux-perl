@@ -4,8 +4,9 @@ description: Optional Future execution with the Perl libtmux distributions.
 ---
 
 Install the separate LibTmux-Async distribution to use an injected
-`IO::Async::Loop` and Future-returning Server facade. Core and workspace do not
-load this dependency. Caller-side Future::AsyncAwait syntax is optional.
+[`IO::Async::Loop`](https://metacpan.org/pod/IO::Async::Loop) and a Future-returning
+Server facade. Core and workspace do not load this dependency. Caller-side
+Future::AsyncAwait syntax is optional.
 
 The caller owns and drives the loop. Each operation resolves to one value;
 void methods yield one undef. Command preparation, framing, identity, and
