@@ -78,12 +78,16 @@ LibTmuxFixture->run(
                 }
                 catch ($error) { $caught = $error }
             }
+            T2->diag( "fixture failed before injected cleanup: "
+                    . ($caught // 'no exception') . "\n"
+                    . join('', @warnings))
+                unless defined $pid;
             T2->is(
                 refaddr($caught),
                 refaddr($body_failure // $cleanup),
                 'cleanup keeps the primary or original cleanup exception'
             );
-            T2->ok(!kill(0, $pid),
+            T2->ok(defined($pid) && !kill(0, $pid),
                 'failed kill command still reaps the owned daemon');
             T2->ok(!-e $directory,
                 'failed kill command still removes the owned directory');
