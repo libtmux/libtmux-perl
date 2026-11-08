@@ -15,7 +15,9 @@
 
 Optional Future-based execution for [LibTmux](../core). Requires Perl 5.44,
 Future 0.54, IO::Async 0.805, IO::Async::Loop::Ppoll 0.10, IO::Ppoll 0.14,
-Linux x86_64 LP64, and tmux 3.3a or newer. These are minimum versions.
+and Linux x86_64 LP64. The Perl and module versions are minimum requirements.
+Supported tmux versions span 3.3a–3.8, including intermediate releases; CI
+tests the endpoints.
 IO::Ppoll includes an XS extension. This development
 distribution is not published on CPAN.
 

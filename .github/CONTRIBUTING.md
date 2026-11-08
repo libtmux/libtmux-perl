@@ -327,7 +327,9 @@ the oldest supported tmux (3.3a), and the newest stable tmux (3.8):
 $ mise exec -- make compatibility
 ```
 
-The matrix includes core graph/query, async, workspace, and runnable examples.
+Support covers tmux 3.3a–3.8, including intermediate releases; CI tests only
+the endpoints. The matrix includes core graph/query, async, workspace, and
+runnable examples.
 Inspect every cell in `.cache/compatibility/evidence-all.json`; missing builds are
 UNVERIFIED. CI runs the same two cells with explicit versions. Keep the
 workflow, development Perl pin, and tmux source lock aligned when upgrading

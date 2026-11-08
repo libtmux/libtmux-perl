@@ -50,10 +50,11 @@ Installed API documentation uses native POD; for example `perldoc
 LibTmux::Server` and `perldoc LibTmux::Selection`.
 
 [Complete examples](examples) run against uniquely owned tmux sockets and
-assert results and cleanup. [Compatibility](docs/compatibility.md) records the
-required release cells and qualification limits. Captured selections perform
-no tmux I/O; their methods preserve order and duplicates and return one fixed
-type in every calling context. Native array access remains available.
+assert results and cleanup. [Compatibility](docs/compatibility.md) records
+support for tmux 3.3a–3.8 and CI coverage of the range endpoints. Captured
+selections perform no tmux I/O; their methods preserve order and duplicates
+and return one fixed type in every calling context. Native array access
+remains available.
 
 MCP is excluded. Persistent control mode, streaming APIs, tmux command lists,
 serialized regexes, and relation pushdown are deferred. Package publication

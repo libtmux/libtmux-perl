@@ -20,9 +20,10 @@ passed all 17 jobs in the then-required tmux matrix, dependency profiles
 and installed archives. Shared-site qualification and publication are separate
 gates; graph and selection contracts remain unchanged.
 
-The 2026-11-08 qualification policy now selects only the latest stable Perl
-and the oldest supported and newest stable tmux releases. The current
-[compatibility matrix](../../compatibility.md) is Perl 5.44.0 with tmux 3.3a
+The supported tmux range is 3.3a–3.8, including intermediate releases. The
+2026-11-08 CI policy tests only the latest stable Perl and the two endpoints
+of that range: the oldest supported and newest stable tmux releases. The
+current [test matrix](../../compatibility.md) is Perl 5.44.0 with tmux 3.3a
 and 3.8. Earlier wider qualification remains evidence for its recorded source.
 
 ## Context

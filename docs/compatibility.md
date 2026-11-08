@@ -3,8 +3,9 @@ title: Linux compatibility and qualification
 description: Linux compatibility and qualification with the Perl libtmux distributions.
 ---
 
-The baseline is stable Perl 5.44.0 on Linux x86_64 LP64, including WSL. Plain
-tmux 3.3 is below the 3.3a support floor.
+The baseline is stable Perl 5.44.0 on Linux x86_64 LP64, including WSL.
+Supported tmux versions span 3.3a–3.8, including every intermediate release.
+Plain tmux 3.3 is below the 3.3a support floor.
 Other operating systems and Linux ABIs have not been qualified. The supervisor
 refuses unsupported ABIs before dispatch instead of assuming syscall numbers.
 
@@ -12,8 +13,9 @@ CI and the local compatibility command use only the latest stable Perl and
 two tmux releases: the oldest supported release and the newest stable release.
 The current pins are [Perl 5.44.0](https://dev.perl.org/perl5/), tmux 3.3a,
 and [tmux 3.8](https://github.com/tmux/tmux/releases/tag/3.8), verified on
-2026-11-08. Intermediate tmux releases and older Perl releases have no matrix
-cells. Update the pins when the latest stable release changes.
+2026-11-08. Testing the range endpoints keeps CI small; intermediate tmux
+releases remain supported without separate CI cells. Older Perl releases
+have no matrix cells. Update the pins when the latest stable release changes.
 
 [The source lock](../scripts/tmux-lock.json) pins official assets,
 archive hashes, source commits, and configure flags. Per-build provenance adds
