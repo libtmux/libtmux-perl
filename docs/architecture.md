@@ -59,7 +59,11 @@ Its native distribution depends on the versioned core. Runtime code prefers
 Perl's standard library. MCP is excluded.
 
 The optional `LibTmux-Async` distribution adds bounded concurrent subprocess
-submission through an injected caller-owned IO::Async loop. Standard Future
+submission through an injected caller-owned IO::Async::Loop::Ppoll. Its native
+IO::Ppoll wait avoids a reproduced deferred-SIGCHLD lost wakeup. Async children
+unblock only SIGCHLD before supervision, preserving other mask bits; core's
+synchronous mask behavior is unchanged. See
+[ADR 0004](dev/adr/0004-atomic-async-child-exit.md). Standard Future
 objects yield one result; Future::AsyncAwait is optional caller syntax. Core
 command preparation, framing, graph parsing, and errors are shared through
 Operation and ProcessJob. Core and workspace have no async runtime dependency.

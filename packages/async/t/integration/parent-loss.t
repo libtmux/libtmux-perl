@@ -6,8 +6,8 @@ my $root = tempdir('libtmux-perl-parent-loss-XXXX', TMPDIR => 1, CLEANUP => 1);
 mkfifo("$root/ready", 0600) or die $!;
 open my $ready, '+<', "$root/ready" or die $!;
 my $caller_code = q{
-    use v5.44;use IO::Async::Loop;use LibTmux::Async::Transport;
-    my $loop=IO::Async::Loop->new;
+    use v5.44;use IO::Async::Loop::Ppoll;use LibTmux::Async::Transport;
+    my $loop=IO::Async::Loop::Ppoll->new;
     my $transport=LibTmux::Async::Transport->new(loop=>$loop,max_concurrent=>2);
     my $program=q{$|=1;print 'x'x131072;open my $r,'>',$ARGV[0] or die $!;print {$r} "$$\n";close $r;sleep 120};
     my @futures=map {$transport->execute(argv=>[$^X,'-e',$program,$ARGV[0]],timeout=>0.8)} 1..2;

@@ -4,7 +4,7 @@ use File::Spec;
 use JSON::PP    ();
 use Time::HiRes qw(time);
 use List::Util  qw(sum);
-use IO::Async::Loop;
+use IO::Async::Loop::Ppoll;
 use Future;
 use LibTmux::Async::Server;
 use LibTmuxFixture;
@@ -19,7 +19,7 @@ LibTmuxFixture->run(
         );
         my $pane   = $session->window_links->one->window->panes->one;
         my $binary = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
-        my $loop   = IO::Async::Loop->new;
+        my $loop   = IO::Async::Loop::Ppoll->new;
         for my $instrumented (false, true) {
             for my $mode (qw(sync sync-batch async-concurrent async-batch)) {
                 my %config = (

@@ -16,4 +16,4 @@ else:
     prefix=tempfile.mkdtemp(prefix='libtmux-perl-consumer-')
     record.parent.mkdir(exist_ok=True)
     record.write_text(prefix+'\n')
-subprocess.run(['perl',args.cpm,'install','--local-lib-contained',prefix,'--final-install','runtime','Future@0.54','IO::Async@0.805','Future::AsyncAwait@0.71'],cwd=ROOT,check=True)
+subprocess.run(['perl',args.cpm,'install','--local-lib-contained',prefix,'--final-install','runtime','Future@0.54','IO::Async@0.805','IO::Async::Loop::Ppoll@0.10','IO::Ppoll@0.14','Future::AsyncAwait@0.71'],cwd=ROOT,check=True)

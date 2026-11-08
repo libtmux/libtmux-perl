@@ -233,6 +233,21 @@ its workflows incur costs. [AGENTS.md](../AGENTS.md#publishing) owns this rule.
 
 ## Implementation verification commands
 
+The async outer regression compiles a small author-only C interposer with
+`cc`, then injects a real child exit between Perl's final signal safe point and
+the native wait. It leaves reaping to IO::Async and fails if a fallback timeout
+is needed. No C helper ships in the distributions. Provision a C compiler
+outside the test loops.
+
+```console
+$ mise exec -- make check-async-wakeup
+```
+
+For the preserved negative control, pass `--loop Poll` to
+`scripts/check-async-wakeup.py`; this intentionally fails on the reviewed
+Perl 5.44 / IO::Async 0.805 backend. Async's live daemon-exit test also proves
+that a new server observes its final pane exiting after executor cleanup.
+
 Provision pinned tmux source builds outside all test loops. The lock records
 release URLs, archive digests, and upstream tag commits. Build provenance
 records compiler, configure flags, and executable digests.

@@ -25,7 +25,7 @@ sub start ($class, %input) {
         wire            => '',
         finished        => false
     }, $class;
-    my $child = sub {
+    my $child = sub ($prepare = undef) {
         close $result_r;
         close $alive_w;
         close $cancel_w;
@@ -39,7 +39,10 @@ sub start ($class, %input) {
         $SIG{PIPE} = 'IGNORE';
         $SIG{CHLD} = 'DEFAULT';
         my $record;
+        my $preparing = true;
         try {
+            $prepare->() if $prepare;
+            $preparing = false;
             $record =
                 LibTmux::Transport::_supervise(\%args, $alive_r, $result_w)
         }
@@ -49,9 +52,11 @@ sub start ($class, %input) {
                 && $error->isa('LibTmux::X')
                 ? ref($error) =~ s/^LibTmux::X:://r
                 : 'Transport';
-            $record =
-                {error =>
-                    {type => $type, message => "$error", dispatched => false}};
+            $record = {
+                cleanup_complete => $preparing,
+                error            =>
+                    {type => $type, message => "$error", dispatched => false}
+            };
         }
         my $wire   = JSON::PP->new->utf8->encode($record);
         my $offset = 0;

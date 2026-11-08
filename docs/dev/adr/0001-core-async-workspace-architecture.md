@@ -69,7 +69,7 @@ room for other executors, but do not promise an unimplemented engine-ops API.
 | Distribution | Owns | Runtime requirements |
 | --- | --- | --- |
 | `LibTmux` | Server operations, command plans, process ownership, framing, catalog, snapshots, selections, filters, errors. | Perl standard library and the qualified Linux ABI. |
-| `LibTmux-Async` | Future-returning facade, bounded submission, event-loop integration, asynchronous shutdown observers. | Versioned core, Future 0.54, IO::Async 0.805. |
+| `LibTmux-Async` | Future-returning facade, bounded submission, event-loop integration, asynchronous shutdown observers. | Versioned core, Future 0.54, IO::Async 0.805, IO::Async::Loop::Ppoll 0.10, IO::Ppoll 0.14. |
 | `LibTmux-Workspace` | Versioned JSON configuration, planning, loader CLI, and orchestration through public core APIs. | Versioned core and Perl standard library. |
 
 Each distribution owns its MakeMaker declaration, dependency phases, README,
@@ -79,6 +79,9 @@ does not implement tmux protocol or reach into a core's private store.
 Standard-library use describes runtime requirements: configure uses
 Module::CPANfile and ExtUtils::MakeMaker::CPANfile. Archive tests require
 Test2::V1; author POD checks use Test::Pod from the root develop dependencies.
+Async's additional atomic-wait dependencies and child signal policy are
+recorded in [ADR 0004](0004-atomic-async-child-exit.md). The caller supplies
+the explicitly qualified Ppoll backend; a generic IO::Async loop is insufficient.
 Generated readers are committed; configuring an archive
 does not run PPI extraction or author code generation. Archives ship portable
 unit tests; owned live fixtures remain repository-only. The

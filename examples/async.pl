@@ -1,7 +1,7 @@
 use v5.44;
 use FindBin;
 use lib "$FindBin::Bin/../scripts/lib";
-use IO::Async::Loop;
+use IO::Async::Loop::Ppoll;
 use LibTmux::Async::Server;
 use LibTmuxFixture;
 LibTmuxFixture->run(
@@ -10,7 +10,7 @@ LibTmuxFixture->run(
             name    => 'async-example',
             command => ['/bin/sleep', '120']
         );
-        my $loop   = IO::Async::Loop->new;
+        my $loop   = IO::Async::Loop::Ppoll->new;
         my $server = LibTmux::Async::Server->new(
             loop           => $loop,
             socket_path    => "$root/s",

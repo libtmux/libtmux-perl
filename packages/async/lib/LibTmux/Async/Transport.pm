@@ -1,14 +1,42 @@
 package LibTmux::Async::Transport;
 use v5.44;
 use Future;
+use IO::Async::Loop::Ppoll 0.10;
+use IO::Ppoll 0.14 ();
 use IO::Async::Stream;
+use POSIX qw(SIG_UNBLOCK SIGCHLD);
 use LibTmux::ProcessJob;
 use LibTmux::Async::X;
+
+sub _validate_loop ($loop) {
+
+    # Ppoll 0.10 stores the configured wait object here; its public constructor
+    # also accepts plain IO::Poll, which cannot deliver CHLD atomically.
+    LibTmux::X::Unsupported->throw(
+        message =>
+'use IO::Async::Loop::Ppoll with IO::Ppoll and a wait mask permitting SIGCHLD',
+        dispatched => false,
+        )
+        unless ref($loop) eq 'IO::Async::Loop::Ppoll'
+        && reftype($loop) eq 'HASH'
+        && ref($loop->{poll}) eq 'IO::Ppoll'
+        && reftype($loop->{poll}) eq 'HASH'
+        && !$loop->{poll}->sigmask_ismember(SIGCHLD);
+}
+
+sub _prepare_child () {
+    POSIX::sigprocmask(SIG_UNBLOCK, POSIX::SigSet->new(SIGCHLD))
+        or LibTmux::X::Transport->throw(
+        message    => "unblock async child SIGCHLD: $!",
+        dispatched => false
+        );
+}
 
 sub new ($class, %args) {
     LibTmux::X::InvalidArgument->throw(
         message => 'an explicit IO::Async::Loop is required')
         unless ref($args{loop}) && $args{loop}->isa('IO::Async::Loop');
+    _validate_loop($args{loop});
     $args{max_concurrent} //= 4;
     $args{max_queue}      //= 64;
     LibTmux::X::InvalidArgument->throw(message =>
@@ -37,6 +65,7 @@ sub execute ($self, %request) {
     }
     my $copy;
     try {
+        _validate_loop($self->{loop});
         LibTmux::X::InvalidArgument->throw(
             message => 'argv must be a nonempty array')
             unless ref($request{argv}) eq 'ARRAY' && $request{argv}->@*;
@@ -71,11 +100,12 @@ sub _launch ($self, $entry) {
     return if $entry->{future}->is_ready;
     $self->{jobs}{$entry->{id}} = $entry;
     try {
+        _validate_loop($self->{loop});
         my $job = LibTmux::ProcessJob->start(
             $entry->{request}->%*,
             spawner => sub ($code) {
                 $self->{loop}->fork(
-                    code    => $code,
+                    code    => sub { $code->(\&_prepare_child) },
                     on_exit => sub ($pid, $status) {
                         $entry->{exit_seen}   = true;
                         $entry->{exit_status} = $status;
@@ -213,8 +243,19 @@ LibTmux::Async::Transport - Bounded asynchronous process execution
 =head2 new
 
 C<new(loop =E<gt> $loop, max_concurrent =E<gt> 4, max_queue =E<gt> 64)>
-borrows an L<IO::Async::Loop>. The loop owns supervisor reaping; competing
-external all-child reapers are unsupported. The library never runs/stops it.
+borrows an L<IO::Async::Loop::Ppoll> backed by L<IO::Ppoll>. Construct that
+class explicitly; automatic loop selection can choose an unsupported backend.
+Other classes, a substituted poll implementation, or a wait mask blocking
+SIGCHLD throw L<Unsupported|LibTmux::X/Unsupported> before dispatch. The loop
+owns supervisor reaping; competing external all-child reapers are unsupported.
+The library never runs, stops, or replaces it.
+
+Ppoll blocks watched signals outside its atomic wait. Its shared SIGCHLD watch
+can outlive this transport. C<close> leaves the caller-selected loop and its
+signal policy intact. Do not change the backend or its wait mask while jobs
+or cleanup remain active. Async children unblock only SIGCHLD before process
+supervision; other mask bits remain unchanged in the child. This lets a new
+tmux daemon observe pane exits without changing synchronous core's mask policy.
 
 =head2 execute
 
@@ -222,6 +263,9 @@ Accepts the same literal process arguments as L<LibTmux::Transport/run>.
 Returns a L<Future> yielding one L<command result|LibTmux::Transport/RESULTS>.
 Typed core exceptions remain the failure value. Queue overflow fails with
 L<QueueFull|LibTmux::Async::X/QueueFull> before dispatch.
+The backend is checked again at admission and launch. Child preparation
+failures retain a typed diagnostic and C<dispatched> false, with supervisor
+exit still required before cleanup completes.
 
 The shared L<LibTmux::ProcessJob> owns supervision. Cancelling the Future
 requests cleanup; it does not prove exit or reverse command effects.

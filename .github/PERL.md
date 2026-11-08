@@ -24,7 +24,7 @@ orchestration.
 | Directory | CPAN distribution | Runtime requirements |
 | --- | --- | --- |
 | `packages/core` | `LibTmux` | Perl 5.44; prefer its standard library. |
-| `packages/async` | `LibTmux-Async` | Versioned core, Future 0.54, IO::Async 0.805; no effect on core requirements. |
+| `packages/async` | `LibTmux-Async` | Versioned core, Future 0.54, IO::Async 0.805, IO::Async::Loop::Ppoll 0.10 and IO::Ppoll 0.14; no effect on core requirements. |
 | `packages/workspace` | `LibTmux-Workspace` | Perl 5.44 and the versioned `LibTmux` core. |
 
 Each directory is a native CPAN distribution root with its own `Makefile.PL`,

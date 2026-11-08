@@ -10,11 +10,13 @@ on 'configure' => sub {
 on 'develop' => sub {
 
     # Exact author-tool versions stabilize formatting and API extraction.
-    requires 'PPI',                '== 1.291';
-    requires 'Perl::Tidy',         '== 20260826';
-    requires 'Test2::V1',          '1.302226';
-    requires 'Test::Pod',          '1.52';
-    requires 'Future',             '0.54';
-    requires 'IO::Async',          '0.805';
-    requires 'Future::AsyncAwait', '0.71';
+    requires 'PPI',                    '== 1.291';
+    requires 'Perl::Tidy',             '== 20260826';
+    requires 'Test2::V1',              '1.302226';
+    requires 'Test::Pod',              '1.52';
+    requires 'Future',                 '0.54';
+    requires 'IO::Async',              '0.805';
+    requires 'IO::Async::Loop::Ppoll', '0.10';
+    requires 'IO::Ppoll',              '0.14';
+    requires 'Future::AsyncAwait',     '0.71';
 };

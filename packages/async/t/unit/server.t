@@ -1,11 +1,11 @@
 use v5.44;
 use Test2::V1;
-use IO::Async::Loop;
+use IO::Async::Loop::Ppoll;
 use Scalar::Util qw(blessed);
 my $loaded = eval { require LibTmux::Async::Server; 1 };
 T2->ok($loaded, 'optional Future facade loads');
 unless ($loaded) { T2->diag($@); T2->done_testing; exit }
-my $loop   = IO::Async::Loop->new;
+my $loop   = IO::Async::Loop::Ppoll->new;
 my $server = LibTmux::Async::Server->new(
     loop       => $loop,
     executable => '/missing-libtmux-test'

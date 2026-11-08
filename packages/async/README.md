@@ -14,15 +14,17 @@
 </div>
 
 Optional Future-based execution for [LibTmux](../core). Requires Perl 5.44,
-Future 0.54, IO::Async 0.805, Linux, and tmux 3.3a or newer. This development
+Future 0.54, IO::Async 0.805, IO::Async::Loop::Ppoll 0.10, IO::Ppoll 0.14,
+Linux x86_64 LP64, and tmux 3.3a or newer. These are minimum versions.
+IO::Ppoll includes an XS extension. This development
 distribution is not published on CPAN.
 
 ```perl
 use v5.44;
-use IO::Async::Loop;
+use IO::Async::Loop::Ppoll;
 use LibTmux::Async::Server;
 
-my $loop = IO::Async::Loop->new;
+my $loop = IO::Async::Loop::Ppoll->new;
 my $server = LibTmux::Async::Server->new(
     loop => $loop, socket_name => 'example',
 );

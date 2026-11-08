@@ -10,6 +10,7 @@ describe how to use the library.
 | [ADR 0001](0001-core-async-workspace-architecture.md) | Accepted; corrections open | Shared operations, captured graphs, and execution adapters. |
 | [ADR 0002](0002-reversible-native-getters.md) | Accepted | Reversible native option and environment values. |
 | [ADR 0003](0003-query-verification-diagnostics.md) | Accepted | Observable native candidate verification. |
+| [ADR 0004](0004-atomic-async-child-exit.md) | Accepted | Atomic child-exit notification and async signal inheritance. |
 
 An accepted record describes the implementation baseline. It does not certify
 a release, an operating system, or a deployed documentation site. A change to

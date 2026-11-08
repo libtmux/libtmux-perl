@@ -109,9 +109,9 @@ LibTmux::Async::Server - Optional Future facade over the core protocol
 =head1 SYNOPSIS
 
     use v5.44;
-    use IO::Async::Loop;
+    use IO::Async::Loop::Ppoll;
     use LibTmux::Async::Server;
-    my $loop = IO::Async::Loop->new;
+    my $loop = IO::Async::Loop::Ppoll->new;
     my $server = LibTmux::Async::Server->new(loop => $loop, socket_name => 'owned');
     my $capture = $server->snapshot;
     $loop->await($capture);
@@ -123,9 +123,10 @@ LibTmux::Async::Server - Optional Future facade over the core protocol
 =head2 new
 
 C<new(loop =E<gt> $loop, %connection_options)> constructs without I/O.
-Borrow an L<IO::Async::Loop>; connection options belong to
+Borrow an L<IO::Async::Loop::Ppoll>; connection options belong to
 L<LibTmux::Server/new>. C<max_concurrent> and C<max_queue> configure the
-owned L<LibTmux::Async::Transport>. No event loop is run implicitly.
+owned L<LibTmux::Async::Transport>. Its L<backend and signal contract|LibTmux::Async::Transport/new>
+applies to this facade. No event loop is run implicitly.
 
 =head2 close
 

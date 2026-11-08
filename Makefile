@@ -5,7 +5,7 @@ LIBS := -I"$(LOCAL_LIB)" $(foreach package,$(PACKAGES),-Ipackages/$(package)/lib
 TIDY := $(PERL) -I"$(LOCAL_LIB)" "$(CURDIR)/local/bin/perltidy"
 PERL_FILES := cpanfile $(foreach package,$(PACKAGES),packages/$(package)/Makefile.PL packages/$(package)/cpanfile)
 
-.PHONY: benchmark check-inventory conformance check-snippets check check-metadata check-format format check-generated check-pod unit integration examples artifacts compatibility
+.PHONY: benchmark check-async-wakeup check-inventory conformance check-snippets check check-metadata check-format format check-generated check-pod unit integration examples artifacts compatibility
 
 check: check-metadata check-format check-generated check-pod check-snippets check-inventory unit conformance
 
@@ -37,6 +37,9 @@ integration:
 	@set -eu; for suite in packages/core/t/integration/*.t packages/async/t/integration/*.t packages/workspace/t/integration/*.t; do \
 		python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
 	done
+
+check-async-wakeup:
+	@python3 scripts/check-async-wakeup.py
 
 examples:
 	@$(PERL) scripts/run-examples.pl

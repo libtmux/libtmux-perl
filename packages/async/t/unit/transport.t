@@ -2,13 +2,13 @@ use v5.44;
 use Test2::V1;
 use File::Temp qw(tempdir);
 use POSIX      qw(mkfifo);
-use IO::Async::Loop;
+use IO::Async::Loop::Ppoll;
 use Future;
 
 my $loaded = eval { require LibTmux::Async::Transport; 1 };
 T2->ok($loaded, 'separate optional async transport loads');
 unless ($loaded) { T2->diag($@); T2->done_testing; exit }
-my $loop      = IO::Async::Loop->new;
+my $loop      = IO::Async::Loop::Ppoll->new;
 my $transport = LibTmux::Async::Transport->new(
     loop           => $loop,
     max_concurrent => 2,
