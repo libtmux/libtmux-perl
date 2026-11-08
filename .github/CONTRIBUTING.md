@@ -320,7 +320,8 @@ Future::AsyncAwait there with cpm's
 configuration/test tools stay in the root author environment. No check
 silently downloads dependencies.
 
-Run the exact Linux release cells plus a separate 3.3 rejection check:
+Run the Linux matrix using only the latest stable Perl (currently 5.44.0),
+the oldest supported tmux (3.3a), and the newest stable tmux (3.8):
 
 ```console
 $ mise exec -- make compatibility
@@ -328,7 +329,9 @@ $ mise exec -- make compatibility
 
 The matrix includes core graph/query, async, workspace, and runnable examples.
 Inspect every cell in `.cache/compatibility/evidence-all.json`; missing builds are
-UNVERIFIED. CI runs the same cell command with an explicit version.
+UNVERIFIED. CI runs the same two cells with explicit versions. Keep the
+workflow, development Perl pin, and tmux source lock aligned when upgrading
+the latest stable versions; do not add intermediate or older-language cells.
 
 Native API export uses PPI 1.291 for declared signatures and Pod::Simple for
 POD. This author-only parser preserves signatures that B::Deparse lowers into

@@ -16,9 +16,14 @@ Workspace environment mutation after daemon replacement, and loss of typed
 cleanup errors. These corrections and observable query diagnostics are
 implemented at [a8009a3](https://github.com/libtmux/libtmux-perl/tree/a8009a3ac43dec194224b84054f96d4d2d5d3ce9).
 Its [native qualification](https://github.com/libtmux/libtmux-perl/actions/runs/42512688081)
-passes all 17 jobs, including the required tmux matrix, dependency profiles
+passed all 17 jobs in the then-required tmux matrix, dependency profiles
 and installed archives. Shared-site qualification and publication are separate
 gates; graph and selection contracts remain unchanged.
+
+The 2026-11-08 qualification policy now selects only the latest stable Perl
+and the oldest supported and newest stable tmux releases. The current
+[compatibility matrix](../../compatibility.md) is Perl 5.44.0 with tmux 3.3a
+and 3.8. Earlier wider qualification remains evidence for its recorded source.
 
 ## Context
 
@@ -477,7 +482,7 @@ affected checks.
 | Persistent control as the default | tmux's [control protocol](https://github.com/tmux/tmux/blob/3.8/tmux.1#L9068) includes unsolicited notifications and client lifetime. It remains deferred until framing, loss recovery, and equivalence are independently qualified. |
 | Streaming subscriptions or tmux mutation chaining | Completed bounded results and ordered independent requests cover the selected scope. Streaming backpressure and group-versus-command attribution need distinct contracts and gates. |
 | One invocation for read capture | Non-waiting command-queue scheduling can reduce process overhead. It does not make OS-derived fields atomic: a chained probe observed changing cwd. Topology consistency and failure attribution still need version-matrix qualification; read batching remains deferred separately from mutation chaining. |
-| Raw delimiters or two-lookup length prefixes | Reversible substitution avoids user-text delimiter collisions and dynamic-value disagreement. Codec correctness must be checked on each supported tmux release. |
+| Raw delimiters or two-lookup length prefixes | Reversible substitution avoids user-text delimiter collisions and dynamic-value disagreement. Codec correctness is checked at both endpoints of the supported tmux range. |
 | General ORM grammar, serializable Perl regex, or relation pushdown | A smaller validated grammar has testable null, availability, and quantifier semantics. Richer backends remain deferred; callbacks retain Perl's native expressiveness. |
 | YAML or a tmuxp schema adapter | Core JSON::PP supports the selected format. Syntax conversion and tmuxp command/readiness compatibility are separate adapter decisions. |
 

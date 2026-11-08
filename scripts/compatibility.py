@@ -16,7 +16,7 @@ import urllib.request
 ROOT = Path(__file__).resolve().parent.parent
 LOCK = json.loads((ROOT / 'scripts/tmux-lock.json').read_text())
 CACHE = ROOT / '.cache/tmux-builds'
-REQUIRED = ['3.3a', '3.4', '3.5', '3.5a', '3.6', '3.6a', '3.6b', '3.7', '3.7a', '3.7b', '3.7c', '3.8']
+REQUIRED = [row['version'] for row in LOCK['releases']]
 
 
 def sha(path):
@@ -76,13 +76,9 @@ def qualify(row, installed=None):
     env = dict(os.environ, LIBTMUX_TEST_TMUX=str(binary))
     libs = [f'-I{installed}/lib/perl5', '-Ilocal/lib/perl5', '-Iscripts/lib'] if installed else ['-Ilocal/lib/perl5', '-Ipackages/core/lib', '-Ipackages/async/lib', '-Ipackages/workspace/lib', '-Iscripts/lib']
     if installed: env['LIBTMUX_TEST_CLI']=str(Path(installed)/'bin/libtmux-workspace')
-    if version == '3.3':
-        rejection = "use v5.44;use LibTmux::Server;my $e;try { LibTmux::Server->new(executable=>$ENV{LIBTMUX_TEST_TMUX},socket_name=>'libtmux-perl-reject-3-3')->new_session(name=>'rejected') } catch ($x) {$e=$x} die 'wrong floor rejection' unless ref($e) && $e->isa('LibTmux::X::Unsupported');"
-        commands = [['perl', *libs, '-e', rejection]]
-    else:
-        suites = [str(p.relative_to(ROOT)) for package in ('core','async','workspace') for p in sorted((ROOT / f'packages/{package}/t/integration').glob('*.t'))]
-        commands = [['python3', 'scripts/with-subreaper.py', 'perl', *libs, suite] for suite in suites]
-        commands.append(['perl', 'scripts/run-examples.pl', *(['--installed', installed] if installed else [])])
+    suites = [str(p.relative_to(ROOT)) for package in ('core','async','workspace') for p in sorted((ROOT / f'packages/{package}/t/integration').glob('*.t'))]
+    commands = [['python3', 'scripts/with-subreaper.py', 'perl', *libs, suite] for suite in suites]
+    commands.append(['perl', 'scripts/run-examples.pl', *(['--installed', installed] if installed else [])])
     results = []
     for index, command in enumerate(commands):
         start = time.monotonic()
@@ -105,7 +101,7 @@ def main():
     modes.add_argument('--provision', action='store_true')
     modes.add_argument('--check', action='store_true')
     parser.add_argument('--installed', help='qualified consumer prefix outside the checkout')
-    parser.add_argument('--version', choices=['3.3', *REQUIRED])
+    parser.add_argument('--version', choices=REQUIRED)
     args = parser.parse_args()
     rows = [r for r in LOCK['releases'] if not args.version or r['version'] == args.version]
     if args.provision:
