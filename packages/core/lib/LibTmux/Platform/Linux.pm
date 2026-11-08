@@ -22,6 +22,31 @@ sub _subreaper () {
     ) unless syscall(157, 36, 1, 0, 0, 0) == 0;
 }
 
+sub _signal_handle (@signals) {
+
+    # Called only inside the ABI-qualified private supervisor. The kernel
+    # mask has one 64-bit word; libc's larger sigset_t is not the syscall ABI.
+    my $bits = 0;
+    $bits |= 1 << ($_ - 1) for @signals;
+    my $mask = pack('Q<', $bits);
+
+    # Linux v6.18 asm-generic/fcntl.h: NONBLOCK | CLOEXEC, on this ABI.
+    my $fd = syscall(289, -1, $mask, length($mask), 00004000 | 02000000);
+    LibTmux::X::Transport->throw(
+        message    => "create supervisor signal descriptor: $!",
+        dispatched => false
+    ) if $fd < 0;
+    unless (open my $handle, '<&=', $fd) {
+        my $error = "$!";
+        POSIX::close($fd);
+        LibTmux::X::Transport->throw(
+            message    => "open supervisor signal descriptor: $error",
+            dispatched => false
+        );
+    }
+    else { return $handle }
+}
+
 sub _close_fds_except (@handles) {
     my %keep = map { $_ => true } (0, 1, 2);
     for my $handle (@handles) {

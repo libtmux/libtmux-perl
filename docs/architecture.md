@@ -39,6 +39,10 @@ qualified syscall adapter is Linux x86_64 LP64; other ABIs fail before dispatch.
 The syscall number and `PR_SET_CHILD_SUBREAPER` constant come from the pinned
 Linux v6.18 syscall table and prctl header. This avoids a non-core runtime
 dependency without claiming untested architectures.
+The supervisor blocks its CHLD/INT/TERM signals and receives them through
+`signalfd`, preventing a deferred Perl handler from missing the final wait
+boundary. The command restores its inherited mask before execution; the
+caller is untouched. See [ADR 0005](dev/adr/0005-supervisor-signal-readiness.md).
 
 The listing codec escapes backslashes, tabs, and newlines with one field lookup
 per value. Length-prefixing through two lookups is unsafe for dynamic fields.

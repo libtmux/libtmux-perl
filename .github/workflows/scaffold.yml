@@ -94,7 +94,9 @@ jobs:
       - name: Check all distributions, documentation, and units
         run: make check
       - name: Inject child exit at the blocking wait boundary
-        run: python3 scripts/evidence.py async-wakeup -- make check-async-wakeup
+        run: |
+          python3 scripts/evidence.py supervisor-wakeup -- make check-supervisor-wakeup
+          python3 scripts/evidence.py async-wakeup -- make check-async-wakeup
       - name: Export native declarations from the exact source revision
         run: perl scripts/export-api.pl --revision "$GITHUB_SHA" --exporter-revision "$GITHUB_SHA" --output .cache/native-api.json
       - name: Check the instruction link and whitespace

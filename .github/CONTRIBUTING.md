@@ -233,6 +233,15 @@ its workflows incur costs. [AGENTS.md](../AGENTS.md#publishing) owns this rule.
 
 ## Implementation verification commands
 
+The supervisor regression releases a stopped command after output EOF,
+inside the native wait boundary. It requires prompt completion, successful
+status and verified cleanup, and detects the deferred-Perl-handler failure.
+Its C interposer is an author-only outer check:
+
+```console
+$ mise exec -- make check-supervisor-wakeup
+```
+
 The async outer regression compiles a small author-only C interposer with
 `cc`, then injects a real child exit between Perl's final signal safe point and
 the native wait. It leaves reaping to IO::Async and fails if a fallback timeout

@@ -102,36 +102,35 @@ sub run ($class, %args) { $class->start(%args)->wait }
 sub _supervise ($args, $alive_r, $result_w) {
     require LibTmux::Platform::Linux;
     LibTmux::Platform::Linux::_subreaper();
-    my ($in_r,     $in_w)     = _pipe();
-    my ($out_r,    $out_w)    = _pipe();
-    my ($err_r,    $err_w)    = _pipe();
-    my ($exec_r,   $exec_w)   = _pipe();
-    my ($go_r,     $go_w)     = _pipe();
-    my ($notice_r, $notice_w) = _pipe();
+    my ($in_r, $in_w)     = _pipe();
+    my ($out_r, $out_w)   = _pipe();
+    my ($err_r, $err_w)   = _pipe();
+    my ($exec_r, $exec_w) = _pipe();
+    my ($go_r, $go_w)     = _pipe();
+    my @signals = (SIGCHLD, SIGINT, SIGTERM);
+    my $block   = POSIX::SigSet->new(@signals);
+    my $old     = POSIX::SigSet->new;
+    POSIX::sigprocmask(SIG_BLOCK, $block, $old)
+        // die "block supervisor signals: $!";
+    local $SIG{CHLD} = 'DEFAULT';
+    local $SIG{INT}  = 'DEFAULT';
+    local $SIG{TERM} = 'DEFAULT';
+    my $notice_r = LibTmux::Platform::Linux::_signal_handle(@signals);
+    fcntl($notice_r, F_SETFD, FD_CLOEXEC) // die "signal close-on-exec: $!";
     _nonblock($_)
-        for ($in_w, $out_r, $err_r, $exec_r, $notice_r, $notice_w, $alive_r);
-    my $block = POSIX::SigSet->new(SIGCHLD);
-    my $old   = POSIX::SigSet->new;
-    POSIX::sigprocmask(SIG_BLOCK, $block, $old);
+        for ($in_w, $out_r, $err_r, $exec_r, $notice_r, $alive_r);
     my $reason;
-    local $SIG{CHLD} = sub { local ($!, $?); syswrite($notice_w, 'c') };
-    local $SIG{INT}  = sub {
-        local ($!, $?);
-        $reason //= 'Cancelled';
-        syswrite($notice_w, 'i');
-    };
-    local $SIG{TERM} = sub {
-        local ($!, $?);
-        $reason //= 'Cancelled';
-        syswrite($notice_w, 't');
-    };
 
     # Allocate every pipe before raw descriptor closure. PerlIO still tracks
     # inherited handles; reusing their numbers can retain protocol pipe ends.
     LibTmux::Platform::Linux::_close_fds_except(
-        $alive_r, $result_w, $args->{_cancel_r},
-        $in_r,    $in_w,     $out_r, $out_w, $err_r,    $err_w,
-        $exec_r,  $exec_w,   $go_r,  $go_w,  $notice_r, $notice_w,
+        $alive_r,           $result_w,
+        $args->{_cancel_r}, $in_r,
+        $in_w,              $out_r,
+        $out_w,             $err_r,
+        $err_w,             $exec_r,
+        $exec_w,            $go_r,
+        $go_w,              $notice_r,
         exists($args->{cancel_fh}) ? ($args->{cancel_fh}) : ()
     );
     my $pid = fork();
@@ -147,12 +146,12 @@ sub _supervise ($args, $alive_r, $result_w) {
         close $exec_r;
         close $go_w;
         close $notice_r;
-        close $notice_w;
         close $alive_r;
         close $args->{_cancel_r} if $args->{_cancel_r};
-        POSIX::sigprocmask(SIG_SETMASK, $old);
         my $fail =
             sub ($message) { syswrite($exec_w, 'E' . $message); _exit(127) };
+        POSIX::sigprocmask(SIG_SETMASK, $old)
+            // $fail->("restore program signal mask: $!");
         my $group = setpgid(0, 0);
         $fail->("setpgid: $!") unless defined($group) && $group == 0;
         syswrite($exec_w, 'G') == 1 or _exit(127);
@@ -180,9 +179,8 @@ sub _supervise ($args, $alive_r, $result_w) {
     close $go_r;
     setpgid($pid, $pid);
 
-    # This private supervisor needs child-exit notifications. The program
-    # restored the caller's original mask in its own fork branch above.
-    POSIX::sigprocmask(SIG_UNBLOCK, $block);
+    # Kernel signal readiness survives the final Perl safe point before
+    # select. A deferred Perl handler writing a self-pipe does not.
     my $reads = IO::Select->new($out_r, $err_r, $exec_r, $notice_r, $alive_r);
     $reads->add($args->{cancel_fh}) if exists $args->{cancel_fh};
     $reads->add($args->{_cancel_r}) if $args->{_cancel_r};
@@ -276,7 +274,20 @@ sub _supervise ($args, $alive_r, $result_w) {
                 $reads->remove($fh);
                 next;
             }
-            next if $fd == fileno($notice_r);
+            if ($fd == fileno($notice_r)) {
+                if (!defined($n) || !$n || $n % 128) {
+                    $reason //= 'Transport';
+                    $reads->remove($fh);
+                }
+                else {
+                    for (my $offset = 0 ; $offset < $n ; $offset += 128) {
+                        my $signal = unpack('L<', substr($chunk, $offset, 4));
+                        $reason //= 'Cancelled'
+                            if $signal == SIGINT || $signal == SIGTERM;
+                    }
+                }
+                next;
+            }
             if (!defined($n) || !$n) {
                 $reads->remove($fh);
                 delete $stream{$fd};
@@ -378,6 +389,9 @@ L<LibTmux::CommandResult> exposes stdout, stderr, exit_code, signal, raw_status,
 and success. Output remains octets.
 
 The private supervisor owns program signals/groups and reaps the program.
+It receives CHLD, INT and TERM through a Linux signal descriptor, so child
+exit cannot wait for a deferred Perl handler. This mask belongs only to the
+supervisor; the command restores its inherited mask before execution.
 Application SIGCHLD handlers remain intact; SIGCHLD=IGNORE is refused.
 Cancellation handles are borrowed and remain open. Cancellation after release
 can have effects and never implies rollback. Parent death triggers cleanup.

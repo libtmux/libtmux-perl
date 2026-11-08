@@ -11,6 +11,7 @@ describe how to use the library.
 | [ADR 0002](0002-reversible-native-getters.md) | Accepted | Reversible native option and environment values. |
 | [ADR 0003](0003-query-verification-diagnostics.md) | Accepted | Observable native candidate verification. |
 | [ADR 0004](0004-atomic-async-child-exit.md) | Accepted | Atomic child-exit notification and async signal inheritance. |
+| [ADR 0005](0005-supervisor-signal-readiness.md) | Accepted | Kernel signal readiness in the private supervisor. |
 
 An accepted record describes the implementation baseline. It does not certify
 a release, an operating system, or a deployed documentation site. A change to

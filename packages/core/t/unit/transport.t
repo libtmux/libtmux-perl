@@ -1,7 +1,7 @@
 use v5.44;
 use Test2::V1;
 use Scalar::Util qw(blessed);
-use POSIX        qw(WNOHANG SIGCHLD SIG_BLOCK SIG_SETMASK);
+use POSIX        qw(WNOHANG SIGCHLD SIGINT SIGTERM SIG_BLOCK SIG_SETMASK);
 use JSON::PP     ();
 
 my $loaded = eval { require LibTmux::Transport; 1 };
@@ -52,7 +52,7 @@ my $reaped = 0;
 
 {
     my $old     = POSIX::SigSet->new;
-    my $blocked = POSIX::SigSet->new(SIGCHLD);
+    my $blocked = POSIX::SigSet->new(SIGCHLD, SIGINT, SIGTERM);
     POSIX::sigprocmask(SIG_BLOCK, $blocked, $old);
     my ($observed, $failure);
     try {
@@ -61,7 +61,8 @@ my $reaped = 0;
             use POSIX ();
             my $mask = POSIX::SigSet->new;
             POSIX::sigprocmask(POSIX::SIG_BLOCK(), undef, $mask);
-            print $mask->ismember(POSIX::SIGCHLD());
+            print $mask->ismember($_)
+                for POSIX::SIGCHLD(), POSIX::SIGINT(), POSIX::SIGTERM();
             close STDOUT;
             close STDERR;
             my $sum = 0;
@@ -76,8 +77,13 @@ my $reaped = 0;
     T2->is($failure, undef,
         'EOF before exit wakes the supervisor with caller CHLD blocked');
     T2->is($observed ? $observed->stdout : undef,
-        '1', 'program retains the caller signal mask');
-    T2->ok($after->ismember(SIGCHLD), 'caller signal mask remains blocked');
+        '111', 'program retains the caller signal mask');
+    T2->ok(
+        $after->ismember(SIGCHLD)
+            && $after->ismember(SIGINT)
+            && $after->ismember(SIGTERM),
+        'caller signal mask remains blocked'
+    );
 }
 
 sub throws ($code, $type) {

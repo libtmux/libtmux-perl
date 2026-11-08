@@ -4,7 +4,9 @@
 
 Accepted architecture, amended 2026-11-08 after source review and owned
 counterexamples. Follow-up records govern reversible getters, query diagnostics
-and the async atomic-wait backend.
+and the async atomic-wait backend. [ADR 0005](0005-supervisor-signal-readiness.md)
+replaces the supervisor's deferred signal handlers after reproducing a false
+command timeout at its native wait boundary.
 The [source baseline](https://github.com/libtmux/libtmux-perl/tree/7ef1371b97fdaa48973f47fc7b0bc198ed4acc03)
 identifies the implementation reviewed.
 
