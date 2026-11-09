@@ -412,6 +412,14 @@ Shared-site deployment requires its own authority. CPAN publication, tags, and
 releases are separate operations. Keep both shared workflow pins identical
 when updating the builder.
 
+For production, pin both imports to the documentation main-branch merge
+commit approved by the docs maintainer. Publisher IAM trust checks the exact
+workflow SHA. The maintainer supplies that merge SHA after the integration
+lands and the publisher trust allowlist includes it. Feature-branch SHAs can
+be used for build-only verification. After repinning, repeat the build with
+`publish=false` and verify its source-bound artifact before authorized
+deployment.
+
 Manual documentation builds accept `trunk`, `tag`, and `alias` versions. The
 publisher uses the `docs` environment and takes `perl/<version>` as its
 prefix; the shared publisher adds the locale. It selects the builder's exact
