@@ -19,6 +19,19 @@ my @libraries =
     "$root/local/lib/perl5",
     map { "$root/packages/$_/lib" } qw(core async workspace)
     );
+my %expected_stdout = (
+    'examples/quickstart.pl' => [
+        'session demo',
+        'window 0:editor:',
+        'window 1:logs:',
+        'is in window editor'
+    ],
+    'examples/selection.pl' =>
+        ['selection, wire, graph lifetime, quantifiers, and query: ok'],
+    'examples/workspace.pl' => ['workspace load and repeat: ok'],
+    'examples/async.pl'     => ['async capture and cleanup: ok'],
+    'examples/await.pl'     => ['optional caller await syntax: ok'],
+);
 
 for my $file (sort glob 'examples/*.pl') {
     if ($file eq 'examples/async-lifecycle.pl') {
@@ -63,6 +76,8 @@ for my $file (sort glob 'examples/*.pl') {
         );
         next;
     }
+    my $expected = $expected_stdout{$file}
+        // die "$file has no declared expected output\n";
     my $result = LibTmux::Transport->run(
         argv    => ['python3', 'scripts/with-subreaper.py', $^X, $file],
         timeout => 2,
@@ -70,5 +85,9 @@ for my $file (sort glob 'examples/*.pl') {
     );
     die "$file failed:\n" . $result->stdout . $result->stderr
         unless $result->success;
+    for my $line (@$expected) {
+        die "$file missing expected output: $line\n"
+            unless index($result->stdout, $line) >= 0;
+    }
     print "$file: ", $result->stdout;
 }
