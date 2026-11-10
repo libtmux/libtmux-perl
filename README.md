@@ -14,8 +14,12 @@
 </div>
 
 Control tmux with explicit commands, captured graphs, and ordinary Perl arrays.
-Targets stable Perl 5.44.0 and Linux x86_64, including WSL. These development
+Targets stable Perl 5.44.0 and Linux x86_64 LP64, including WSL. These development
 distributions are not published on CPAN.
+
+[Documentation](https://libtmux.org/en/perl/latest/) ·
+[API reference](https://libtmux.org/en/perl/latest/reference/) ·
+[Run the examples](examples/README.md)
 
 ```perl
 use v5.44;
@@ -35,7 +39,7 @@ for my $pane ($active->@*) {
 | Distribution | Location | Runtime dependencies |
 | --- | --- | --- |
 | [`LibTmux`](packages/core/README.md) | [packages/core](packages/core) | Perl standard library. |
-| [`LibTmux-Async`](packages/async/README.md) | [packages/async](packages/async) | Versioned core, Future, IO::Async::Loop::Ppoll and IO::Ppoll; caller-owned Ppoll loop. |
+| [`LibTmux-Async`](packages/async/README.md) | [packages/async](packages/async) | Versioned core, Future, IO::Async, IO::Async::Loop::Ppoll and IO::Ppoll; caller-owned Ppoll loop. |
 | [`LibTmux-Workspace`](packages/workspace/README.md) | [packages/workspace](packages/workspace) | Versioned core; packaged JSON loader CLI. |
 
 Start with [installation](docs/installation.md),
@@ -49,7 +53,7 @@ their alternatives, and the upstream source models behind them.
 Installed API documentation uses native POD; for example `perldoc
 LibTmux::Server` and `perldoc LibTmux::Selection`.
 
-[Complete examples](examples) run against uniquely owned tmux sockets and
+[Complete examples](examples/README.md) run against uniquely owned tmux sockets and
 assert results and cleanup. [Compatibility](docs/compatibility.md) records
 support for tmux 3.3a–3.8 and CI coverage of the range endpoints. Captured
 selections perform no tmux I/O; their methods preserve order and duplicates
@@ -57,8 +61,7 @@ and return one fixed type in every calling context. Native array access
 remains available.
 
 MCP is excluded. Persistent control mode, streaming APIs, tmux command lists,
-serialized regexes, and relation pushdown are deferred. Package publication
-and shared-site deployment require separate authority.
+serialized regexes, and relation pushdown are deferred.
 
 See [contributing](.github/CONTRIBUTING.md) for exact checks and tool setup,
 [Perl choices](.github/PERL.md) for source-backed decisions, and

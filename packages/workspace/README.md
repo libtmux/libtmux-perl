@@ -13,10 +13,31 @@
 
 </div>
 
-Validate, inspect, and load versioned JSON workspaces through public LibTmux
-core APIs. Requires stable Perl 5.44.0, the versioned LibTmux core, and its
+LibTmux-Workspace validates, plans, and loads versioned JSON workspaces through
+public LibTmux core APIs. Requires stable Perl 5.44.0, the versioned core, and its
 supported Linux/tmux environment. No non-core runtime dependency is added.
 This development distribution is not published on CPAN.
+
+[Install from source](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md) ·
+[API reference](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) ·
+[Examples](https://github.com/libtmux/libtmux-perl/blob/master/examples/README.md)
+
+After installing the workspace distribution, save this as `workspace.json`:
+
+```json
+{
+  "schema": "libtmux.workspace/v1",
+  "sessions": [{
+    "name": "example",
+    "windows": [{
+      "name": "main",
+      "panes": [{"command": ["/bin/cat"]}]
+    }]
+  }]
+}
+```
+
+Inspect the plan, then load it into the explicitly named `example` server:
 
 ```console
 $ libtmux-workspace plan workspace.json

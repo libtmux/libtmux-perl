@@ -23,15 +23,47 @@ Keep personal information and machine-specific paths out of published text.
 
 Describe the caller's task before implementation details. Explain inputs,
 defaults, empty values, errors, side effects, ownership, ordering, concurrency,
-and cleanup when they affect the contract. Use native Perl conventions when
-API documentation is introduced. Avoid repeating signatures or language basics.
+and cleanup when they affect the contract. Use native Perl conventions.
+Write installed API documentation in POD, with `L<>` links to real qualified
+classes, methods, return types, errors, and sections. Validate those targets
+through native POD checks and the shared-site exporter. Avoid repeating
+signatures or language basics.
 
 Examples must match available APIs and include required setup and cleanup.
-Prefer examples derived from tested source when it exists. A performance
-claim needs a measurement and a reproduction command.
+Keep complete programs in [examples](../examples/README.md), check their exit
+status and expected output, and derive marked guide blocks from those files.
+Distinguish checkout fixtures from installed public APIs. Name prerequisites
+for excerpts and borrowed-server examples; do not leave setup implicit.
+Each example that starts tmux owns an explicit socket and verifies cleanup.
+Never rely on inherited `TMUX` or `TMUX_PANE` to select its server.
+
+The [shared capability showcase](https://github.com/libtmux/docs/issues/243)
+offers only executed examples with recorded CI evidence and the actual tmux
+floor. Keep unsupported capabilities out of its advertised examples. A
+performance claim needs a measurement and a reproduction command.
 
 Link to the source of a rule instead of copying it across documents. Keep
 relative links valid when moving files or renaming headings.
+
+## READMEs
+
+Give each distribution its own README, with its package name, purpose,
+requirements, one supported installation route, a working example, and links
+to its API and guides. Preserve the logo block at the top and the existing
+`libtmux-logo` markers. Keep package-local assets usable in the native archive.
+
+Organize sections around reader tasks. Link the API at its first prose mention
+in a section and keep links out of code fences. Put detailed contracts in the
+owning guide. Keep paragraphs short enough to scan; use a table when readers
+need to compare packages or examples. Describe supported versions separately
+from the versions CI actually runs.
+
+Use relative source links in the repository README. Distribution READMEs also
+need to work outside the checkout, so use hosted documentation or canonical
+repository URLs for material outside that distribution. The merged
+[Rust README structure](https://github.com/libtmux/libtmux-rs/pull/89) and
+[TypeScript package/API links](https://github.com/libtmux/libtmux-ts/pull/82)
+show the shared conventions; adapt their commands and contracts to Perl.
 
 ## Comments and errors
 
