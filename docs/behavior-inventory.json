@@ -504,7 +504,6 @@
     "legacy_aliases": "Python deprecated aliases are excluded; named native Perl surface plus explicit cmd is authoritative.",
     "ui_helpers": "Popup/menu/prompt/key-binding/clock/chooser wrappers are excluded; explicit cmd remains available where tmux supports the caller context.",
     "other_operations": "Buffer save/load file, pane respawn/swap/join/break/pipe, server lock/access, wait-for, run-shell/source-file remain explicit cmd operations without wrapper parity claims.",
-    "errors": "Acquisition never converts failure to empty results.",
-    "mcp": "Explicitly excluded by user."
+    "errors": "Acquisition never converts failure to empty results."
   }
 }

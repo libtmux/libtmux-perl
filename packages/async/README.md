@@ -179,6 +179,6 @@ excludes queue delay and the total duration of a multi-command operation.
 `Future::AsyncAwait` is optional caller syntax. Core and workspace remain
 usable without Future, IO::Async, or IO::Ppoll. Installed documentation is
 available with `perldoc LibTmux::Async::Server` and
-`perldoc LibTmux::Async::Transport`. MCP is excluded. Persistent control and
+`perldoc LibTmux::Async::Transport`. Persistent control and
 streaming APIs remain deferred; see the
 [architecture](https://github.com/libtmux/libtmux-perl/blob/master/docs/architecture.md).

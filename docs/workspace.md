@@ -105,7 +105,7 @@ or reconciliation of an existing layout.
 Each pane requires literal `command` argv or explicit `shell_command`.
 Environment inherits workspace → session → window → pane; cwd inherits from
 window unless overridden. Layout applies after splitting. Configuration is
-versioned JSON; no YAML adapter or MCP consumer is selected.
+versioned JSON; no YAML adapter is selected.
 
 On failure, inspect completed steps, failed step, created IDs, dispatch
 uncertainty, and cleanup errors. Rollback targets only sessions proven created

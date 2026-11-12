@@ -7,7 +7,7 @@ distributions for libtmux. Preserve their independent native package boundaries.
 
 - The products are core in `packages/core`, optional async in `packages/async`,
   and workspace in `packages/workspace`. Async owns its Future/IO::Async runtime
-  dependencies; core and workspace remain usable without them. MCP is excluded.
+  dependencies; core and workspace remain usable without them.
   Preserve this scope in architecture plans and goal epics.
 - Prefer the Perl standard library and stable Perl 5.44 features at runtime.
   Add a non-core dependency only for a verified need and document the reason.

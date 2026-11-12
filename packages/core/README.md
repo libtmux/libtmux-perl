@@ -194,7 +194,7 @@ Installed POD is available with `perldoc LibTmux::Server` and
 adds Future-returning operations.
 [LibTmux-Workspace](https://github.com/libtmux/libtmux-perl/tree/master/packages/workspace)
 loads JSON through these public core APIs. Core loads neither distribution.
-MCP is excluded; persistent control and streaming APIs are deferred.
+Persistent control and streaming APIs are deferred.
 
 Each native archive owns its metadata, test requirements, README, license,
 logo assets, and consumer examples. The

@@ -458,9 +458,8 @@ automatically a declaration nested inside `LibTmux::Async`.
 The native export records library and exporter identities separately. Shared
 site builds and publication use the same pinned renderer revision and an
 exact artifact descriptor. Unpublished distributions are labelled as source
-previews; their real overview pages remain useful destinations. Perl MCP is
-excluded and has no package or product destination. Package publication and
-shared-site deployment require separate authority.
+previews; their real overview pages remain useful destinations. Package
+publication and shared-site deployment require separate authority.
 
 [Compatibility](../../compatibility.md) defines the Linux/Perl/tmux cells;
 the [source lock](../../../scripts/tmux-lock.json) pins builds. Validation
