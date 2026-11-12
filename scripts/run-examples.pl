@@ -3,6 +3,10 @@ use FindBin;
 use lib "$FindBin::Bin/../packages/core/lib";
 use lib "$FindBin::Bin/lib";
 use Cwd qw(getcwd abs_path);
+use Archive::Tar;
+use File::Temp     qw(tempdir);
+use File::Path     qw(make_path);
+use File::Basename qw(dirname);
 use LibTmux::Transport;
 use LibTmux::Platform::Linux;
 use LibTmuxFixture;
@@ -19,7 +23,39 @@ my @libraries =
     "$root/local/lib/perl5",
     map { "$root/packages/$_/lib" } qw(core async workspace)
     );
+my $example_root = $root;
+
+if ($installed) {
+    $example_root =
+        tempdir('libtmux-perl-examples-XXXX', TMPDIR => 1, CLEANUP => 1);
+    for my $package (qw(core async workspace)) {
+        my $distribution =
+            $package eq 'core'
+            ? 'LibTmux'
+            : 'LibTmux-' . ucfirst($package);
+        my @archives = glob ".cache/artifacts/$distribution-[0-9]*.tar.gz";
+        die "expected one $package native archive\n" unless @archives == 1;
+        my $tar = Archive::Tar->new($archives[0], 1);
+        for my $entry ($tar->list_files) {
+            next unless $entry =~ m!\A[^/]+/(examples/[a-z-]+\.(?:pl|json))\z!;
+            my $relative = "packages/$package/$1";
+            open my $source, '<:raw', $relative or die "$relative: $!";
+            my $expected = do { local $/; <$source> };
+            close $source;
+            my $content = $tar->get_content($entry);
+            die "native archive example differs from source: $relative\n"
+                unless $content eq $expected;
+            my $target = "$example_root/$relative";
+            make_path(dirname($target));
+            open my $out, '>:raw', $target or die "$target: $!";
+            print {$out} $content;
+            close $out or die $!;
+        }
+    }
+}
 my %expected_stdout = (
+    'packages/core/examples/quickstart.pl' =>
+        ['editor: 2 panes', 'logs: 1 pane'],
     'examples/quickstart.pl' => [
         'session demo',
         'window 0:editor:',
@@ -31,9 +67,71 @@ my %expected_stdout = (
     'examples/workspace.pl' => ['workspace load and repeat: ok'],
     'examples/async.pl'     => ['async capture and cleanup: ok'],
     'examples/await.pl'     => ['optional caller await syntax: ok'],
+    'packages/core/examples/workflow.pl' => [
+        'editor panes: 2',
+        'active pane belongs to editor',
+        'PROJECT=api',
+        'restored filter matches: 1',
+        'same child: 0',
+        'different children: 1',
+        'native verification: agreed',
+        'captured name: logs',
+        'core workflow: ok',
+    ],
+    'packages/core/examples/filters.pl' => [
+        'matching records: %1',
+        'invalid operand at pane.where.width.-gte',
+        'expected: safe decimal integer',
+        'filter records and wire: ok',
+    ],
+    'packages/async/examples/concurrent.pl' => [
+        'async active panes: 1',
+        "first\nsecond\n",
+        'async operations and cleanup: ok',
+    ],
+    'packages/workspace/examples/load.pl' => [
+        'planned sessions: 1',
+        'loaded windows: 2',
+        'editor panes: 2',
+        'skipped existing sessions: 1',
+        'workspace plan, load, repeat: ok',
+    ],
 );
 
-for my $file (sort glob 'examples/*.pl') {
+for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
+    my $program = $file =~ m!\Apackages/! ? "$example_root/$file" : $file;
+    die "example absent from native archive: $file\n"
+        if $installed && $file =~ m!\Apackages/! && !-f $program;
+    if ($file =~ m!\Apackages/! && $file !~ m!/filters\.pl\z!) {
+        LibTmuxFixture->run(
+            sub ($server, $socket_root) {
+                my $sentinel = $server->new_session(
+                    name    => 'borrowed-session',
+                    command => [$^X, '-e', 'while (<STDIN>) { print }'],
+                );
+                my $result = LibTmux::Transport->run(
+                    argv => [
+                        $^X,              $program,
+                        "$socket_root/s", $ENV{LIBTMUX_TEST_TMUX} // 'tmux'
+                    ],
+                    timeout => 3,
+                    env     => {PERL5LIB => join(':', @libraries)},
+                );
+                die "$file failed:\n" . $result->stdout . $result->stderr
+                    unless $result->success;
+                for my $line ($expected_stdout{$file}->@*) {
+                    die "$file missing expected output: $line\n"
+                        unless index($result->stdout, $line) >= 0;
+                }
+                my $remaining = $server->snapshot->sessions->one;
+                die
+"$file changed borrowed resources or left its session behind"
+                    unless $remaining->id eq $sentinel->id;
+                print "$file: ", $result->stdout;
+            }
+        );
+        next;
+    }
     if ($file eq 'examples/async-lifecycle.pl') {
         LibTmuxFixture->run(
             sub ($server, $socket_root) {
@@ -79,7 +177,9 @@ for my $file (sort glob 'examples/*.pl') {
     my $expected = $expected_stdout{$file}
         // die "$file has no declared expected output\n";
     my $result = LibTmux::Transport->run(
-        argv    => ['python3', 'scripts/with-subreaper.py', $^X, $file],
+        argv => $file =~ m!\Apackages/!
+        ? [$^X, $program]
+        : ['python3', 'scripts/with-subreaper.py', $^X, $file],
         timeout => 2,
         env     => {PERL5LIB => join(':', @libraries)}
     );

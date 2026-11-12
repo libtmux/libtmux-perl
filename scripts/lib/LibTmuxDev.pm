@@ -10,8 +10,10 @@ sub perl_files () {
     for my $package (qw(core async workspace)) {
         push @files, "packages/$package/Makefile.PL",
             "packages/$package/cpanfile";
-        for my $dir ("packages/$package/lib", "packages/$package/t",
-            "packages/$package/bin")
+        for my $dir (
+            "packages/$package/lib", "packages/$package/t",
+            "packages/$package/bin", "packages/$package/examples"
+            )
         {
             next unless -d $dir;
             File::Find::find(
