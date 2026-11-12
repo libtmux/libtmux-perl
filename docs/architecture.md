@@ -64,7 +64,7 @@ calls transactional. See [query planning](query-planning.md) and
 
 Workspace owns JSON configuration and orchestration through public core APIs.
 Its native distribution depends on the versioned core. Runtime code prefers
-Perl's standard library. MCP is excluded.
+Perl's standard library.
 
 The optional `LibTmux-Async` distribution adds bounded concurrent subprocess
 submission through an injected caller-owned IO::Async::Loop::Ppoll. Its native

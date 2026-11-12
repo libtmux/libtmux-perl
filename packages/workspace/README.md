@@ -180,7 +180,7 @@ by that load. `report` preserves typed cleanup failures with target identities;
 The CLI exits with 0 for success, 2 for usage/configuration, 3 for load failure,
 and 4 for conflict. Pane commands use literal `command` arrays or an explicit
 `shell_command`. The versioned `libtmux.workspace/v1` format is not tmuxp's
-schema; tmuxp catalog import is separate work. JSON does not select MCP.
+schema; tmuxp catalog import is separate work.
 
 Read the [workspace guide](https://libtmux.org/en/perl/latest/workspace/source-guide/)
 and installed `perldoc LibTmux::Workspace` documentation. Each native archive

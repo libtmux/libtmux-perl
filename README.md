@@ -218,7 +218,7 @@ Read [installation](docs/installation.md), [orchestration](docs/orchestration.md
 Installed API documentation uses POD: `perldoc LibTmux::Server`.
 
 [Compatibility](docs/compatibility.md) covers tmux 3.3a–3.8 inclusive; CI tests
-only Perl 5.44 and the two tmux endpoints. MCP is excluded. Persistent control,
+only Perl 5.44 and the two tmux endpoints. Persistent control,
 streaming subscriptions, tmux command chaining, serialized regexes, and relation
 pushdown are deferred. [Architecture decisions](docs/dev/adr/index.md) explain
 the contracts and costs.
