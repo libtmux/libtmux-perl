@@ -42,3 +42,24 @@ missing required topology. Unloaded fields and relations throw when needed;
 null and loaded-empty relations remain distinct. Accessors return independent
 membership arrays. Query methods are nonmutating, while native arrays remain
 mutable and every library query validates their members.
+
+## Observe a rename without rewriting history
+
+The [standalone workflow](../packages/core/examples/workflow.pl) retains the
+`logs` window from one capture, renames its live counterpart, and checks both
+observations:
+
+<!-- example: packages/core/examples/workflow.pl#graph -->
+```perl
+my $before = $snapshot->window_by_id($logs->id);
+$server->rename_window(window => $logs, name => 'build');
+die 'captured name changed' unless $before->name eq 'logs';
+die 'new name missing'
+    unless $server->snapshot->window_by_id($logs->id)->name eq 'build';
+say 'captured name: ', $before->name;
+
+```
+
+The old handle still says `logs`; a new capture says `build`. The core quick
+start also traverses its retained graph after removing its live session.
+Both programs use only installed public modules and explicit sockets.

@@ -52,3 +52,37 @@ the observer or stopping the loop does not prove that processes have exited.
 command succeeded but subsequent capture failed. Inspect `created` and `cause`
 before deciding cleanup. Other fields on that handle are unloaded. Workspace
 uses this evidence for owned rollback and records cleanup failures separately.
+
+## Report an invalid filter without losing its type
+
+The [record-only example](../packages/core/examples/filters.pl) runs without a
+tmux server and rejects a text operand for an integer field:
+
+<!-- example: packages/core/examples/filters.pl#invalid -->
+```perl
+try {
+    LibTmux::Filter->new(
+        entity => 'pane',
+        where  => {width => {-gte => 'wide'}}
+    );
+    die 'invalid numeric operand was accepted';
+}
+catch ($error) {
+    die $error unless $error isa LibTmux::X::InvalidFilter;
+    say 'invalid operand at ', $error->path;
+    say 'expected: ',          $error->expected;
+}
+
+```
+
+The path is `pane.where.width.-gte`, and `expected` says `safe decimal integer`.
+Use the typed [InvalidFilter](https://libtmux.org/en/perl/latest/reference/libtmux-x/)
+exception and its fields to choose recovery; stringification is for a readable
+diagnostic. Unknown fields and malformed filters fail before examining any
+selection members, including on an empty selection.
+
+The [core quick start](../packages/core/examples/quickstart.pl) separately
+shows creation receipts and exception-safe session cleanup. The
+[async consumer](../packages/async/examples/concurrent.pl) awaits executor
+cleanup even after an operation fails. A cleanup failure never replaces the
+original operation failure in either example.

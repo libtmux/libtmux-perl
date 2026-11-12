@@ -52,86 +52,108 @@ Wire names use camelCase and dash-free operators. Regex/coderefs/cycles/blessed
 values are refused at that data boundary. Native Perl `qr//` remains available
 in callbacks.
 
-The complete example below is copied from an executed program. The fixture
-helper uses an owned socket, observes process exit, and cleans up on failures.
+## Query installed objects and ordinary records
 
-<!-- example: selection.pl -->
+The [live workflow](../packages/core/examples/workflow.pl) creates two editor
+panes before running these local queries:
+
+<!-- example: packages/core/examples/workflow.pl#filter -->
 ```perl
-use v5.44;
-use FindBin;
-use lib "$FindBin::Bin/../scripts/lib";
-use LibTmuxFixture;
-use LibTmux::Filter;
-use List::Util qw(any first);
-LibTmuxFixture->run(
-    sub ($server, $root) {
-        my $session = $server->new_session(
-            name    => 'example',
-            command => ['/bin/sleep', '120']
-        );
-        my $initial = $session->window_links->one->window->panes->one;
-        $server->split_pane(
-            pane       => $initial,
-            horizontal => true,
-            command    => ['/bin/sleep', '120']
-        );
-        my $snapshot = $server->snapshot;
-        my $panes    = $snapshot->panes->where({current_command => 'sleep'})
-            ->grep(sub ($pane) { $pane->width >= 1 });
-        die 'expected two panes' unless $panes->count == 2;
-        for my $pane ($panes->@*) {
-            say $pane->id . ' ' . $pane->current_command;
-        }
-        my $only_active = $panes->one({active => true});
-        die 'active pane unavailable' unless defined $only_active;
-        my $has_active   = any { $_->active } $panes->@*;
-        my $first_active = first { $_->active } $panes->@*;
-        die 'List::Util alternatives differ'
-            unless $has_active && $first_active->id eq $only_active->id;
-        my @ids      = map  { $_->id } $panes->@*;
-        my @positive = grep { $_->width > 0 } $panes->@*;
-        die 'ordinary Perl arrays differ' unless @ids == 2 && @positive == 2;
-        my $filter =
-            LibTmux::Filter->new(entity => 'pane', where => {active => true});
-        my $decoded = LibTmux::Filter->from_json($filter->to_json);
-        die 'wire filter changed meaning'
-            unless $panes->where($decoded)->one->id eq $only_active->id;
-        my $retained = do {
-            my $observed = $server->snapshot;
-            $observed->pane_by_id($only_active->id);
-        };
-        die 'retained graph lost a relationship'
-            unless $retained->window->panes->count == 2;
-        my $same_child = $snapshot->windows->where(
-            {panes => {-some => {-and => [{index => 0}, {index => 1}]}}});
-        my $different_children = $snapshot->windows->where(
-            {
-                -and => [
-                    {panes => {-some => {index => 0}}},
-                    {panes => {-some => {index => 1}}}
-                ]
-            }
-        );
-        die 'quantifiers conflated children'
-            unless $same_child->count == 0 && $different_children->count == 1;
-        my $where = {active => true, width => {-gte => 1}};
-        my $local = $server->query_panes(where => $where, pushdown => 'never');
-        my $verification;
-        my $native = $server->query_panes(
-            where           => $where,
-            pushdown        => 'require',
-            on_verification => sub ($report) { $verification = $report },
-        );
-        die 'native verification was not observed'
-            unless $verification->{status} eq 'agreed'
-            && $verification->{comparison} eq 'exact_ids';
-        die 'native/local disagreement'
-            unless join(',', map { $_->id } @$local) eq
-            join(',', map { $_->id } @$native);
-        say 'selection, wire, graph lifetime, quantifiers, and query: ok';
+my $snapshot = $server->snapshot;
+my $panes =
+    $snapshot->windows->one({name => 'editor'})
+    ->panes->where({width => {-gte => 1}})
+    ->grep(sub ($pane) { $pane->height > 0 });
+my @ids    = map { $_->id } $panes->@*;
+my $active = $panes->one({active => true});
+say 'editor panes: ',          scalar @ids;
+say 'active pane belongs to ', $active->window->name;
+
+```
+
+The [record-only program](../packages/core/examples/filters.pl) runs with the
+installed core and no tmux server:
+
+```console
+$ perl packages/core/examples/filters.pl
+```
+
+<!-- example: packages/core/examples/filters.pl#records -->
+```perl
+my $filter = LibTmux::Filter->new(
+    entity => 'pane',
+    where  => {
+        active          => true,
+        current_command => {-in  => [qw(perl vim)]},
+        width           => {-gte => 80},
+    },
+);
+my @records = (
+    {id => '%1', active => true,  current_command => 'perl', width => 120},
+    {id => '%2', active => false, current_command => 'perl', width => 120},
+    {id => '%3', active => true,  current_command => 'vim',  width => 40},
+);
+my @matches = grep { $filter->matches($_) } @records;
+say 'matching records: ', join ', ', map { $_->{id} } @matches;
+
+```
+
+It prints `matching records: %1`. Its complete source also checks a JSON
+round trip. No author fixture, Python evaluator, or object framework is needed
+by either consumer program.
+
+## Save criteria for reuse
+
+In the live workflow, the compiled filter can be stored as versioned JSON and
+reused on a captured selection:
+
+<!-- example: packages/core/examples/workflow.pl#wire -->
+```perl
+my $filter = LibTmux::Filter->new(
+    entity => 'pane',
+    where  => {active => true, width => {-gte => 1}},
+);
+my $restored = LibTmux::Filter->from_json($filter->to_json);
+my $selected = $panes->where($restored);
+say 'restored filter matches: ', $selected->count;
+
+```
+
+Changing the original criteria hash does not change a compiled filter. Schema
+validation still applies after decoding; executable callbacks belong in `grep`,
+not in the wire data.
+
+## Distinguish one child from two children
+
+One `-some` subtree applies every condition to the same child. Two existential
+subtrees can match different children. The workflow limits the domain to its
+own editor window and checks both cases:
+
+<!-- example: packages/core/examples/workflow.pl#relations -->
+```perl
+my $windows    = $snapshot->windows->where({id => $editor->id});
+my $same_child = $windows->where(
+    {
+        panes => {-some => {-and => [{index => 0}, {index => 1}]}},
     }
 );
+my $different_children = $windows->where(
+    {
+        -and => [
+            {panes => {-some => {index => 0}}},
+            {panes => {-some => {index => 1}}},
+        ],
+    }
+);
+say 'same child: ',         $same_child->count;
+say 'different children: ', $different_children->count;
+
 ```
+
+An individual pane cannot have both index 0 and index 1, so `same child` is 0.
+The window has both panes, so `different children` is 1. Loaded empty relations
+make `-some` false and `-every`/`-none` true. Unloaded relations remain errors
+when evaluation needs them. See [graph identity](graph.md).
 
 ## Independent-port subset
 

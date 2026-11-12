@@ -8,6 +8,27 @@ I/O. `query_panes` explicitly acquires a graph and returns a PaneSelection.
 `explain_panes` creates a local plan using support-floor capabilities; it does
 not connect. Execution binds capabilities to the captured daemon generation.
 
+The [installed-package workflow](../packages/core/examples/workflow.pl)
+compares local evaluation and exact native verification on a controlled graph:
+
+<!-- example: packages/core/examples/workflow.pl#query -->
+```perl
+my $where = {active => true, width => {-gte => 1}};
+my $local = $server->query_panes(where => $where, pushdown => 'never');
+my $verification;
+my $verified = $server->query_panes(
+    where           => $where,
+    pushdown        => 'require',
+    on_verification => sub ($report) { $verification = $report },
+);
+say 'native verification: ', $verification->{status};
+
+```
+
+`never` still performs acquisition; it disables the extra native candidate
+check. The result of either call is a captured local selection. The example
+checks identical IDs and observes `native verification: agreed`.
+
 | Policy | Behavior |
 | --- | --- |
 | `never` | Acquire and evaluate locally. |

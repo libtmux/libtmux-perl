@@ -6,36 +6,96 @@ description: Load a JSON workspace with the Perl libtmux distributions.
 The separate distribution packages the `libtmux-workspace` CLI. Validate and
 plan without tmux I/O; load explicitly through public core APIs.
 
+Save [the packaged configuration](../packages/workspace/examples/workspace.json)
+as `workspace.json`, or use that file from the checkout. Its commands are Perl
+programs, with two editor panes and a logs window:
+
+<!-- example: packages/workspace/examples/workspace.json -->
 ```json
 {
   "schema": "libtmux.workspace/v1",
+  "environment": {"PROJECT": "api"},
   "sessions": [{
-    "name": "main",
+    "name": "perl-workspace",
     "windows": [{
-      "name": "api",
+      "name": "editor",
       "layout": "even-horizontal",
       "panes": [
-        {"command": ["/bin/sleep", "120"]},
-        {"command": ["/bin/sleep", "120"], "horizontal": true}
+        {"command": ["perl", "-e", "while (<STDIN>) { print }"]},
+        {"command": ["perl", "-e", "while (<STDIN>) { print }"], "horizontal": true}
       ]
+    }, {
+      "name": "logs",
+      "panes": [{"command": ["perl", "-e", "while (<STDIN>) { print }" ]}]
     }]
   }]
 }
 ```
 
+From the repository root:
+
 ```console
-$ libtmux-workspace validate workspace.json
+$ libtmux-workspace validate packages/workspace/examples/workspace.json
 ```
 
 ```console
-$ libtmux-workspace plan workspace.json
+$ libtmux-workspace plan packages/workspace/examples/workspace.json
 ```
 
 ```console
-$ libtmux-workspace load workspace.json \
-    --socket-name example \
+$ libtmux-workspace load packages/workspace/examples/workspace.json \
+    --socket-path "${TMPDIR:-/tmp}/libtmux-perl-workspace-$$.sock" \
     --existing skip
 ```
+
+Loading leaves the workspace running. The
+[standalone Perl example](../packages/workspace/examples/load.pl) additionally
+checks the resulting graph, repeats with `skip`, and removes its own session:
+
+```console
+$ perl packages/workspace/examples/load.pl "${TMPDIR:-/tmp}/libtmux-perl-workspace-$$.sock"
+```
+
+Its plan is local and performs no tmux I/O:
+
+<!-- example: packages/workspace/examples/load.pl#plan -->
+```perl
+open my $in, '<:raw', "$FindBin::Bin/workspace.json" or die $!;
+my $json = do { local $/; <$in> };
+close $in or die $!;
+my $workspace = LibTmux::Workspace->from_json($json);
+my $plan      = $workspace->plan;
+say 'planned sessions: ', scalar $plan->{sessions}->@*;
+die 'plan must not mutate' if $plan->{mutates};
+
+```
+
+It then loads and inspects captured public core objects:
+
+<!-- example: packages/workspace/examples/load.pl#load -->
+```perl
+my $report   = $workspace->load(server => $server);
+my $snapshot = $server->snapshot;
+$session = $snapshot->sessions->one({name => 'perl-workspace'});
+my $windows = $session->window_links;
+say 'loaded windows: ', $windows->count;
+my $editor = $windows->one({window => {-is => {name => 'editor'}}})->window;
+say 'editor panes: ', $editor->panes->count;
+
+```
+
+Repeating with `skip` preserves the whole existing session:
+
+<!-- example: packages/workspace/examples/load.pl#repeat -->
+```perl
+my $again = $workspace->load(server => $server, existing => 'skip');
+say 'skipped existing sessions: ', scalar $again->{skipped}->@*;
+
+```
+
+The complete program imports installed modules and reads its adjacent JSON;
+it needs no author helper. Its output confirms one planned session, two loaded
+windows, two editor panes, and one skipped session.
 
 `--dry-run` selects a nonmutating plan. Default `existing=error` checks all
 session-name conflicts before creation. `skip` preserves the entire existing

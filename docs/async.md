@@ -43,6 +43,55 @@ separate allowance; see [failure recovery](errors.md).
 Persistent control, streaming subscriptions, and tmux command lists are deferred.
 Ordered batch requests are independent submissions with individual attribution.
 
+## Run concurrent operations
+
+After installing core and async, run the standalone packaged program:
+
+```console
+$ perl packages/async/examples/concurrent.pl "${TMPDIR:-/tmp}/libtmux-perl-async-$$.sock"
+```
+
+It creates and removes its own session and preserves any other sessions on that
+socket. During its live scope it starts independent operations before awaiting
+both results:
+
+<!-- example: packages/async/examples/concurrent.pl#concurrent -->
+```perl
+my $capture = $server->snapshot;
+my $version = $server->cmd('display-message', '-p', '#{version}');
+$loop->await(Future->needs_all($capture, $version));
+my $snapshot = $capture->get;
+my $panes    = $snapshot->sessions->one({name => 'perl-async'})
+    ->window_links->one->window->panes->where({active => true});
+say 'async active panes: ', $panes->count;
+say 'tmux version: ',       $version->get->stdout;
+
+```
+
+Selections returned by the capture are ordinary synchronous core objects.
+The same program also checks ordered independent requests:
+
+<!-- example: packages/async/examples/concurrent.pl#batch -->
+```perl
+my $batch = $server->batch(
+    [
+        ['display-message', '-p', 'first'],
+        ['display-message', '-p', 'second'],
+    ]
+);
+$loop->await($batch);
+my $results = $batch->get;
+for my $entry ($results->@*) {
+    die $entry->{error} if defined $entry->{error};
+    print $entry->{result}->stdout;
+}
+
+```
+
+The [complete source](../packages/async/examples/concurrent.pl) owns session
+cleanup, preserves primary errors, and awaits executor close. It uses installed
+packages without Python or a repository fixture.
+
 ## Failure and cancellation
 
 [async-lifecycle.pl](../examples/async-lifecycle.pl) is a standalone downstream
