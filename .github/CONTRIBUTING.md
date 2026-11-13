@@ -99,7 +99,10 @@ $ mise exec -- make format
 
 The [Perl checks workflow](workflows/scaffold.yml) runs metadata, units, POD,
 formatting, generated checks, pinned Linux/tmux cells, and native artifact
-consumers on canonical public CI. Individual conclusions at the current source
+consumers on canonical public CI. The [release workflow](workflows/release.yml)
+calls that complete suite for PRs and tags, then checks the preserved archives
+without uploading on a PR. [RELEASE.md](RELEASE.md) describes the protected
+tag publisher and maintainer credential setup. Individual conclusions at the current source
 revision are required; local success alone is not hosted evidence.
 
 Check whitespace in unstaged changes:

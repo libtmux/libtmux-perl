@@ -31,7 +31,7 @@ check-pod:
 	@$(PERL) scripts/check-pod.pl
 
 unit:
-	@prove $(LIBS) packages/core/t/unit/*.t packages/async/t/unit/*.t packages/workspace/t/unit/*.t
+	@prove $(LIBS) -Iscripts/lib scripts/t/*.t packages/core/t/unit/*.t packages/async/t/unit/*.t packages/workspace/t/unit/*.t
 
 integration:
 	@set -eu; for suite in packages/core/t/integration/*.t packages/async/t/integration/*.t packages/workspace/t/integration/*.t; do \
