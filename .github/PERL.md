@@ -158,8 +158,9 @@ authorized. Actions and installer assets use verified commit or digest pins.
 The [Perl 5.44 class reference][perlclass] still marks `class` experimental.
 The implementation uses ordinary packages and stable positional signatures.
 No object framework or experimental class/named signatures are required.
-`0.001_001` identifies unpublished development distributions; working source
-and installed archive checks do not imply a CPAN release.
+`0.002` is the initial indexed-release candidate. A package version and
+installed archive checks do not imply CPAN publication. See
+[release instructions](RELEASE.md) for the separate tag and PAUSE handoff.
 
 PPI 1.291 is an author-only documentation dependency. A native B::Deparse probe
 lowered signatures to argument checks and lost authored defaults; PPI retains

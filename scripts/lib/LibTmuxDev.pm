@@ -32,7 +32,7 @@ sub perl_files () {
         {
             no_chdir => 1,
             wanted   => sub {
-                push @files, $File::Find::name if -f $_ && /\.(?:pm|pl)\z/;
+                push @files, $File::Find::name if -f $_ && /\.(?:pm|pl|t)\z/;
             }
         },
         'scripts'

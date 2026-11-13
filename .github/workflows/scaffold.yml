@@ -3,14 +3,18 @@ name: Perl checks
 on:
   push:
     branches: [master]
-  pull_request:
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      archive-id:
+        description: Exact native archives verified by this run
+        value: ${{ jobs.native-artifacts.outputs.archive-id }}
 
 permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: perl-checks-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -150,6 +154,8 @@ jobs:
     if: github.repository == 'libtmux/libtmux-perl'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    outputs:
+      archive-id: ${{ steps.archives.outputs.artifact-id }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -178,6 +184,7 @@ jobs:
         if: always()
         run: git diff --check
       - name: Retain exact verified native archives and consumer evidence
+        id: archives
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -185,4 +192,4 @@ jobs:
           path: |
             .cache/artifacts/
             .cache/compatibility/
-          retention-days: 7
+          retention-days: 30

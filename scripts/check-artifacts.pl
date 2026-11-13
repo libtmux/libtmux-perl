@@ -20,6 +20,11 @@ die 'consumer prefix must be outside the checkout'
     if index(abs_path($prefix), $root) == 0;
 my $build = tempdir('libtmux-perl-artifacts-XXXX', TMPDIR => 1, CLEANUP => 1);
 make_path('.cache/artifacts');
+unlink $_
+    or die "remove stale artifact $_: $!"
+    for grep { -f $_ }
+    (glob('.cache/artifacts/LibTmux*.tar.gz'),
+    '.cache/artifacts/evidence.json');
 open my $log, '>:raw', '.cache/artifacts/build.log' or die $!;
 my @evidence;
 
@@ -38,6 +43,9 @@ sub run ($cwd, @argv) {
         unless $result->success;
     return $result;
 }
+my $source_commit = run($root, 'git', 'rev-parse', 'HEAD')->stdout;
+chomp $source_commit;
+my $clean = run($root, 'git', 'status', '--porcelain')->stdout eq '';
 for my $package (qw(core workspace async)) {
     my $dir = "$root/packages/$package";
     unlink $_
@@ -110,7 +118,13 @@ print {$out} JSON::PP->new->canonical->pretty->encode(
         artifacts => \@evidence,
         consumer  => 'PASS',
         perl      => "$^V",
-        source    => run($root, 'git', 'rev-parse', 'HEAD')->stdout
+        source    => $source_commit,
+        clean     => $clean
+            && run($root, 'git', 'status',    '--porcelain')->stdout eq ''
+            && run($root, 'git', 'rev-parse', 'HEAD')->stdout eq
+            "$source_commit\n"
+        ? true
+        : false,
     }
 );
 close $out;
