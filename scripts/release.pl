@@ -24,11 +24,7 @@ my $plan = LibTmuxRelease->plan(
 LibTmuxRelease->check_tag($tag, $source) if $check_tag || $publish;
 
 if ($publish) {
-    my $receipt = LibTmuxRelease->upload(
-        $plan,
-        user     => $ENV{PAUSE_USERNAME},
-        password => $ENV{PAUSE_PASSWORD}
-    );
+    my $receipt = LibTmuxRelease->upload($plan, token => $ENV{PAUSE_TOKEN},);
     say JSON::PP->new->canonical->pretty->encode($receipt);
 }
 else {

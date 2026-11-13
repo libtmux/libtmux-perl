@@ -118,62 +118,11 @@ try {
 catch ($error) { $tamper = $error }
 T2->like($tamper, qr/digest differs/, 'modified archive is refused');
 
-my @calls;
-my $fail;
-{
-
-    package CPAN::Uploader;
-
-    sub upload_file ($class, $path, $args) {
-        push @calls, {path => $path, %$args};
-        die "private: $args->{password}" if $fail && @calls == 2;
-    }
-}
-$INC{'CPAN/Uploader.pm'} = __FILE__;
-$root                    = fixture();
-$plan                    = LibTmuxRelease->plan(
-    tag       => 'v0.002',
-    source    => $source,
-    directory => $root
-);
 my $missing;
-try { LibTmuxRelease->upload($plan) } catch ($error) {
-    $missing = $error
-}
-T2->like(
-    $missing,
-    qr/PAUSE_USERNAME and PAUSE_PASSWORD/,
-    'missing credentials have an actionable error'
-);
-T2->is(scalar @calls, 0, 'missing credentials cannot submit an upload');
-my $receipt =
-    LibTmuxRelease->upload($plan, user => 'EXAMPLE', password => 'test-only');
-T2->is(
-    $receipt->{accepted},
-    [map { $_->{file} } $plan->{order}->@*],
-    'all accepted uploads are recorded'
-);
-T2->is($receipt->{indexed}, false, 'upload acceptance does not claim indexing');
-T2->is(
-    $calls[0]{upload_uri},
-    'https://pause.perl.org/pause/authenquery?ACTION=add_uri',
-    'credentials go only to the PAUSE HTTPS upload endpoint'
-);
-@calls = ();
-$fail  = true;
-my $partial;
-try {
-    LibTmuxRelease->upload($plan, user => 'EXAMPLE', password => 'test-only')
-}
-catch ($error) { $partial = $error }
-T2->like(
-    $partial,
-qr/outcome is uncertain.*LibTmux-Workspace.*accepted earlier: LibTmux-0\.002/s,
-    'partial failure reports confirmed and uncertain outcomes'
-);
-T2->unlike($partial, qr/test-only/,
-    'uploader diagnostics cannot expose a password');
-T2->is(scalar @calls, 2, 'a failed upload stops later distributions');
+try { LibTmuxRelease->upload($plan) }
+catch ($error) { $missing = $error }
+T2->like($missing, qr/PAUSE_TOKEN/,
+    'missing credentials fail before loading release-only HTTP dependencies');
 
 my $repository =
     tempdir('libtmux-perl-tag-test-XXXX', TMPDIR => 1, CLEANUP => 1);

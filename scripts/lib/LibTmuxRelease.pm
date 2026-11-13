@@ -104,29 +104,45 @@ sub plan ($class, %args) {
 }
 
 sub upload ($class, $plan, %args) {
-    my $user     = $args{user}     // '';
-    my $password = $args{password} // '';
-    die "Set PAUSE_USERNAME and PAUSE_PASSWORD in the cpan environment\n"
-        unless $user =~ /\A[A-Z][A-Z0-9]{2,8}\z/ && length($password);
-    require CPAN::Uploader;
+    my $token = $args{token} // '';
+    die
+"Set PAUSE_TOKEN to the complete generated token in the cpan environment\n"
+        unless $token =~ /\A[A-Z][A-Z0-9]{2,8}:[0-9a-f]{32}:[0-9a-f]{64}\z/;
+    require LWP::UserAgent;
+    require LWP::Protocol::https;
+    require HTTP::Request::Common;
+    my $agent = LWP::UserAgent->new(
+        timeout           => 30,
+        max_size          => 65536,
+        max_redirect      => 0,
+        env_proxy         => 0,
+        protocols_allowed => ['https'],
+        ssl_opts          => {verify_hostname => 1, SSL_verify_mode => 1},
+    );
     my @accepted;
     for my $item ($plan->{order}->@*) {
         try {
-            CPAN::Uploader->upload_file(
-                $item->{path},
-                {
-                    user       => $user,
-                    password   => $password,
-                    upload_uri =>
-'https://pause.perl.org/pause/authenquery?ACTION=add_uri',
-                    retries => 0,
-                }
+            my $request = HTTP::Request::Common::POST(
+                'https://pause.perl.org/api/upload',
+                Authorization => "Bearer $token",
+                Accept        => 'application/json',
+                Content_Type  => 'form-data',
+                Content       => {file => [$item->{path}]},
             );
+            my $response = $agent->request($request);
+            die "PAUSE did not accept the upload\n"
+                unless $response->is_success
+                && !$response->header('Client-Aborted');
+            my $body = JSON::PP->new->utf8->decode($response->content);
+            die "PAUSE did not confirm the upload\n"
+                unless ref($body) eq 'HASH'
+                && !exists($body->{error})
+                && ($body->{result} // '') eq 'Upload succeeded';
             push @accepted, $item->{file};
         }
         catch ($error) {
 
-      # Uploader failures can include HTTP diagnostics; do not echo credentials.
+            # HTTP diagnostics may contain credentials; keep them out of logs.
             die 'PAUSE upload outcome is uncertain for '
                 . $item->{file}
                 . '; accepted earlier: '

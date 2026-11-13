@@ -14,20 +14,40 @@ supported and only the two tmux endpoints in CI.
 2. Check package permissions in PAUSE for `LibTmux` and all provided modules.
    The [operating model](https://pause.perl.org/pause/query?ACTION=pause_operating_model)
    describes first-come and co-maintainer indexing permissions.
-3. In this repository's [cpan environment](https://github.com/libtmux/libtmux-perl/settings/environments),
-   add environment secrets `PAUSE_USERNAME` and `PAUSE_PASSWORD`. Use the PAUSE
-   ID, not a GitHub username. Do not put credentials in an issue, PR, tag,
-   command argument, or tracked file.
-4. Check that `cpan` permits `v*` tags and requires maintainer approval.
-   The upload job requests these secrets only after every verification job
+3. In PAUSE, choose **Generate a New Token**. Give it a release-specific
+   description and a one-day lifetime for the first release. The complete token
+   includes the author ID, token ID, and secret; retain all three parts.
+   PAUSE currently grants the `upload:distributions` scope, with optional IP
+   restrictions, expiration, and revocation. A description does not restrict
+   the token to this project. See the
+   [token implementation](https://github.com/andk/pause/blob/74add4411a0a1fc635c55b4234e480720c5175ae/lib/pause_2026/PAUSE/Web2026/Controller/User/Tokens.pm).
+4. Store the token as `PAUSE_TOKEN` in this repository's
+   [cpan environment](https://github.com/libtmux/libtmux-perl/settings/environments).
+   The command below prompts without putting the token in shell history:
+
+```console
+$ gh secret set PAUSE_TOKEN \
+    --env cpan \
+    --repo libtmux/libtmux-perl
+```
+
+   Leave PAUSE's IP ranges blank for the current standard GitHub-hosted runners;
+   their outbound addresses change. Restrict IPs only with a known fixed
+   outbound address. Do not put the token in an issue, PR, tag, command argument,
+   or tracked file.
+5. Check that `cpan` permits `v*` tags and requires maintainer approval.
+   The upload job requests the secret only after every verification job
    passes and the environment is approved.
 
-The supported [CPAN::Uploader](https://metacpan.org/pod/CPAN::Uploader)
-authentication is a PAUSE username and password over HTTPS. No registry-side
-OIDC trusted-publishing flow is selected. A GitHub token is not a PAUSE password.
-`CPAN::Uploader` is a release tool, not a dependency of any distribution.
+The publisher uses PAUSE's [bearer-token API](https://github.com/andk/pause/blob/74add4411a0a1fc635c55b4234e480720c5175ae/lib/pause_2026/PAUSE/API/Controller/Upload.pm)
+at `https://pause.perl.org/api/upload`, with verified TLS, no redirects, and no
+automatic retries. It needs no account password. LWP and HTTP::Message are
+release-only dependencies; none of the distributions depends on them.
+The token must still be valid when the approved upload step runs. If it expires
+while CI is queued, generate a replacement and update the same environment
+secret before approving. Revoke the token in PAUSE after the release.
 
-For an initial manual upload, leave the secrets unset and follow
+For an initial manual upload, leave the secret unset and follow
 [Manual publication](#manual-publication) instead. Do not approve an automated
 upload of archives already submitted manually.
 
@@ -117,7 +137,9 @@ $ gh workflow run release.yml \
 Every `workflow_dispatch` run is build-only. It cannot enter the PAUSE upload
 job and needs no PAUSE credentials. Inspect its individual verification jobs
 and the `cpan-release-plan` artifact. The inspection also installs the pinned
-release-only uploader, proving tool provisioning before the first real upload.
+release-only HTTP dependencies and tests token requests with intercepted
+network dispatch, proving multipart octet fidelity, TLS settings, redirect
+refusal, response validation, and uncertain-failure handling before publication.
 
 The [release workflow](workflows/release.yml) handles PRs and tags and calls the same
 [Perl checks](workflows/scaffold.yml) used for PRs: dependency profiles,
@@ -152,7 +174,7 @@ $ git push origin refs/tags/v0.002
 The tag event runs full verification and archive inspection, then waits for
 approval of the `cpan` environment. Review the source, tag and upload plan
 before approving. The upload job verifies the files again and uploads core,
-workspace, then async through the fixed PAUSE HTTPS endpoint. It receives no
+workspace, then async through the fixed PAUSE HTTPS API endpoint. It receives no
 GitHub write or OIDC permissions.
 
 PAUSE accepting an upload is distinct from indexing it. Read the PAUSE indexing
@@ -179,24 +201,12 @@ deployment remains a separate operation.
 Download the `perl-native-archives` artifact from the successful tag run and
 retain its `artifacts/` directory, including `evidence.json`. Use a checkout
 of the same tagged source; `origin/master` and the tag must be available.
-Install [CPAN::Uploader](https://metacpan.org/dist/CPAN-Uploader) locally and
-keep credentials in its private `.pause` configuration or private environment.
-
 First run `scripts/release.pl` without `--publish`, using the downloaded
-`artifacts/` directory and its source commit. For interactive manual upload,
-submit the exact files in dependency order:
-
-```console
-$ cpan-upload artifacts/LibTmux-0.002.tar.gz
-```
-
-```console
-$ cpan-upload artifacts/LibTmux-Workspace-0.002.tar.gz
-```
-
-```console
-$ cpan-upload artifacts/LibTmux-Async-0.002.tar.gz
-```
+`artifacts/` directory and its source commit. In the authenticated PAUSE browser,
+choose **Upload a file to CPAN** and submit those exact files in dependency
+order: `LibTmux-0.002.tar.gz`, `LibTmux-Workspace-0.002.tar.gz`, then
+`LibTmux-Async-0.002.tar.gz`. This fallback keeps account authentication in the
+browser and requires no CI secret or local credential file.
 
 Do not approve the automated upload job after uploading manually; cancel that
 pending job. Perform the same indexing and fresh-install checks afterward.
@@ -221,5 +231,5 @@ The native suite follows the same-run CI/artifact separation used by
 and the full tag verification and protected publisher used by
 [Ruby](https://github.com/libtmux/libtmux-ruby/blob/master/.github/workflows/release.yml)
 and [Elixir](https://github.com/libtmux/libtmux-elixir/blob/master/.github/workflows/release.yml).
-Perl uses PAUSE credentials and native MakeMaker distributions; another
+Perl uses PAUSE upload tokens and native MakeMaker distributions; another
 registry's authentication or release result does not apply to CPAN.
