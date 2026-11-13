@@ -21,7 +21,7 @@ if (-d 'lib') {
                     while ($source =~
                         /^package\s+(LibTmux(?:::[A-Za-z0-9_]+)*)\s*[;{]/mg)
                     {
-                        $provides{$1} = {file => $file, version => '0.001_001'};
+                        $provides{$1} = {file => $file, version => '0.002'};
                     }
                 }
             }
@@ -32,7 +32,7 @@ if (-d 'lib') {
 
 WriteMakefile(
     NAME             => 'LibTmux::Workspace',
-    VERSION          => '0.001_001',
+    VERSION          => '0.002',
     ABSTRACT         => 'Versioned workspace configuration for tmux',
     AUTHOR           => 'libtmux contributors',
     LICENSE          => 'mit',
@@ -44,7 +44,7 @@ WriteMakefile(
     META_MERGE => {
         'meta-spec'    => {version => 2},
         dynamic_config => 0,
-        release_status => 'testing',
+        release_status => 'stable',
         prereqs        => $prereqs->as_string_hash,
         provides       => \%provides,
         resources      => {

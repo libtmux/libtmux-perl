@@ -2,10 +2,10 @@ package LibTmux::Workspace;
 use v5.44;
 use JSON::PP     ();
 use Scalar::Util qw(blessed refaddr);
-use LibTmux 0.001_001;
+use LibTmux 0.002;
 use LibTmux::Server;
 use LibTmux::Workspace::X;
-our $VERSION = '0.001_001';
+our $VERSION = '0.002';
 
 sub _bad ($path, $message) {
     LibTmux::Workspace::X::Config->throw(path => $path, message => $message);
