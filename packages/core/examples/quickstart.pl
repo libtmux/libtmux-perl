@@ -1,8 +1,11 @@
 use v5.44;
+use File::Temp ();
 use LibTmux::Server;
 
-my $socket = shift @ARGV // die "Usage: $0 SOCKET_PATH [TMUX]\n";
-my $server = LibTmux::Server->new(
+# Without a socket argument, a private temporary directory holds the server.
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $socket  = shift @ARGV // "$private/tmux.sock";
+my $server  = LibTmux::Server->new(
     socket_path => $socket,
     executable  => shift(@ARGV) // 'tmux',
     config_file => '/dev/null',

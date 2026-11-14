@@ -1,10 +1,12 @@
 use v5.44;
+use File::Temp ();
 use IO::Async::Loop::Ppoll;
 use Future;
 use LibTmux::Async::Server;
 
-my $socket = shift @ARGV // die "Usage: $0 SOCKET_PATH [TMUX]\n";
-my $tmux   = shift @ARGV // 'tmux';
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $socket  = shift @ARGV // "$private/tmux.sock";
+my $tmux    = shift @ARGV // 'tmux';
 
 # example: begin connect
 my $loop   = IO::Async::Loop::Ppoll->new;

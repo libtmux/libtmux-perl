@@ -1,10 +1,12 @@
 use v5.44;
+use File::Temp ();
 use LibTmux::Server;
 use LibTmux::Filter;
 
-my $socket = shift @ARGV // die "Usage: $0 SOCKET_PATH [TMUX]\n";
-my $tmux   = shift @ARGV // 'tmux';
-my $server = LibTmux::Server->new(
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $socket  = shift @ARGV // "$private/tmux.sock";
+my $tmux    = shift @ARGV // 'tmux';
+my $server  = LibTmux::Server->new(
     socket_path => $socket,
     executable  => $tmux,
     config_file => '/dev/null',
@@ -64,6 +66,13 @@ try {
 
     # example: end input
 
+    # example: begin options
+    my %build = (scope => 'window', target => $logs->id, name => '@build');
+    $server->set_option(%build, value => 'ok');
+    say '@build=', $server->get_option(%build);
+
+    # example: end options
+
     # example: begin wire
     my $filter = LibTmux::Filter->new(
         entity => 'pane',
@@ -114,6 +123,30 @@ try {
     die 'native/local results differ'
         unless join(',', map { $_->id } $local->@*) eq
         join(',', map { $_->id } $verified->@*);
+
+    # example: begin explain
+    my $criteria = {active => true, width => {-gte => 1}};
+    my $plan     = $server->explain_panes(where => $criteria);
+    say 'tmux filter: ', $plan->to_data->{native_filter};
+    my $relation = {window => {-is => {name => 'editor'}}};
+    my $residual = $server->explain_panes(where => $relation);
+    say 'stays local: ', $residual->to_data->{residual_reasons}[0];
+
+    # example: end explain
+
+    # example: begin batch
+    my $batch = $server->batch(
+        [
+            ['display-message', '-p', '-t', $editor->id, '#{window_name}'],
+            ['display-message', '-p', '-t', $logs->id,   '#{window_name}'],
+        ]
+    );
+    for my $entry ($batch->@*) {
+        die $entry->{error} if defined $entry->{error};
+        print $entry->{result}->stdout;
+    }
+
+    # example: end batch
 
     # example: begin graph
     my $before = $snapshot->window_by_id($logs->id);

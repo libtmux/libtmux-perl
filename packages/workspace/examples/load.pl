@@ -1,11 +1,13 @@
 use v5.44;
+use File::Temp ();
 use FindBin;
 use LibTmux::Server;
 use LibTmux::Workspace;
 
-my $socket = shift @ARGV // die "Usage: $0 SOCKET_PATH [TMUX]\n";
-my $tmux   = shift @ARGV // 'tmux';
-my $server = LibTmux::Server->new(
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $socket  = shift @ARGV // "$private/tmux.sock";
+my $tmux    = shift @ARGV // 'tmux';
+my $server  = LibTmux::Server->new(
     socket_path => $socket,
     executable  => $tmux,
     config_file => '/dev/null',

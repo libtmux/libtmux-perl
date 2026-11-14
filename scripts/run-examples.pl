@@ -75,6 +75,10 @@ my %expected_stdout = (
         'same child: 0',
         'different children: 1',
         'native verification: agreed',
+        '@build=ok',
+        'tmux filter: #{&&:#{==:#{pane_active},1},#{e|>=:#{pane_width},1}}',
+        'stays local: window requires local relation',
+        "editor\nlogs\n",
         'captured name: logs',
         'core workflow: ok',
     ],
@@ -128,6 +132,34 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
 "$file changed borrowed resources or left its session behind"
                     unless $remaining->id eq $sentinel->id;
                 print "$file: ", $result->stdout;
+
+                # With no socket argument, the program owns its server.
+                my $private  = "$socket_root/private";
+                my $selected = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
+                mkdir $private or die "$private: $!";
+                my $owned = LibTmux::Transport->run(
+                    argv    => [$^X, $program],
+                    timeout => 3,
+                    env     => {
+                        PERL5LIB => join(':', @libraries),
+                        TMPDIR   => $private,
+                        $selected =~ m!/!
+                        ? (PATH => dirname($selected) . ":$ENV{PATH}")
+                        : (),
+                    },
+                );
+                die "$file failed without a socket argument:\n"
+                    . $owned->stdout
+                    . $owned->stderr
+                    unless $owned->success;
+                for my $line ($expected_stdout{$file}->@*) {
+                    die
+"$file missing expected output without a socket: $line\n"
+                        unless index($owned->stdout, $line) >= 0;
+                }
+                opendir my $directory, $private or die "$private: $!";
+                my @left = grep { !/\A\.\.?\z/ } readdir $directory;
+                die "$file left $left[0] in its private directory\n" if @left;
             }
         );
         next;
