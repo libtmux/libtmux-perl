@@ -1134,6 +1134,122 @@ LibTmux::Server - Explicit tmux acquisition and commands
     my $pane = $snapshot->panes->first;
     say $server->capture_pane(pane => $pane) if defined $pane;
 
+=head1 What is on here
+
+The wrapper holds connection settings and no tmux state, and its methods fall
+into the groups below.
+
+B<Connecting.> Describe one tmux socket by name or path, with the executable,
+timeout, and output limit to use. Construction runs nothing, so the daemon need
+not be running yet. Dropping the wrapper never stops it.
+
+C<new>
+
+B<Capturing and querying.> Read the server into a graph of sessions, windows,
+panes, and clients. A snapshot or selection keeps what it observed; capture
+again to see later changes.
+
+=over 4
+
+=item Capture the whole graph: C<snapshot>
+
+=item List raw records: C<listings>
+
+=item Find panes by criteria: C<query_panes>, C<explain_panes>
+
+=item See attached clients: C<clients>
+
+=back
+
+B<Creating.> Start a detached session, add a window to a session, or split a
+pane. Each method returns the new object as a captured handle, which later
+calls accept as a target in place of its ID string.
+
+C<new_session>, C<new_window> and C<split_pane>
+
+B<Driving a pane.> Send named keys or literal text to a pane and read its screen
+back. Acceptance does not prove the application consumed the input, so wait for
+something the application shows before relying on the output.
+
+=over 4
+
+=item Send keys by name: C<send_keys>
+
+=item Send literal text: C<send_text>
+
+=item Read the screen: C<capture_pane>
+
+=back
+
+B<Arranging.> Rename, link, move, select, and resize what exists. Each method
+returns C<undef> once tmux accepts the command and leaves captured objects as
+they were. Window operations that depend on a session take a
+L<LibTmux::WindowLink>, because a physical window alone cannot say which link is
+active.
+
+=over 4
+
+=item Rename or title: C<rename_session>, C<rename_window>, C<set_title>
+
+=item Link and move windows: C<link_window>, C<unlink_window>, C<move_window>
+
+=item Select and resize: C<select_window>, C<select_pane>, C<select_layout>, C<resize_pane>
+
+=back
+
+B<Removing.> Destroy a pane, a window with all its links, a session, or the
+whole daemon. To drop one link and keep the window, use C<unlink_window>.
+C<kill_server> can stop a daemon you borrowed, so call it only on purpose.
+
+C<kill_pane>, C<kill_window>, C<kill_session> and C<kill_server>
+
+B<Options, hooks, and environment.> Read, set, and unset options at session,
+window, pane, or server scope. A hook takes a tmux command string, not an
+argument vector. Setting the environment leaves running pane processes
+unchanged.
+
+=over 4
+
+=item Options: C<set_option>, C<get_option>, C<unset_option>
+
+=item Hooks: C<set_hook>, C<show_hooks>
+
+=item Environment: C<set_environment>, C<get_environment>, C<unset_environment>
+
+=back
+
+B<Buffers.> Load bytes into a named tmux buffer through stdin, read them back
+with embedded NUL bytes intact, and delete the buffer. The daemon owns a buffer
+until you delete it.
+
+C<set_buffer>, C<show_buffer> and C<delete_buffer>
+
+B<Clients and terminals.> Build the argument array that attaches a terminal you
+own, or ask an attached client to detach. The capture transport never allocates
+a TTY, so starting and observing the attached process is your program's job.
+
+=over 4
+
+=item Attach a terminal: C<attach_argv>
+
+=item Detach a client: C<detach_client>
+
+=back
+
+B<Commands and batches.> Run any tmux command the named methods leave out, or
+run several in order. C<execute> returns a nonzero exit as a result, while
+C<cmd> throws on it. A batch has no rollback.
+
+=over 4
+
+=item Run one command: C<execute>, C<cmd>
+
+=item Run several in order: C<batch>
+
+=item Prepare a request without running it: C<operation>
+
+=back
+
 =head1 CONTRACT
 
 Construction and planning perform no I/O. Acquisition and mutation are explicit,
