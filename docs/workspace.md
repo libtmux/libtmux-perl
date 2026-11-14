@@ -3,11 +3,13 @@ title: Load a JSON workspace
 description: Load a JSON workspace with the Perl libtmux distributions.
 ---
 
-The separate distribution packages the `libtmux-workspace` CLI. Validate and
-plan without tmux I/O; load explicitly through public core APIs.
+The separate workspace distribution packages the `libtmux-workspace` CLI.
+Validate and plan without tmux I/O; load through public core APIs.
+
+## Describe a workspace
 
 Save [the packaged configuration](../packages/workspace/examples/workspace.json)
-as `workspace.json`, or use that file from the checkout. Its commands are Perl
+as `workspace.json`, or use it from the checkout. Its commands are Perl
 programs, with two editor panes and a logs window:
 
 <!-- example: packages/workspace/examples/workspace.json -->
@@ -32,6 +34,14 @@ programs, with two editor panes and a logs window:
 }
 ```
 
+- Each pane takes a literal `command` argv or an explicit `shell_command`.
+- Environment inherits workspace, session, window, pane. The working directory
+  inherits from the window unless overridden.
+- Layout applies after splitting.
+- The format is versioned JSON; no YAML adapter is selected.
+
+## Run the CLI
+
 From the repository root:
 
 ```console
@@ -48,15 +58,25 @@ $ libtmux-workspace load packages/workspace/examples/workspace.json \
     --existing skip
 ```
 
-Loading leaves the workspace running. The
-[standalone Perl example](../packages/workspace/examples/load.pl) additionally
-checks the resulting graph, repeats with `skip`, and removes its own session:
+- `load` leaves the workspace running; the CLI has no stop verb.
+- `--dry-run` makes a nonmutating plan.
+- The default `existing=error` checks every session-name conflict before it
+  creates anything.
+- `skip` keeps the whole existing session. Repeated loads create only absent
+  sessions; this is not reconciliation of an existing layout.
+- Exit status: 0 success, 2 usage or configuration, 3 load failure, 4 conflict.
+
+## Load from Perl
+
+The [standalone Perl example](../packages/workspace/examples/load.pl) plans,
+loads, checks the graph, repeats with `skip`, and removes its own session. It
+runs its own tmux server:
 
 ```console
-$ perl packages/workspace/examples/load.pl "${TMPDIR:-/tmp}/libtmux-perl-workspace-$$.sock"
+$ perl packages/workspace/examples/load.pl
 ```
 
-Its plan is local and performs no tmux I/O:
+The plan is local and performs no tmux I/O:
 
 <!-- example: packages/workspace/examples/load.pl#plan -->
 ```perl
@@ -74,7 +94,7 @@ die 'plan must not mutate' if $plan->{mutates};
 
 ```
 
-It then loads and inspects captured public core objects:
+It loads and inspects captured public core objects:
 
 <!-- example: packages/workspace/examples/load.pl#load -->
 ```perl
@@ -97,32 +117,18 @@ say 'skipped existing sessions: ', scalar $again->{skipped}->@*;
 
 ```
 
-The complete program imports installed modules and reads its adjacent JSON;
-it needs no author helper. Its output confirms one planned session, two loaded
-windows, two editor panes, and one skipped session.
+The program prints one planned session, two loaded windows, two editor panes
+and one skipped session.
 
-`--dry-run` selects a nonmutating plan. Default `existing=error` checks all
-session-name conflicts before creation. `skip` preserves the entire existing
-session; repeated loads create only absent sessions. This is not convergence
-or reconciliation of an existing layout.
+## Recover from a failed load
 
-Each pane requires literal `command` argv or explicit `shell_command`.
-Environment inherits workspace → session → window → pane; cwd inherits from
-window unless overridden. Layout applies after splitting. Configuration is
-versioned JSON; no YAML adapter is selected.
-
-On failure, inspect completed steps, failed step, created IDs, dispatch
-uncertainty, and cleanup errors. Rollback targets only sessions proven created
-by this invocation. Application readiness requires caller-specific assertions.
-CLI exit statuses: success 0; usage/configuration 2; loading 3; conflict 4.
-
-`LibTmux::Workspace::X::Load->report` retains each cleanup exception with its
-captured target identity and attempted action. These entries replace the
-earlier string-only `cleanup_errors` values. `cause` remains the original load
-failure; a cleanup failure never replaces it. Catch and inspect the exception
-class, dispatch evidence, and bounded native result when choosing recovery.
-
-`report_data` returns a detached diagnostic export for JSON, including the
-primary cause and cleanup error classes. Native stdout/stderr use explicit
-base64 fields to preserve arbitrary octets. The CLI prints this export on
-standard error; the library report keeps the original exception objects.
+- A failed load reports the completed steps, the failed step, the created IDs,
+  dispatch uncertainty and cleanup errors.
+- Rollback removes only sessions this load proved it created.
+- Application readiness needs assertions of your own.
+- `LibTmux::Workspace::X::Load->report` keeps each cleanup exception with its
+  captured target and attempted action. `cause` stays the original failure; a
+  cleanup failure never replaces it.
+- `report_data` returns a detached, JSON-safe export with the primary cause and
+  the cleanup error classes. Native stdout and stderr use explicit base64
+  fields. The CLI prints it on standard error.

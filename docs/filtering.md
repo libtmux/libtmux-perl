@@ -3,76 +3,68 @@ title: Filter captured selections
 description: Native Perl arrays, strict criteria, graph quantifiers, and wire filters.
 ---
 
-Use `where({...})` for query data and `grep(sub ($pane) {...})` for arbitrary
-Perl behavior. Native `->@*`, indexing, `grep`, `map`, `sort`, and List::Util
-remain available. `to_array` returns a fresh unblessed array reference.
-
-Fields select comparison semantics: text, safe decimal integers, booleans,
-nullability, allowed operators, and relation cardinality come from one catalog.
-False, zero, "0", empty text, and undef remain distinct. Integer operands are
-bounded to +/-9007199254740991; invalid numeric text never becomes zero.
-
-| Grammar | Meaning |
-| --- | --- |
-| scalar or `-eq`, `-ne` | Schema-directed equality and complement. |
-| `-in`, `-not_in` arrays | Explicit membership; empty arrays mean false/true. |
-| `-lt`, `-lte`, `-gt`, `-gte` | Authorized numeric ordering. |
-| `-contains`, `-starts_with`, `-ends_with` | Literal, case-sensitive text. |
-| `-and`, `-or` arrays; `-not` node | Complete criteria nodes. |
-| `-some`, `-every`, `-none` | To-many quantifiers over the complete captured domain. |
-| `-is`, `-is_not` | To-one criteria or explicit nullable absence. |
-
-Fields/operators in a hash are conjoined. Duplicate Perl hash keys overwrite;
-use multiple operators or explicit `-and`. Empty criteria and empty AND are
-true; empty OR is false. On a loaded empty relation, some is false and
-every/none true. Conditions inside one some apply to the same child; separate
-existentials may match different children. Unloaded relations never prove empty.
-
-Full compilation precedes evaluation, even on empty selections. Hash keys
-traverse lexically; logical arrays preserve their order. Short-circuiting may
-avoid unavailable reads once a result is known. Known-null ordering/text is
-false; negation reverses known results, never missing-data failures.
-
-Evaluation order affects failures as well as matches. For an inactive record
-with unloaded width, an AND array testing `active` before `width` can return
-false; reversing those nodes reads width first and throws. Flattening them into
-a hash instead selects lexical order. Wire serialization retains logical-array
-order; optimizers must preserve availability and error behavior. The depth-64
-and 10,000-node compilation limits do not cap membership operands or string bytes.
-
-Native arrays remain mutable. Every library method validates all N occurrences
-before returning even `first`, `count` or `exists`; that validation is O(N).
-Predicates may then stop early. `where` evaluates and validates its output;
-`iterator` also copies membership. Raw indexing and dereferencing retain normal
-Perl behavior. A mutable selection cannot safely cache a prior validation.
-
-`LibTmux::Filter` owns normalized criteria, supports plain records and explicit
-registered readers, and exports JSON with schema `"libtmux.where/v1"`.
-Wire names use camelCase and dash-free operators. Regex/coderefs/cycles/blessed
-values are refused at that data boundary. Native Perl `qr//` remains available
-in callbacks.
-
 ## Query installed objects and ordinary records
 
-The [live workflow](../packages/core/examples/workflow.pl) creates two editor
-panes before running these local queries:
+Use `where({...})` for query data and `grep(sub ($pane) {...})` for arbitrary
+Perl. Native `->@*`, indexing, `grep`, `map`, `sort` and List::Util keep
+working; `to_array` returns a fresh unblessed array reference.
 
-<!-- example: packages/core/examples/workflow.pl#filter -->
+[select.pl](../packages/core/examples/select.pl) starts a private server,
+splits a window, and filters its panes:
+
+<!-- example: packages/core/examples/select.pl -->
 ```perl
-my $snapshot = $server->snapshot;
-my $panes =
-    $snapshot->windows->one({name => 'editor'})
-    ->panes->where({width => {-gte => 1}})
-    ->grep(sub ($pane) { $pane->height > 0 });
-my @ids    = map { $_->id } $panes->@*;
-my $active = $panes->one({active => true});
-say 'editor panes: ',          scalar @ids;
-say 'active pane belongs to ', $active->window->name;
+use v5.44;
+use File::Temp ();
+use LibTmux::Server;
 
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $server  = LibTmux::Server->new(
+    socket_path => "$private/tmux.sock",
+    config_file => '/dev/null',
+);
+my $failure;
+try {
+    my $session = $server->new_session(
+        name    => 'perl-select',
+        command => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+    my $editor = $session->window_links->one->window;
+    $server->rename_window(window => $editor, name => 'editor');
+    $server->split_pane(
+        pane       => $editor->panes->one,
+        horizontal => true,
+        command    => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+
+    my $snapshot = $server->snapshot;
+    my $panes =
+        $snapshot->windows->one({name => 'editor'})
+        ->panes->where({width => {-gte => 1}})
+        ->grep(sub ($pane) { $pane->height > 0 });
+    my $active = $panes->one({active => true});
+    say 'editor panes: ',          $panes->count;
+    say 'active pane belongs to ', $active->window->name;
+
+    # example: begin nomatch
+    try { $panes->one({width => {-gt => 10_000}}) }
+    catch ($error) {
+        die $error unless $error isa LibTmux::X::NoMatch;
+        say 'no pane is that wide';
+    }
+
+    # example: end nomatch
+}
+catch ($error) { $failure = $error }
+
+# The server is private, so stopping it removes everything the program made.
+try { $server->kill_server }
+catch ($error) { $failure //= $error unless $error isa LibTmux::X::NoServer }
+die $failure if defined $failure;
 ```
 
-The [record-only program](../packages/core/examples/filters.pl) runs with the
-installed core and no tmux server:
+The [record-only program](../packages/core/examples/filters.pl) needs no tmux
+server:
 
 ```console
 $ perl packages/core/examples/filters.pl
@@ -101,36 +93,86 @@ say 'matching records: ', join ', ', map { $_->{id} } @matches;
 
 ```
 
-It prints `matching records: %1`. Its complete source also checks a JSON
-round trip. No author fixture, Python evaluator, or object framework is needed
-by either consumer program.
+It prints `matching records: %1`. The complete source also checks a JSON round
+trip.
+
+## Criteria
+
+Fields select the comparison: text, safe decimal integers, booleans,
+nullability, operators and relation cardinality all come from one catalog.
+
+- False, zero, `"0"`, empty text and undef stay distinct.
+- Integer operands are bounded to +/-9007199254740991. Invalid numeric text
+  never becomes zero.
+
+| Grammar | Meaning |
+| --- | --- |
+| scalar or `-eq`, `-ne` | Schema-directed equality and complement. |
+| `-in`, `-not_in` arrays | Explicit membership; empty arrays mean false/true. |
+| `-lt`, `-lte`, `-gt`, `-gte` | Authorized numeric ordering. |
+| `-contains`, `-starts_with`, `-ends_with` | Literal, case-sensitive text. |
+| `-and`, `-or` arrays; `-not` node | Complete criteria nodes. |
+| `-some`, `-every`, `-none` | To-many quantifiers over the complete captured domain. |
+| `-is`, `-is_not` | To-one criteria or explicit nullable absence. |
+
+- Fields and operators in one hash are conjoined. A duplicate Perl hash key
+  overwrites; use several operators or an explicit `-and`.
+- Empty criteria and an empty AND are true; an empty OR is false.
+- On a loaded empty relation, `-some` is false and `-every` and `-none` are
+  true.
+- Conditions inside one `-some` apply to the same child; separate existentials
+  may match different children.
+- An unloaded relation never proves empty.
+- Known-null ordering and text are false. Negation reverses known results,
+  never a missing-data failure.
+
+## Evaluation order
+
+- Compilation of the whole filter comes before evaluation, even on an empty
+  selection. Hash keys traverse in lexical order; logical arrays keep theirs.
+- A short circuit may skip an unavailable read once the result is known. For
+  an inactive record with unloaded width, an AND testing `active` before
+  `width` can return false, and the reverse order throws.
+- Flattening those nodes into a hash selects lexical order. Wire serialization
+  keeps logical-array order.
+- Compilation caps depth at 64 and nodes at 10,000. Membership operands and
+  string bytes are uncapped.
+
+## Selections stay mutable
+
+- Native arrays stay mutable, so every library method validates all N members
+  before returning, even `first`, `count` or `exists`. That is O(N).
+- Predicates may then stop early. `where` validates its output; `iterator`
+  also copies membership.
+- Raw indexing and dereferencing keep normal Perl behavior.
 
 ## Save criteria for reuse
 
-In the live workflow, the compiled filter can be stored as versioned JSON and
-reused on a captured selection:
+`LibTmux::Filter` owns normalized criteria, matches plain records or
+registered readers, and exports JSON with schema `"libtmux.where/v1"`. Wire
+names use camelCase and dash-free operators.
 
-<!-- example: packages/core/examples/workflow.pl#wire -->
+<!-- example: packages/core/examples/filters.pl#wire -->
 ```perl
-my $filter = LibTmux::Filter->new(
-    entity => 'pane',
-    where  => {active => true, width => {-gte => 1}},
-);
 my $restored = LibTmux::Filter->from_json($filter->to_json);
-my $selected = $panes->where($restored);
-say 'restored filter matches: ', $selected->count;
+say 'restored filter matches: ',
+    scalar grep { $restored->matches($_) } @records;
 
 ```
 
-Changing the original criteria hash does not change a compiled filter. Schema
-validation still applies after decoding; executable callbacks belong in `grep`,
-not in the wire data.
+It prints `restored filter matches: 1`.
+
+- Changing the original criteria hash does not change a compiled filter.
+- Schema validation still runs after decoding.
+- Regexes, coderefs, cycles and blessed values are refused at the data
+  boundary. Native `qr//` works in `grep` callbacks.
 
 ## Distinguish one child from two children
 
 One `-some` subtree applies every condition to the same child. Two existential
 subtrees can match different children. The workflow limits the domain to its
-own editor window and checks both cases:
+own editor window and checks both cases. It continues from the workflow's
+`$snapshot` and `$editor`:
 
 <!-- example: packages/core/examples/workflow.pl#relations -->
 ```perl
@@ -153,23 +195,24 @@ say 'different children: ', $different_children->count;
 
 ```
 
-An individual pane cannot have both index 0 and index 1, so `same child` is 0.
-The window has both panes, so `different children` is 1. Loaded empty relations
-make `-some` false and `-every`/`-none` true. Unloaded relations remain errors
-when evaluation needs them. See [graph identity](graph.md).
+- A pane cannot have index 0 and index 1, so `same child` is 0.
+- The window has both panes, so `different children` is 1.
+- Loaded empty relations make `-some` false and `-every` and `-none` true.
+  Unloaded relations stay errors when evaluation needs them.
 
-## Independent-port subset
+See [graph identity](graph.md).
 
-The shared fixture vocabulary is proposed for this port. A source-pinned Python
-QueryList evaluator agrees on the advertised subset: Boolean/integer/text
-equality, literal contains/prefix/suffix, membership, and empty membership.
-The adaptation maps wire field names to record keys and operators to native
-QueryList lookup keywords. It does not claim that Python accepts this wire API.
+## Conformance fixtures
 
-Known-null equality initially disagreed: the pinned Python filter rejects None
-fields before its equality lookup. That difference remains recorded. Numeric
-ordering, availability errors, graph quantifiers, validation on empty data,
-and canonical-name enforcement have no equivalent declared Python contract
-and are marked unsupported, not passed. Perl fixtures cover those semantics.
+- A source-pinned Python QueryList evaluator agrees on the shared subset:
+  Boolean, integer and text equality, literal contains, prefix and suffix, and
+  membership, including empty membership. It does not claim Python accepts
+  this wire API.
+- Known-null equality differs: the pinned Python filter rejects None fields
+  before its equality lookup.
+- Numeric ordering, availability errors, graph quantifiers, validation on
+  empty data and canonical names have no Python contract. They are marked
+  unsupported there, and Perl fixtures cover them.
+
 See [the fixtures](../conformance/where-v1.json) and
-[the independent source pin](../scripts/conformance-reference.json).
+[the pin](../scripts/conformance-reference.json).

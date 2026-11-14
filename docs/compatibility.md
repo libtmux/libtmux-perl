@@ -3,36 +3,31 @@ title: Linux compatibility and qualification
 description: Linux compatibility and qualification with the Perl libtmux distributions.
 ---
 
-The baseline is stable Perl 5.44.0 on Linux x86_64 LP64, including WSL.
-Supported tmux versions span 3.3a–3.8, including every intermediate release.
-Plain tmux 3.3 is below the 3.3a support floor.
-Other operating systems and Linux ABIs have not been qualified. The supervisor
-refuses unsupported ABIs before dispatch instead of assuming syscall numbers.
+What is supported:
 
-CI and the local compatibility command use only the latest stable Perl and
-two tmux releases: the oldest supported release and the newest stable release.
-The current pins are [Perl 5.44.0](https://dev.perl.org/perl5/), tmux 3.3a,
-and [tmux 3.8](https://github.com/tmux/tmux/releases/tag/3.8), verified on
-2026-11-08. Testing the range endpoints keeps CI small; intermediate tmux
-releases remain supported without separate CI cells. Older Perl releases
-have no matrix cells. Update the pins when the latest stable release changes.
+- **Perl 5.44 or newer.**
+- **tmux 3.3a or newer**, including every release after it. Plain tmux 3.3 is
+  below the floor.
+- **Linux on x86-64, including WSL.** Other systems and ABIs are unqualified;
+  the supervisor refuses an unsupported ABI before dispatch.
 
-[The source lock](../scripts/tmux-lock.json) pins official assets,
-archive hashes, source commits, and configure flags. Per-build provenance adds
-compiler and executable hashes. Exact per-cell results are recorded by the
-compatibility command; a missing or skipped cell remains unverified.
-Earlier wider matrix runs remain historical evidence for their recorded
-revisions; they do not add current completion gates.
+What CI runs:
+
+- The latest stable Perl, against the oldest and newest supported tmux.
+- Releases in between are supported without cells of their own.
+- A missing or skipped cell counts as unverified.
+
+[The source lock](../scripts/tmux-lock.json) pins the official tmux sources,
+archive hashes, source commits and configure flags. Each build records its
+compiler and executable hashes.
+
+Run the compatibility check:
 
 ```console
 $ mise exec -- make compatibility
 ```
 
-The original 3.3a run exposed tmux's invalid-layout error-pointer defect.
-The public select_layout wrapper now rejects unknown/ambiguous names lacking
-a custom-layout checksum prefix before dispatch. The raw command escape hatch
-retains native behavior. See the contributor guide for archive consumers,
-examples, units, and the network-free check/provision split.
-
-A local test or build is not hosted CI, a CPAN publication, or a deployed site.
-No unrun final-revision gate is implied by these requirements.
+The oldest supported tmux crashes on an invalid layout name. The `select_layout`
+wrapper rejects an unknown or ambiguous name that lacks a custom-layout
+checksum prefix before dispatch; the raw `cmd` escape hatch keeps tmux's own
+behavior.
