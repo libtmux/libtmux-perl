@@ -1,6 +1,7 @@
 Revision history for LibTmux
 
 Unreleased
+    - Add a "What is on here" capability directory to the LibTmux::Server documentation.
 
 0.003  2026-11-13
     - Link CPAN installation, native POD and the shared API reference.

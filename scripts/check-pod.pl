@@ -1,7 +1,7 @@
 use v5.44;
 use FindBin;
 use lib "$FindBin::Bin/../local/lib/perl5", "$FindBin::Bin/lib";
-use LibTmuxDev qw(perl_files);
+use LibTmuxDev qw(perl_files directory_problems);
 use Pod::Simple::SimpleTree;
 use Test::Pod 1.52;
 use Test2::V1;
@@ -54,6 +54,10 @@ for my $link (@links) {
         $failed = 1;
     }
 }
+my @directory = directory_problems('packages/core/lib/LibTmux/Server.pm');
+warn "$_\n" for @directory;
+T2->ok(!@directory, 'LibTmux::Server directory names every method');
+$failed = 1 if @directory;
 T2->done_testing;
 print '# ' . scalar(@links) . " native POD links checked\n" unless $failed;
 exit $failed;

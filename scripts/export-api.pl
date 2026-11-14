@@ -71,6 +71,41 @@ sub inline ($node, $owner) {
     return $body;
 }
 
+# Pod::Simple has already expanded verbatim tabs to 8-column stops.
+sub dedent ($text) {
+    my @lines = split /\n/, $text, -1;
+    my ($indent) =
+        sort { $a <=> $b } map { /\A( *)\S/ ? length $1 : () } @lines;
+    return $text unless $indent;
+    s/\A {0,$indent}// for @lines;
+    return join "\n", @lines;
+}
+
+sub list ($node, $owner) {
+    my ($tag, undef, @children) = @$node;
+    my @items;
+    for my $child (@children) {
+        my ($kind) = @$child;
+        if ($kind eq 'item-text') {
+            push @items, {label => inline($child, $owner), body => []};
+        }
+        elsif ($kind =~ /\Aitem-/) {
+            push @items, {label => '', body => [inline($child, $owner)]};
+        }
+        elsif ($kind eq 'Para' && @items) {
+            push $items[-1]{body}->@*, inline($child, $owner);
+        }
+        else { die "unsupported POD list content: $owner $kind\n" }
+    }
+    my $number = 0;
+    return join "\n", map {
+        my $marker = $tag eq 'over-number' ? ++$number . '.' : '-';
+        my ($label, @body) = ($_->{label}, $_->{body}->@*);
+        $label .= ':' if length($label) && @body && $label !~ /:\z/;
+        $marker . ' ' . join(' ', grep { length } $label, @body)
+    } @items;
+}
+
 sub docs ($file, $module) {
     my $parser = Pod::Simple::SimpleTree->new;
     $parser->parse_file($file);
@@ -101,7 +136,9 @@ sub docs ($file, $module) {
         }
         my $value =
             $tag eq 'Verbatim'
-            ? "\n```perl\n" . text_of($node) . "\n```\n\n"
+            ? "\n```perl\n" . dedent(text_of($node)) . "\n```\n\n"
+            : $tag =~ /\Aover-(?:bullet|number|text)\z/
+            ? list($node, $module) . "\n\n"
             : inline($node, $module) . "\n\n";
         if    (length $method) { $methods{$method} .= $value }
         elsif ($heading ne 'NAME'
