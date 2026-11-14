@@ -1,7 +1,7 @@
+# example: begin records
 use v5.44;
 use LibTmux::Filter;
 
-# example: begin records
 my $filter = LibTmux::Filter->new(
     entity => 'pane',
     where  => {
@@ -20,7 +20,13 @@ say 'matching records: ', join ', ', map { $_->{id} } @matches;
 
 # example: end records
 die 'unexpected record matches' unless @matches == 1 && $matches[0]{id} eq '%1';
+
+# example: begin wire
 my $restored = LibTmux::Filter->from_json($filter->to_json);
+say 'restored filter matches: ',
+    scalar grep { $restored->matches($_) } @records;
+
+# example: end wire
 die 'wire filter changed meaning' unless $restored->matches($records[0]);
 
 # example: begin invalid

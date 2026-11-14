@@ -82,8 +82,21 @@ my %expected_stdout = (
         'captured name: logs',
         'core workflow: ok',
     ],
+    'packages/core/examples/select.pl' => [
+        'editor panes: 2',
+        'active pane belongs to editor',
+        'no pane is that wide',
+    ],
+    'packages/core/examples/input.pl' =>
+        ['PROJECT=api', '@build=ok', "perl-input\n0\n",],
+    'packages/core/examples/explain.pl' => [
+        'tmux filter: #{&&:#{==:#{pane_active},1},#{e|>=:#{pane_width},1}}',
+        'stays local: window requires local relation',
+        'pushdown off: local evaluation; pushdown disabled',
+    ],
     'packages/core/examples/filters.pl' => [
         'matching records: %1',
+        'restored filter matches: 1',
         'invalid operand at pane.where.width.-gte',
         'expected: safe decimal integer',
         'filter records and wire: ok',
@@ -102,11 +115,61 @@ my %expected_stdout = (
     ],
 );
 
+my %owned_only = map { $_ => true } qw(
+    packages/core/examples/select.pl
+    packages/core/examples/input.pl
+);
+
+# With no socket argument a program owns its private server and removes it.
+my $run_owned = sub ($file, $program, $socket_root) {
+    my $private  = "$socket_root/private";
+    my $selected = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
+    mkdir $private or die "$private: $!";
+    my %before = map { $_ => true } LibTmuxFixture::_children($$);
+    my $owned  = LibTmux::Transport->run(
+        argv    => [$^X, $program],
+        timeout => 3,
+        env     => {
+            PERL5LIB => join(':', @libraries),
+            TMPDIR   => $private,
+            $selected =~ m!/!
+            ? (PATH => dirname($selected) . ":$ENV{PATH}")
+            : (),
+        },
+    );
+    die "$file failed without a socket argument:\n"
+        . $owned->stdout
+        . $owned->stderr
+        unless $owned->success;
+    for my $line ($expected_stdout{$file}->@*) {
+        die "$file missing expected output without a socket: $line\n"
+            unless index($owned->stdout, $line) >= 0;
+    }
+
+    # A daemon that outlived the program is still a child of this subreaper.
+    local $SIG{ALRM} = sub { die "$file left its tmux server running\n" };
+    alarm 1;
+    waitpid($_, 0) for grep { !$before{$_} } LibTmuxFixture::_children($$);
+    alarm 0;
+    opendir my $directory, $private or die "$private: $!";
+    my @left = grep { !/\A\.\.?\z/ } readdir $directory;
+    die "$file left $left[0] in its private directory\n" if @left;
+    print "$file: ", $owned->stdout;
+};
+
 for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
     my $program = $file =~ m!\Apackages/! ? "$example_root/$file" : $file;
     die "example absent from native archive: $file\n"
         if $installed && $file =~ m!\Apackages/! && !-f $program;
-    if ($file =~ m!\Apackages/! && $file !~ m!/filters\.pl\z!) {
+    if ($owned_only{$file}) {
+        LibTmuxFixture->run(
+            sub ($server, $socket_root) {
+                $run_owned->($file, $program, $socket_root);
+            }
+        );
+        next;
+    }
+    if ($file =~ m!\Apackages/! && $file !~ m!/(?:filters|explain)\.pl\z!) {
         LibTmuxFixture->run(
             sub ($server, $socket_root) {
                 my $sentinel = $server->new_session(
@@ -133,33 +196,7 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
                     unless $remaining->id eq $sentinel->id;
                 print "$file: ", $result->stdout;
 
-                # With no socket argument, the program owns its server.
-                my $private  = "$socket_root/private";
-                my $selected = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
-                mkdir $private or die "$private: $!";
-                my $owned = LibTmux::Transport->run(
-                    argv    => [$^X, $program],
-                    timeout => 3,
-                    env     => {
-                        PERL5LIB => join(':', @libraries),
-                        TMPDIR   => $private,
-                        $selected =~ m!/!
-                        ? (PATH => dirname($selected) . ":$ENV{PATH}")
-                        : (),
-                    },
-                );
-                die "$file failed without a socket argument:\n"
-                    . $owned->stdout
-                    . $owned->stderr
-                    unless $owned->success;
-                for my $line ($expected_stdout{$file}->@*) {
-                    die
-"$file missing expected output without a socket: $line\n"
-                        unless index($owned->stdout, $line) >= 0;
-                }
-                opendir my $directory, $private or die "$private: $!";
-                my @left = grep { !/\A\.\.?\z/ } readdir $directory;
-                die "$file left $left[0] in its private directory\n" if @left;
+                $run_owned->($file, $program, $socket_root);
             }
         );
         next;

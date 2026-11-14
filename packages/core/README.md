@@ -161,6 +161,9 @@ $ perl examples/filters.pl
 
 <!-- example: packages/core/examples/filters.pl#records -->
 ```perl
+use v5.44;
+use LibTmux::Filter;
+
 my $filter = LibTmux::Filter->new(
     entity => 'pane',
     where  => {
