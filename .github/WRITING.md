@@ -52,13 +52,9 @@ requirements, one supported installation route, a working example, and links
 to its API and guides. Preserve the logo block at the top and the existing
 `libtmux-logo` markers. Keep package-local assets usable in the native archive.
 
-Organize sections around reader tasks. Link the API at its first prose mention
-in a section and keep links out of code fences. Put detailed contracts in the
-owning guide. Start feature headings with a linked API symbol followed by the
-task, as in the [Go README](https://github.com/libtmux/libtmux-go#find-sessions-windows-and-panes).
-Keep paragraphs short enough to scan; use a table when readers need to compare
-packages or examples. Describe supported versions separately from the versions
-CI actually runs.
+Link the API at its first prose mention in a section and keep links out of
+code fences. Put detailed contracts in the owning guide. Use a table when
+readers need to compare packages or examples.
 
 Use relative source links in the repository README. Distribution READMEs also
 need to work outside the checkout, so use hosted documentation or canonical
@@ -66,6 +62,47 @@ repository URLs for material outside that distribution. The merged
 [Rust README structure](https://github.com/libtmux/libtmux-rs/pull/89) and
 [TypeScript package/API links](https://github.com/libtmux/libtmux-ts/pull/82)
 show the shared conventions; adapt their commands and contracts to Perl.
+
+## README shape
+
+A README is scanned, not read: a reader finds a task, runs one example, and
+follows a link for the rest. It follows the
+[Go README](https://github.com/libtmux/libtmux-go#find-sessions-windows-and-panes):
+task sections made of linked API headings, each with a tested example.
+
+- **Header.** The logo block, a centred title, a one-line tagline, and a badge
+  row: CI, the CPAN version, libtmux.org and the license. Add a badge or link
+  only for a page that returns 200.
+- **Task sections.** Each `##` heading names a task in the reader's words, such
+  as "Find sessions, windows and panes".
+- **API headings.** Each `###` heading under a task starts with the API symbol
+  in backticks, linked to its libtmux.org reference page. A colon and the job
+  in plain words follow the link.
+- **Under a heading.** Link the sibling APIs in a line or two, show the tested
+  example and what it prints, add at most one short note, and end with a
+  `More:` link to the guide.
+- **Short text.** No paragraph runs past three lines, and a list of facts is a
+  bullet list. Leave out feature inventories, marketing, and boilerplate about
+  tests, checks, evidence or contracts.
+- **Requirements.** State floors a reader can act on, such as "tmux 3.3a or
+  newer". Leave out toolchain patch versions, CI matrix narration, and kernel
+  or libc detail; link the compatibility guide.
+- **Packages.** Keep the package table. Give each package a heading that links
+  its GitHub directory, a one-line description, and a link line for the API
+  reference, CPAN and the changelog.
+- **Support and leaves out.** "Support and status" and "What it leaves out" are
+  short bullets, each with a bold lead.
+- **Imports first.** Every example starts with its imports, so a reader can
+  paste it into a file and run it. A displayed excerpt of a larger file starts
+  at its imports, or the README shows the whole program.
+- **Its own server.** An example starts and cleans up its own private tmux
+  server through the library, never with shell setup or `tmux kill-server`.
+- **Run in CI.** Every displayed example comes from a file that CI runs.
+  `make check-snippets` keeps the README and guides in step with those files.
+- **Headline features.** The root README shows the query and filter, planner,
+  chaining and control-mode features the port has, each under a linked API
+  heading with a tested example. A feature the port lacks goes under "What it
+  leaves out", not in a section.
 
 ## Comments and errors
 
