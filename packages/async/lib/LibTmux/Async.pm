@@ -1,6 +1,6 @@
 package LibTmux::Async;
 use v5.44;
-our $VERSION = '0.002';
+our $VERSION = '0.003';
 
 =head1 NAME
 

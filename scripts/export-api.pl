@@ -346,7 +346,7 @@ for my $distribution (qw(core async workspace)) {
         : $distribution eq 'async' ? 'LibTmux-Async'
         :                            'LibTmux-Workspace';
     my $product = $distribution eq 'workspace' ? 'workspace' : 'core';
-    push @packages, {name => $package, product => $product, version => '0.002'};
+    push @packages, {name => $package, product => $product, version => '0.003'};
     my @inputs;
     File::Find::find(
         {

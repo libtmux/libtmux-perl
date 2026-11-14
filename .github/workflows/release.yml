@@ -9,7 +9,7 @@ on:
       candidate-tag:
         description: Proposed decimal-version tag to verify without publishing
         required: true
-        default: v0.002
+        default: v0.003
 
 permissions:
   contents: read

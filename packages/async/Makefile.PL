@@ -21,7 +21,7 @@ if (-d 'lib') {
                     while ($source =~
                         /^package\s+(LibTmux(?:::[A-Za-z0-9_]+)*)\s*[;{]/mg)
                     {
-                        $provides{$1} = {file => $file, version => '0.002'};
+                        $provides{$1} = {file => $file, version => '0.003'};
                     }
                 }
             }
@@ -32,7 +32,7 @@ if (-d 'lib') {
 
 WriteMakefile(
     NAME             => 'LibTmux::Async',
-    VERSION          => '0.002',
+    VERSION          => '0.003',
     ABSTRACT         => 'Optional Future-based libtmux execution',
     AUTHOR           => 'libtmux contributors',
     LICENSE          => 'mit',
