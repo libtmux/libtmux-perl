@@ -55,7 +55,7 @@ if ($installed) {
 }
 my %expected_stdout = (
     'packages/core/examples/quickstart.pl' =>
-        ['editor: 2 panes', 'logs: 1 pane'],
+        ['editor: 2 panes', 'logs: 1 pane', 'side pane: 20 columns'],
     'examples/quickstart.pl' => [
         'session demo',
         'window 0:editor:',

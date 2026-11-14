@@ -26,7 +26,7 @@ my $server  = LibTmux::Server->new(
     executable  => shift(@ARGV) // 'tmux',
     config_file => '/dev/null',
 );
-my ($session, $snapshot, $failure);
+my ($session, $snapshot, $side, $failure);
 try {
     $session = $server->new_session(
         name    => 'perl-quickstart',
@@ -34,11 +34,12 @@ try {
     );
     my $editor = $session->window_links->one->window;
     $server->rename_window(window => $editor, name => 'editor');
-    $server->split_pane(
+    $side = $server->split_pane(
         pane       => $editor->panes->one,
         horizontal => true,
         command    => [$^X, '-e', 'while (<STDIN>) { print }'],
     );
+    $server->resize_pane(pane => $side, width => 20);
     $server->new_window(
         session => $session,
         name    => 'logs',
@@ -64,6 +65,7 @@ for my $link ($snapshot->session_by_id($session->id)->window_links->@*) {
     my $count = $link->window->panes->count;
     say $link->window->name, ': ', $count, $count == 1 ? ' pane' : ' panes';
 }
+say 'side pane: ', $snapshot->pane_by_id($side->id)->width, ' columns';
 ```
 
 It prints `editor: 2 panes` and `logs: 1 pane`.
