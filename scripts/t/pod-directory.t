@@ -24,47 +24,69 @@ Intro.
 
 B<One.> Guidance.
 
-C<alpha> and C<beta>
+L</alpha> and L<beta|/beta>
 
 B<Two.> Guidance.
 
 =over 4
 
-=item First: C<gamma>
+=item First: L<gamma|/gamma>
 
 =back
 
 B<Three.> Guidance.
 
-C<alpha>
+L</alpha>
 POD
 
 T2->is([problems($rows)], [], 'paragraph and labelled rows cover every method');
-T2->is([problems($rows =~ s/C<gamma>/C<beta>/r)],
+T2->is([problems($rows =~ s/L<gamma\|\/gamma>/L<beta|\/beta>/r)],
     ['directory omits gamma'],
     'a method missing from the references is reported');
 T2->is(
     [
         problems(
-            $rows =~ s/C<gamma>/C<beta>/r =~ s/Guidance\./Guidance C<gamma>./r
+            $rows =~ s/L<gamma\|\/gamma>/L<beta|\/beta>/r =~
+                s/Guidance\./Guidance L<gamma|\/gamma>./r
         )
     ],
     ['directory omits gamma'],
     'a name in a row\'s own prose does not count'
 );
 T2->is(
-    [problems($rows . "\nB<Four.> Guidance.\n\nC<delta>\n")],
+    [problems($rows . "\nB<Four.> Guidance.\n\nL</delta>\n")],
     ['directory names delta, which is not a documented method'],
     'a name that is not a method is reported'
 );
 T2->is(
-    [problems($rows =~ s/C<alpha> and C<beta>/Use C<alpha> and C<beta>./r)],
     [
-"directory row 'One.' needs a paragraph or 'Label: references' list of C<> names after it",
+        problems(
+            $rows =~
+s/L<\/alpha> and L<beta\|\/beta>/Use L<\/alpha> and L<beta|\/beta>./r
+        )
+    ],
+    [
+"directory row 'One.' needs a paragraph or 'Label: references' list of L</name> links after it",
         'directory needs at least 3 rows',
         'directory omits beta'
     ],
     'references mixed with prose are not a row'
+);
+my $row_problem =
+"directory row 'One.' needs a paragraph or 'Label: references' list of L</name> links after it";
+T2->is(
+    [
+        problems(
+            $rows =~ s/L<\/alpha> and L<beta\|\/beta>/C<alpha> and C<beta>/r
+        )
+    ],
+    [$row_problem, 'directory needs at least 3 rows', 'directory omits beta'],
+    'C<> names are not references'
+);
+T2->is(
+    [problems($rows =~ s/L<\/alpha>/L<LibTmux::X\/alpha>/r)],
+    [$row_problem, 'directory needs at least 3 rows', 'directory omits beta'],
+    'a link into another module is not a reference'
 );
 T2->is(
     [problems($rows =~ s/\nB<Three\.>.*\z/\n/sr)],

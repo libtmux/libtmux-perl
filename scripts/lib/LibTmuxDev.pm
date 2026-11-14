@@ -70,20 +70,26 @@ sub _plain ($node) {
     return join '', map { _plain($_) } @{$node}[2 .. $#$node];
 }
 
-# The C<> names of nodes that hold nothing else but separators, or undef.
+# The targets of same-document L<> links when nothing else but separators
+# sits between them, or undef.
 sub _references (@nodes) {
     my @names;
     for my $node (@nodes) {
         if (ref $node) {
-            return unless $node->[0] eq 'C';
-            push @names, _plain($node);
+            my ($tag, $attributes) = @$node;
+            return
+                   unless $tag eq 'L'
+                && ($attributes->{type} // '') eq 'pod'
+                && !exists($attributes->{to})
+                && defined($attributes->{section});
+            push @names, _plain($attributes->{section});
         }
         else { return unless $node =~ /\A(?:[\s,;.]|and\b)*\z/ }
     }
     return @names ? \@names : undef;
 }
 
-# A paragraph of references, or a list of "Label: references" items.
+# A paragraph of method links, or a list of "Label: links" items.
 sub _row_references ($node) {
     my ($tag, undef, @children) = @$node;
     return _references(@children) if $tag eq 'Para';
@@ -101,8 +107,8 @@ sub _row_references ($node) {
 
 # Problems with the "What is on here" directory in a class's POD: the
 # structure libtmux.org folds into a table, and a name for every =head2
-# method. A bold-led row names its methods in the references that follow it;
-# the row's own prose does not count.
+# method. A bold-led row names its methods in the L</name> links that follow
+# it; the row's own prose does not count.
 sub directory_problems ($file) {
     my $parser = Pod::Simple::SimpleTree->new;
     $parser->parse_file($file);
@@ -124,7 +130,7 @@ sub directory_problems ($file) {
             else {
                 push @problems,
                     "$file: directory row '$title' needs a paragraph or "
-                    . "'Label: references' list of C<> names after it";
+                    . "'Label: references' list of L</name> links after it";
             }
         }
     }
