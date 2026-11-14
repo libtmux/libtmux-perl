@@ -11,6 +11,10 @@
 
 # libtmux for Perl
 
+Drive tmux from Perl: [create sessions][server-new-session],
+[type into panes][server-send-text], and
+[filter what tmux holds][selection-where] with ordinary arrays.
+
 [![Perl checks](https://github.com/libtmux/libtmux-perl/actions/workflows/scaffold.yml/badge.svg)](https://github.com/libtmux/libtmux-perl/actions/workflows/scaffold.yml)
 [![LibTmux](https://img.shields.io/cpan/v/LibTmux?label=LibTmux)](https://metacpan.org/dist/LibTmux)
 [![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/)
@@ -18,23 +22,10 @@
 
 </div>
 
-libtmux for Perl is a tmux client library for creating sessions, arranging
-windows, sending input, and querying captured state with ordinary Perl arrays.
-Core and workspace use the Perl standard library at runtime; the optional
-async distribution adds Futures and a caller-owned event loop.
+The core needs only the Perl standard library at runtime. Async and workspace
+ship as separate packages under [Choose a package](#choose-a-package).
 
-[Quick start](#server-new_session-create-a-session-and-arrange-its-windows) ·
-[Filter panes](#selection-where-filter-with-criteria-and-perl-callbacks) ·
-[Packages](#choose-a-package) ·
-[Documentation](https://libtmux.org/en/perl/) ·
-[Guides](https://libtmux.org/en/perl/latest/guides/) ·
-[API reference](https://libtmux.org/en/perl/latest/reference/) ·
-[CPAN](https://metacpan.org/dist/LibTmux)
-
-## [`Server->new_session`][server-new-session]: create a session and arrange its windows
-
-Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. With
-Perl and cpm on `PATH`, install the published core distribution from CPAN:
+Install the core with [cpm](https://github.com/skaji/cpm):
 
 ```console
 $ cpm install \
@@ -42,15 +33,34 @@ $ cpm install \
     LibTmux
 ```
 
-Run the [complete program](packages/core/examples/quickstart.pl) with an explicit
-socket path. It creates a session, splits its editor window, adds a logs
-window, and retains a snapshot. It removes only the session it created,
-including on failure; it preserves any other sessions on the selected server.
-Save the program below as `quickstart.pl`, or run the linked file from a checkout:
+It needs:
 
-```console
-$ perl quickstart.pl "${TMPDIR:-/tmp}/libtmux-perl-$$.sock"
-```
+- **Perl 5.44 or newer.**
+- **tmux 3.3a or newer.**
+- **Linux on x86-64, including WSL.** See [compatibility](docs/compatibility.md).
+
+The `0.x` API can change between releases. Each distribution's `Changes` file
+marks the breaks; pin a version in applications.
+
+**Contents** — [Quick start](#quick-start) ·
+[Find things](#find-sessions-windows-and-panes) ·
+[Send input](#send-input-and-run-commands) ·
+[Plan a query](#plan-a-query) ·
+[Packages](#choose-a-package) ·
+[Examples](#run-the-examples-and-read-the-guides) ·
+[Leaves out](#what-it-leaves-out) · [Support](#support-and-status)
+
+[Documentation](https://libtmux.org/en/perl/) ·
+[Guides](https://libtmux.org/en/perl/latest/guides/) ·
+[API reference](https://libtmux.org/en/perl/latest/reference/) ·
+[CPAN](https://metacpan.org/dist/LibTmux)
+
+## Quick start
+
+### [`Server->new_session`][server-new-session]: create a session and arrange its windows
+
+Create a session, split its window, add another, and read the result. The
+program runs its own tmux server and removes it on exit:
 
 <!-- example: packages/core/examples/quickstart.pl -->
 ```perl
@@ -106,114 +116,298 @@ for my $link ($snapshot->session_by_id($session->id)->window_links->@*) {
 }
 ```
 
-The captured graph remains readable after the live session is removed:
+It prints:
 
 ```text
 editor: 2 panes
 logs: 1 pane
 ```
 
-[`Server`](https://libtmux.org/en/perl/latest/reference/libtmux-server/) owns
-explicit commands. Its
-[`new_session`](https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/)
-starts tmux when the selected socket has no server. Construction alone does no
-I/O. The example uses an empty tmux configuration and literal Perl command
-arrays; it needs no editor, shell wrapper, Python, or repository fixture.
-An existing session with the example's name is a conflict, not a cleanup target.
+To run it, save it as `quickstart.pl`:
 
-## [`Selection->where`][selection-where]: filter with criteria and Perl callbacks
-
-Continue with the retained `$snapshot` above. A
-[`Selection`](https://libtmux.org/en/perl/latest/reference/libtmux-selection/)
-is a blessed array reference: declarative `where`, one-argument `grep`, and
-ordinary `map` work together without another tmux call.
-
-<!-- example: packages/core/examples/workflow.pl#filter -->
-```perl
-my $snapshot = $server->snapshot;
-my $panes =
-    $snapshot->windows->one({name => 'editor'})
-    ->panes->where({width => {-gte => 1}})
-    ->grep(sub ($pane) { $pane->height > 0 });
-my @ids    = map { $_->id } $panes->@*;
-my $active = $panes->one({active => true});
-say 'editor panes: ',          scalar @ids;
-say 'active pane belongs to ', $active->window->name;
-
+```console
+$ perl quickstart.pl
 ```
 
-`one` throws on zero or multiple occurrences. `one_or_undef` represents absence
-and still rejects ambiguity. `to_array` makes a fresh unblessed arrayref.
-Native array access stays mutable; library methods validate all members.
-The [filtering guide](docs/filtering.md) covers nulls, numeric comparisons,
-same-child quantifiers, and invalid-filter diagnostics.
+[`Server`][server] owns every command, and `new_session` starts tmux when none
+is running. The captured [`Snapshot`][snapshot] stays readable after its
+session is gone.
 
-## [`Server->send_text`][server-send-text]: send text, capture output, and set environment
+Pass a socket path to join a server of your own: the program then removes only
+the session it created, and an existing session with the same name is an error.
 
-The [live workflow](packages/core/examples/workflow.pl) performs this section
-while its session is still open:
+More: [orchestration guide](docs/orchestration.md).
 
-<!-- example: packages/core/examples/workflow.pl#input -->
+## Find sessions, windows and panes
+
+### [`Selection->where`][selection-where]: filter with criteria and Perl callbacks
+
+A [`Selection`][selection] is a blessed array reference: `where`, `grep` and
+`map` chain without another tmux call.
+
+<!-- example: packages/core/examples/select.pl -->
 ```perl
-$server->send_text(
-    pane  => $right,
-    text  => 'hello from Perl',
-    enter => true
-);
-my $screen = $server->capture_pane(pane => $right, start => -100);
-say 'captured bytes: ', length $screen;
-$server->set_environment(
-    session => $session,
-    name    => 'PROJECT',
-    value   => 'api',
-);
-say 'PROJECT=',
-    $server->get_environment(session => $session, name => 'PROJECT');
+use v5.44;
+use File::Temp ();
+use LibTmux::Server;
 
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $server  = LibTmux::Server->new(
+    socket_path => "$private/tmux.sock",
+    config_file => '/dev/null',
+);
+my $failure;
+try {
+    my $session = $server->new_session(
+        name    => 'perl-select',
+        command => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+    my $editor = $session->window_links->one->window;
+    $server->rename_window(window => $editor, name => 'editor');
+    $server->split_pane(
+        pane       => $editor->panes->one,
+        horizontal => true,
+        command    => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+
+    my $snapshot = $server->snapshot;
+    my $panes =
+        $snapshot->windows->one({name => 'editor'})
+        ->panes->where({width => {-gte => 1}})
+        ->grep(sub ($pane) { $pane->height > 0 });
+    my $active = $panes->one({active => true});
+    say 'editor panes: ',          $panes->count;
+    say 'active pane belongs to ', $active->window->name;
+
+    # example: begin nomatch
+    try { $panes->one({width => {-gt => 10_000}}) }
+    catch ($error) {
+        die $error unless $error isa LibTmux::X::NoMatch;
+        say 'no pane is that wide';
+    }
+
+    # example: end nomatch
+}
+catch ($error) { $failure = $error }
+
+# The server is private, so stopping it removes everything the program made.
+try { $server->kill_server }
+catch ($error) { $failure //= $error unless $error isa LibTmux::X::NoServer }
+die $failure if defined $failure;
 ```
 
-[`send_text`](https://libtmux.org/en/perl/latest/reference/libtmux-server-send_text/)
-sends literal text; `send_keys` accepts tmux key names.
-[`capture_pane`](https://libtmux.org/en/perl/latest/reference/libtmux-server-capture_pane/)
-returns current screen/history bytes. Command acceptance does not prove that a
-pane application finished its work. Use an application-specific observable
-completion condition when that matters. See [orchestration](docs/orchestration.md).
+It prints:
 
-## [`LibTmux::Filter`][filter]: save a reusable filter
+```text
+editor panes: 2
+active pane belongs to editor
+no pane is that wide
+```
 
-[`Filter`](https://libtmux.org/en/perl/latest/reference/libtmux-filter/) compiles
-criteria once and owns its normalized data. In the same workflow:
+`one` throws on none or several matches; `one_or_undef` returns undef for none.
 
-<!-- example: packages/core/examples/workflow.pl#wire -->
+More: [filtering guide](docs/filtering.md).
+
+### [`LibTmux::Filter`][filter]: save a reusable filter
+
+A [`Filter`][filter] compiles criteria once, matches plain hash records
+without tmux, and round-trips through versioned JSON:
+
+<!-- example: packages/core/examples/filters.pl#records -->
 ```perl
+use v5.44;
+use LibTmux::Filter;
+
 my $filter = LibTmux::Filter->new(
     entity => 'pane',
-    where  => {active => true, width => {-gte => 1}},
+    where  => {
+        active          => true,
+        current_command => {-in  => [qw(perl vim)]},
+        width           => {-gte => 80},
+    },
 );
-my $restored = LibTmux::Filter->from_json($filter->to_json);
-my $selected = $panes->where($restored);
-say 'restored filter matches: ', $selected->count;
+my @records = (
+    {id => '%1', active => true,  current_command => 'perl', width => 120},
+    {id => '%2', active => false, current_command => 'perl', width => 120},
+    {id => '%3', active => true,  current_command => 'vim',  width => 40},
+);
+my @matches = grep { $filter->matches($_) } @records;
+say 'matching records: ', join ', ', map { $_->{id} } @matches;
 
 ```
 
-The `libtmux.where/v1` wire format preserves schema-selected text, numbers,
-booleans, and nulls. Native `qr//` remains available in callbacks; serialized
-regex dialects are deferred. [Query plans](docs/query-planning.md) explain
-which scalar predicates can be verified by tmux.
+It prints `matching records: %1`. Save and restore it:
+
+<!-- example: packages/core/examples/filters.pl#wire -->
+```perl
+my $restored = LibTmux::Filter->from_json($filter->to_json);
+say 'restored filter matches: ',
+    scalar grep { $restored->matches($_) } @records;
+
+```
+
+It prints `restored filter matches: 1`. Regular expressions work in callbacks,
+not in the JSON.
+
+More: [filtering guide](docs/filtering.md).
+
+## Send input and run commands
+
+### [`Server->send_text`][server-send-text]: send text, capture output, and set environment
+
+[`send_text`][server-send-text] types literal text and
+[`send_keys`][server-send-keys] takes tmux key names.
+[`capture_pane`][server-capture-pane] reads the screen, and
+[`set_option`][server-set-option] and [`get_option`][server-get-option] read
+and write options:
+
+<!-- example: packages/core/examples/input.pl -->
+```perl
+use v5.44;
+use File::Temp ();
+use LibTmux::Server;
+
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $server  = LibTmux::Server->new(
+    socket_path => "$private/tmux.sock",
+    config_file => '/dev/null',
+);
+my $failure;
+try {
+    my $session = $server->new_session(
+        name    => 'perl-input',
+        command => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+    my $pane = $session->window_links->one->window->panes->one;
+
+    $server->send_text(
+        pane  => $pane,
+        text  => 'hello from Perl',
+        enter => true
+    );
+    print $server->capture_pane(pane => $pane, start => -100) =~ s/\n+\z/\n/r;
+    $server->set_environment(
+        session => $session,
+        name    => 'PROJECT',
+        value   => 'api',
+    );
+    say 'PROJECT=',
+        $server->get_environment(session => $session, name => 'PROJECT');
+    my %build = (scope => 'session', target => $session->id, name => '@build');
+    $server->set_option(%build, value => 'ok');
+    say '@build=', $server->get_option(%build);
+
+    # example: begin batch
+    my $batch = $server->batch(
+        [
+            ['display-message', '-p', '-t', $pane->id, '#{session_name}'],
+            ['display-message', '-p', '-t', $pane->id, '#{pane_index}'],
+        ]
+    );
+    for my $entry ($batch->@*) {
+        die $entry->{error} if defined $entry->{error};
+        print $entry->{result}->stdout;
+    }
+
+    # example: end batch
+}
+catch ($error) { $failure = $error }
+
+# The server is private, so stopping it removes everything the program made.
+try { $server->kill_server }
+catch ($error) { $failure //= $error unless $error isa LibTmux::X::NoServer }
+die $failure if defined $failure;
+```
+
+It prints:
+
+```text
+hello from Perl
+hello from Perl
+PROJECT=api
+@build=ok
+perl-input
+0
+```
+
+Tmux accepting a command does not mean the pane finished. Capture again until
+the screen shows what you expect.
+
+More: [orchestration guide](docs/orchestration.md).
+
+### [`Server->batch`][server-batch]: run several commands, keep each result
+
+[`batch`][server-batch] takes argv arrays and returns one `{result, error}`
+record per command, in order. A failing command does not stop the rest.
+
+<!-- example: packages/core/examples/input.pl#batch -->
+```perl
+my $batch = $server->batch(
+    [
+        ['display-message', '-p', '-t', $pane->id, '#{session_name}'],
+        ['display-message', '-p', '-t', $pane->id, '#{pane_index}'],
+    ]
+);
+for my $entry ($batch->@*) {
+    die $entry->{error} if defined $entry->{error};
+    print $entry->{result}->stdout;
+}
+
+```
+
+It prints the session name and the pane index: `perl-input`, then `0`.
+
+More: [orchestration guide](docs/orchestration.md).
+
+## Plan a query
+
+### [`Server->explain_panes`][server-explain-panes]: see what runs in tmux and what stays local
+
+[`explain_panes`][server-explain-panes] builds a [`QueryPlan`][queryplan]
+without any I/O. [`query_panes`][server-query-panes] runs the same criteria
+against tmux. Its `pushdown` switch is `auto`, `never` or `require`.
+
+<!-- example: packages/core/examples/explain.pl -->
+```perl
+use v5.44;
+use LibTmux::Server;
+
+# Planning does no I/O, so this program needs no tmux server.
+my $server = LibTmux::Server->new;
+
+my $criteria = {active => true, width => {-gte => 1}};
+my $plan     = $server->explain_panes(where => $criteria);
+say 'tmux filter: ', $plan->to_data->{native_filter};
+
+my $relation = {window => {-is => {name => 'editor'}}};
+my $residual = $server->explain_panes(where => $relation);
+say 'stays local: ', $residual->to_data->{residual_reasons}[0];
+
+my $never = $server->explain_panes(where => $criteria, pushdown => 'never');
+say 'pushdown off: ', $never->summary;
+```
+
+It prints:
+
+```text
+tmux filter: #{&&:#{==:#{pane_active},1},#{e|>=:#{pane_width},1}}
+stays local: window requires local relation, byte, null, or unavailable-field semantics
+pushdown off: local evaluation; pushdown disabled
+```
+
+Perl always computes the result; tmux only double-checks what it can express.
+
+More: [query planning guide](docs/query-planning.md).
 
 ## Choose a package
 
 | Distribution | Use it for | Package and API |
 | --- | --- | --- |
-| [LibTmux](packages/core/README.md) | Commands, snapshots, graph navigation, filtering, options and environment. Perl standard library at runtime. | [CPAN](https://metacpan.org/dist/LibTmux) · [API](https://libtmux.org/en/perl/latest/reference/) · [POD](https://metacpan.org/pod/LibTmux) |
-| [LibTmux-Async](packages/async/README.md) | Concurrent Future-returning operations and explicit executor cleanup. Adds Future, IO::Async, IO::Async::Loop::Ppoll and IO::Ppoll. | [CPAN](https://metacpan.org/dist/LibTmux-Async) · [API](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) · [POD](https://metacpan.org/pod/LibTmux::Async) |
-| [LibTmux-Workspace](packages/workspace/README.md) | Validate, plan, and load JSON workspaces with a library or CLI. Uses core and the Perl standard library. | [CPAN](https://metacpan.org/dist/LibTmux-Workspace) · [API](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) · [POD](https://metacpan.org/pod/LibTmux::Workspace) |
+| [LibTmux](packages/core/README.md) | Commands, snapshots, graph navigation, filtering, options and environment. | [CPAN](https://metacpan.org/dist/LibTmux) · [API](https://libtmux.org/en/perl/latest/reference/) · [POD](https://metacpan.org/pod/LibTmux) |
+| [LibTmux-Async](packages/async/README.md) | Concurrent Future-returning operations and explicit executor cleanup. | [CPAN](https://metacpan.org/dist/LibTmux-Async) · [API](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) · [POD](https://metacpan.org/pod/LibTmux::Async) |
+| [LibTmux-Workspace](packages/workspace/README.md) | Validate, plan, and load JSON workspaces with a library or CLI. | [CPAN](https://metacpan.org/dist/LibTmux-Workspace) · [API](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) · [POD](https://metacpan.org/pod/LibTmux::Workspace) |
 
-Each package has its own README, license, metadata, and runnable consumer
-examples. Async closes its executor without destroying a borrowed tmux server.
-Workspace uses public synchronous core APIs and does not require async.
-Install either companion by module name; its declared core dependency is
-installed automatically:
+Companions install by module name, and cpm adds the core for you:
 
 ```console
 $ cpm install \
@@ -227,12 +421,6 @@ $ cpm install \
     LibTmux::Workspace
 ```
 
-The `0.x` API can change between releases. Read each distribution's `Changes`
-file before upgrading and pin versions in applications that need a fixed API.
-
-Each heading below links to the distribution's directory on GitHub, where its
-README lives.
-
 ### [`LibTmux`](https://github.com/libtmux/libtmux-perl/tree/master/packages/core): the library
 
 [`Server`](https://libtmux.org/en/perl/latest/reference/libtmux-server/)
@@ -240,7 +428,7 @@ commands,
 [`Snapshot`](https://libtmux.org/en/perl/latest/reference/libtmux-snapshot/)
 graphs, and
 [`Selection`](https://libtmux.org/en/perl/latest/reference/libtmux-selection/)
-filters, on the Perl standard library at runtime.
+filters.
 
 [![LibTmux](https://img.shields.io/cpan/v/LibTmux?label=LibTmux)](https://metacpan.org/dist/LibTmux)
 [API reference](https://libtmux.org/en/perl/latest/reference/) ·
@@ -275,31 +463,59 @@ and the `libtmux-workspace` command validate, plan, and load a workspace file.
 
 ## Run the examples and read the guides
 
-[The examples index](examples/README.md) separates standalone installed-package
-programs from repository qualification demos. The runner checks output,
-cleanup, and preservation of borrowed sessions:
+[The examples index](examples/README.md) lists every runnable program. Run them
+all from a checkout:
 
 ```console
 $ mise exec -- make examples
 ```
 
-Read [installation](docs/installation.md), [orchestration](docs/orchestration.md),
-[filtering](docs/filtering.md), [graph identity](docs/graph.md),
-[query planning](docs/query-planning.md), [async execution](docs/async.md),
-[workspace loading](docs/workspace.md), and [errors and recovery](docs/errors.md).
-Installed API documentation uses POD: `perldoc LibTmux::Server`.
+- [Installation](docs/installation.md): from CPAN or a checkout
+- [Orchestration](docs/orchestration.md): create, arrange, type, capture
+- [Filtering](docs/filtering.md): criteria, quantifiers, wire format
+- [Graph identity](docs/graph.md): snapshots and linked windows
+- [Query planning](docs/query-planning.md): what tmux runs and what stays local
+- [Async execution](docs/async.md): Futures on your own loop
+- [Workspace loading](docs/workspace.md): JSON workspaces and the CLI
+- [Errors and recovery](docs/errors.md): typed exceptions
+- [Compatibility](docs/compatibility.md): supported platforms
 
-[Compatibility](docs/compatibility.md) covers tmux 3.3a–3.8 inclusive; CI tests
-only Perl 5.44 and the two tmux endpoints. Persistent control,
-streaming subscriptions, tmux command chaining, serialized regexes, and relation
-pushdown are deferred. [Architecture decisions](docs/dev/adr/index.md) explain
-the contracts and costs.
+Installed API documentation uses POD:
+
+```console
+$ perldoc LibTmux::Server
+```
+
+## What it leaves out
+
+- **Control mode.** No persistent connection or subscriptions.
+- **Command chaining.** `batch` makes separate tmux calls, not one command list.
+- **Serialized regexes.** Regular expressions work in callbacks only.
+- **Relation pushdown.** Relation criteria are always checked in Perl.
+
+## Support and status
+
+- **The `0.x` API can change.** Read each `Changes` file before upgrading.
+- **Standard library at runtime.** Async adds Future, IO::Async and IO::Ppoll.
+- **Linux on x86-64, including WSL.** Other systems are untested.
 
 [Contributing](.github/CONTRIBUTING.md) covers author setup and checks.
-[Perl choices](.github/PERL.md) records dependency decisions;
+[Perl choices](.github/PERL.md) records dependency decisions,
+[architecture decisions](docs/dev/adr/index.md) explain the contracts, and
 [branding](docs/branding.md) describes the logos and social cards.
 
+[server]: https://libtmux.org/en/perl/latest/reference/libtmux-server/
 [server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
-[selection-where]: https://libtmux.org/en/perl/latest/reference/libtmux-selection-where/
 [server-send-text]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_text/
+[server-send-keys]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_keys/
+[server-capture-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-capture_pane/
+[server-set-option]: https://libtmux.org/en/perl/latest/reference/libtmux-server-set_option/
+[server-get-option]: https://libtmux.org/en/perl/latest/reference/libtmux-server-get_option/
+[server-batch]: https://libtmux.org/en/perl/latest/reference/libtmux-server-batch/
+[server-explain-panes]: https://libtmux.org/en/perl/latest/reference/libtmux-server-explain_panes/
+[server-query-panes]: https://libtmux.org/en/perl/latest/reference/libtmux-server-query_panes/
+[queryplan]: https://libtmux.org/en/perl/latest/reference/libtmux-queryplan/
+[snapshot]: https://libtmux.org/en/perl/latest/reference/libtmux-snapshot/
+[selection]: https://libtmux.org/en/perl/latest/reference/libtmux-selection/
+[selection-where]: https://libtmux.org/en/perl/latest/reference/libtmux-selection-where/
 [filter]: https://libtmux.org/en/perl/latest/reference/libtmux-filter/
