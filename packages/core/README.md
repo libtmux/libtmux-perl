@@ -11,6 +11,9 @@
 
 # LibTmux
 
+[![LibTmux](https://img.shields.io/cpan/v/LibTmux?label=LibTmux)](https://metacpan.org/dist/LibTmux)
+[![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/)
+
 </div>
 
 LibTmux is a Perl tmux client library for creating sessions, arranging

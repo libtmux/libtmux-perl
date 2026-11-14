@@ -11,6 +11,11 @@
 
 # libtmux for Perl
 
+[![Perl checks](https://github.com/libtmux/libtmux-perl/actions/workflows/scaffold.yml/badge.svg)](https://github.com/libtmux/libtmux-perl/actions/workflows/scaffold.yml)
+[![LibTmux](https://img.shields.io/cpan/v/LibTmux?label=LibTmux)](https://metacpan.org/dist/LibTmux)
+[![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/)
+[![license](https://img.shields.io/badge/license-MIT-blue)](https://github.com/libtmux/libtmux-perl/blob/master/LICENSE)
+
 </div>
 
 libtmux for Perl is a tmux client library for creating sessions, arranging
@@ -221,6 +226,49 @@ $ cpm install \
 
 The `0.x` API can change between releases. Read each distribution's `Changes`
 file before upgrading and pin versions in applications that need a fixed API.
+
+Each heading below links to the distribution's directory on GitHub, where its
+README lives.
+
+### [`LibTmux`](https://github.com/libtmux/libtmux-perl/tree/master/packages/core): the library
+
+[`Server`](https://libtmux.org/en/perl/latest/reference/libtmux-server/)
+commands,
+[`Snapshot`](https://libtmux.org/en/perl/latest/reference/libtmux-snapshot/)
+graphs, and
+[`Selection`](https://libtmux.org/en/perl/latest/reference/libtmux-selection/)
+filters, on the Perl standard library at runtime.
+
+[![LibTmux](https://img.shields.io/cpan/v/LibTmux?label=LibTmux)](https://metacpan.org/dist/LibTmux)
+[API reference](https://libtmux.org/en/perl/latest/reference/) ·
+[Guides](https://libtmux.org/en/perl/latest/guides/) ·
+[CPAN](https://metacpan.org/dist/LibTmux) ·
+[POD](https://metacpan.org/pod/LibTmux) ·
+[Changes](packages/core/Changes)
+
+### [`LibTmux-Async`](https://github.com/libtmux/libtmux-perl/tree/master/packages/async): Futures on a caller-owned loop
+
+[`LibTmux::Async::Server`](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/)
+runs the core operations as Futures and awaits its executor's cleanup.
+
+[![LibTmux-Async](https://img.shields.io/cpan/v/LibTmux-Async?label=LibTmux-Async)](https://metacpan.org/dist/LibTmux-Async)
+[Guide](https://libtmux.org/en/perl/latest/guides/async/) ·
+[API reference](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) ·
+[CPAN](https://metacpan.org/dist/LibTmux-Async) ·
+[POD](https://metacpan.org/pod/LibTmux::Async) ·
+[Changes](packages/async/Changes)
+
+### [`LibTmux-Workspace`](https://github.com/libtmux/libtmux-perl/tree/master/packages/workspace): JSON workspaces, with a CLI
+
+[`LibTmux::Workspace`](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/)
+and the `libtmux-workspace` command validate, plan, and load a workspace file.
+
+[![LibTmux-Workspace](https://img.shields.io/cpan/v/LibTmux-Workspace?label=LibTmux-Workspace)](https://metacpan.org/dist/LibTmux-Workspace)
+[Guide](https://libtmux.org/en/perl/latest/workspace/source-guide/) ·
+[API reference](https://libtmux.org/en/perl/latest/workspace/reference/) ·
+[CPAN](https://metacpan.org/dist/LibTmux-Workspace) ·
+[POD](https://metacpan.org/pod/LibTmux::Workspace) ·
+[Changes](packages/workspace/Changes)
 
 ## Run the examples and read the guides
 

@@ -11,6 +11,9 @@
 
 # LibTmux-Async
 
+[![LibTmux-Async](https://img.shields.io/cpan/v/LibTmux-Async?label=LibTmux-Async)](https://metacpan.org/dist/LibTmux-Async)
+[![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/latest/guides/async/)
+
 </div>
 
 LibTmux-Async runs tmux operations as Futures using the public

@@ -11,6 +11,9 @@
 
 # LibTmux-Workspace
 
+[![LibTmux-Workspace](https://img.shields.io/cpan/v/LibTmux-Workspace?label=LibTmux-Workspace)](https://metacpan.org/dist/LibTmux-Workspace)
+[![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/latest/workspace/)
+
 </div>
 
 LibTmux-Workspace validates, plans, and loads JSON workspaces through public
