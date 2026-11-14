@@ -18,15 +18,15 @@ windows, sending input, and querying captured state with ordinary Perl arrays.
 Core and workspace use the Perl standard library at runtime; the optional
 async distribution adds Futures and a caller-owned event loop.
 
-[Quick start](#create-a-session-and-arrange-its-windows) ·
-[Filter panes](#filter-with-criteria-and-perl-callbacks) ·
+[Quick start](#server-new_session-create-a-session-and-arrange-its-windows) ·
+[Filter panes](#selection-where-filter-with-criteria-and-perl-callbacks) ·
 [Packages](#choose-a-package) ·
 [Documentation](https://libtmux.org/en/perl/) ·
 [Guides](https://libtmux.org/en/perl/latest/guides/) ·
 [API reference](https://libtmux.org/en/perl/latest/reference/) ·
 [CPAN](https://metacpan.org/dist/LibTmux)
 
-## Create a session and arrange its windows
+## [`Server->new_session`][server-new-session]: create a session and arrange its windows
 
 Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. With
 Perl and cpm on `PATH`, install the published core distribution from CPAN:
@@ -113,7 +113,7 @@ I/O. The example uses an empty tmux configuration and literal Perl command
 arrays; it needs no editor, shell wrapper, Python, or repository fixture.
 An existing session with the example's name is a conflict, not a cleanup target.
 
-## Filter with criteria and Perl callbacks
+## [`Selection->where`][selection-where]: filter with criteria and Perl callbacks
 
 Continue with the retained `$snapshot` above. A
 [`Selection`](https://libtmux.org/en/perl/latest/reference/libtmux-selection/)
@@ -140,7 +140,7 @@ Native array access stays mutable; library methods validate all members.
 The [filtering guide](docs/filtering.md) covers nulls, numeric comparisons,
 same-child quantifiers, and invalid-filter diagnostics.
 
-## Send text, capture output, and set environment
+## [`Server->send_text`][server-send-text]: send text, capture output, and set environment
 
 The [live workflow](packages/core/examples/workflow.pl) performs this section
 while its session is still open:
@@ -171,7 +171,7 @@ returns current screen/history bytes. Command acceptance does not prove that a
 pane application finished its work. Use an application-specific observable
 completion condition when that matters. See [orchestration](docs/orchestration.md).
 
-## Save a reusable filter
+## [`LibTmux::Filter`][filter]: save a reusable filter
 
 [`Filter`](https://libtmux.org/en/perl/latest/reference/libtmux-filter/) compiles
 criteria once and owns its normalized data. In the same workflow:
@@ -247,3 +247,8 @@ the contracts and costs.
 [Contributing](.github/CONTRIBUTING.md) covers author setup and checks.
 [Perl choices](.github/PERL.md) records dependency decisions;
 [branding](docs/branding.md) describes the logos and social cards.
+
+[server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
+[selection-where]: https://libtmux.org/en/perl/latest/reference/libtmux-selection-where/
+[server-send-text]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_text/
+[filter]: https://libtmux.org/en/perl/latest/reference/libtmux-filter/

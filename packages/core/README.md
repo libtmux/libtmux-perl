@@ -18,8 +18,8 @@ windows, sending input, capturing output, and filtering observed graphs.
 Its runtime uses the Perl standard library. It requires Perl 5.44 and
 Linux x86_64 LP64, including WSL; tmux 3.3a–3.8 is supported.
 
-[Quick start](#create-and-inspect-a-session) ·
-[Filter records](#reuse-a-filter-with-ordinary-hash-records) ·
+[Quick start](#server-new_session-create-and-inspect-a-session) ·
+[Filter records](#filter-matches-reuse-a-filter-with-ordinary-hash-records) ·
 [Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/guides/) ·
 [API reference](https://libtmux.org/en/perl/latest/reference/) ·
@@ -40,7 +40,7 @@ The [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/doc
 covers prerequisites and source installation. The `0.x` API can change between
 releases; consult `Changes` before upgrading.
 
-## Create and inspect a session
+## [`Server->new_session`][server-new-session]: create and inspect a session
 
 Run [examples/quickstart.pl](examples/quickstart.pl) from this directory after
 installation. An unused socket starts a new server; an existing server keeps
@@ -119,7 +119,7 @@ MetaCPAN also renders the released
 [`Server` POD](https://metacpan.org/pod/LibTmux::Server) and
 [`Filter` POD](https://metacpan.org/pod/LibTmux::Filter).
 
-## Filter panes with ordinary Perl
+## [`Selection->where`][selection-where]: filter panes with ordinary Perl
 
 The longer workflow filters its captured editor panes with a
 [`Selection`](https://libtmux.org/en/perl/latest/reference/libtmux-selection/):
@@ -144,7 +144,7 @@ localizes `$_`. `one` rejects absence and ambiguity; `one_or_undef` permits
 absence. Use `exists` or `count` to test membership. An empty selection is
 still a true reference.
 
-## Reuse a filter with ordinary hash records
+## [`Filter->matches`][filter-matches]: reuse a filter with ordinary hash records
 
 [`Filter`](https://libtmux.org/en/perl/latest/reference/libtmux-filter/) also
 works without a tmux server. Run [examples/filters.pl](examples/filters.pl):
@@ -177,7 +177,7 @@ It selects `%1`. The complete program also round-trips the filter through
 versioned JSON. Schemas validate all criteria before evaluation, including on
 empty inputs; arbitrary keys never become arbitrary method calls.
 
-## Navigate links and handle failures
+## [`LibTmux::WindowLink`][window-link]: navigate links and handle failures
 
 A physical window can belong to several sessions.
 [`WindowLink`](https://libtmux.org/en/perl/latest/reference/libtmux-windowlink/)
@@ -208,3 +208,8 @@ Each native archive owns its metadata, test requirements, README, license,
 logo assets, and consumer examples. The
 [repository examples runner](https://github.com/libtmux/libtmux-perl/blob/master/examples/README.md)
 verifies them against owned real tmux servers and installed artifacts.
+
+[server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
+[selection-where]: https://libtmux.org/en/perl/latest/reference/libtmux-selection-where/
+[filter-matches]: https://libtmux.org/en/perl/latest/reference/libtmux-filter-matches/
+[window-link]: https://libtmux.org/en/perl/latest/reference/libtmux-windowlink/

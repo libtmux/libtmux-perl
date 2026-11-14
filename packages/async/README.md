@@ -18,8 +18,8 @@ LibTmux-Async runs tmux operations as Futures using the public
 model. Submit independent operations concurrently, query their captured results
 locally, and explicitly await executor cleanup.
 
-[Run the example](#create-a-session-and-run-concurrent-operations) ·
-[Cancellation](#cancel-work-and-finish-cleanup) ·
+[Run the example](#libtmuxasyncserver-create-a-session-and-run-concurrent-operations) ·
+[Cancellation](#server-close-cancel-work-and-finish-cleanup) ·
 [Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/guides/async/) ·
 [API reference](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) ·
@@ -44,7 +44,7 @@ the tmux endpoints. Read the
 for interpreter, compiler, and source installation setup. The `0.x` API can
 change between releases; consult `Changes` before upgrading.
 
-## Create a session and run concurrent operations
+## [`LibTmux::Async::Server`][async-server]: create a session and run concurrent operations
 
 [examples/concurrent.pl](examples/concurrent.pl) uses installed modules. It
 creates and removes its own session on the explicit socket, preserves other
@@ -155,7 +155,7 @@ request order and returns a `{result, error}` entry for each independent
 command. Each ordinary operation yields one core value, including one `undef`
 for a void method.
 
-## Cancel work and finish cleanup
+## [`Server->close`][server-close]: cancel work and finish cleanup
 
 Cancelling an operation Future requests cleanup and suppresses later command
 continuations. It does not undo accepted effects. Only successful completion
@@ -172,7 +172,7 @@ preserves the original operation failure and reports cleanup failure separately.
 See the [async guide](https://libtmux.org/en/perl/latest/guides/async/) for all
 three tested modes.
 
-## Choose bounds and caller syntax
+## [`Server->new`][server-new]: choose bounds and caller syntax
 
 Construct `IO::Async::Loop::Ppoll` explicitly and pass it to
 [`Server->new`](https://libtmux.org/en/perl/latest/reference/libtmux-async-server-new/).
@@ -186,3 +186,7 @@ available with `perldoc LibTmux::Async::Server` and
 `perldoc LibTmux::Async::Transport`. Persistent control and
 streaming APIs remain deferred; see the
 [architecture](https://github.com/libtmux/libtmux-perl/blob/master/docs/architecture.md).
+
+[async-server]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server/
+[server-close]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-close/
+[server-new]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-new/

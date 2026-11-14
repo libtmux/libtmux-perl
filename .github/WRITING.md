@@ -54,9 +54,11 @@ to its API and guides. Preserve the logo block at the top and the existing
 
 Organize sections around reader tasks. Link the API at its first prose mention
 in a section and keep links out of code fences. Put detailed contracts in the
-owning guide. Keep paragraphs short enough to scan; use a table when readers
-need to compare packages or examples. Describe supported versions separately
-from the versions CI actually runs.
+owning guide. Start feature headings with a linked API symbol followed by the
+task, as in the [Go README](https://github.com/libtmux/libtmux-go#find-sessions-windows-and-panes).
+Keep paragraphs short enough to scan; use a table when readers need to compare
+packages or examples. Describe supported versions separately from the versions
+CI actually runs.
 
 Use relative source links in the repository README. Distribution READMEs also
 need to work outside the checkout, so use hosted documentation or canonical

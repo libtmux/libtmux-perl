@@ -18,8 +18,8 @@ LibTmux-Workspace validates, plans, and loads JSON workspaces through public
 Describe sessions, windows, pane commands, layout, working directories, and
 environment; inspect the plan before applying it.
 
-[CLI example](#validate-plan-and-load-a-workspace) ·
-[Perl example](#load-and-inspect-from-perl) ·
+[CLI example](#workspace-plan-validate-plan-and-load-a-workspace) ·
+[Perl example](#workspace-load-load-and-inspect-from-perl) ·
 [Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/workspace/source-guide/) ·
 [API reference](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) ·
@@ -43,7 +43,7 @@ not require async. Read the
 for interpreter, installer, and source setup. The `0.x` API and workspace
 behavior can change between releases; consult `Changes` before upgrading.
 
-## Validate, plan, and load a workspace
+## [`Workspace->plan`][workspace-plan]: validate, plan, and load a workspace
 
 The packaged [examples/workspace.json](examples/workspace.json) creates two
 windows and three panes. Its commands run Perl directly:
@@ -93,7 +93,7 @@ running. Repeating the command with the same socket and `skip` preserves the
 entire existing session. The default policy reports a conflict; it never
 silently replaces another session.
 
-## Load and inspect from Perl
+## [`Workspace->load`][workspace-load]: load and inspect from Perl
 
 Run [examples/load.pl](examples/load.pl) to plan, load, inspect the graph,
 repeat with `skip`, and remove the session it created:
@@ -168,7 +168,7 @@ The program reports one planned session, two loaded windows, two editor panes,
 and one skipped session. It uses installed modules and its adjacent JSON file;
 it needs no Python or author fixture.
 
-## Handle conflicts and partial effects
+## [`Workspace::X::Load`][workspace-load-error]: handle conflicts and partial effects
 
 The [`Workspace`](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/)
 library checks all session-name conflicts before creating anything. `skip`
@@ -189,3 +189,7 @@ schema; tmuxp catalog import is separate work.
 Read the [workspace guide](https://libtmux.org/en/perl/latest/workspace/source-guide/)
 and installed `perldoc LibTmux::Workspace` documentation. Each native archive
 includes this README, its logo assets, and the complete examples.
+
+[workspace-plan]: https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace-plan/
+[workspace-load]: https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace-load/
+[workspace-load-error]: https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace-x-load/
