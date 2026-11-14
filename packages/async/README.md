@@ -11,15 +11,17 @@
 
 # LibTmux-Async
 
+Run tmux operations as Futures on an event loop you own, and await their
+cleanup.
+
 [![LibTmux-Async](https://img.shields.io/cpan/v/LibTmux-Async?label=LibTmux-Async)](https://metacpan.org/dist/LibTmux-Async)
 [![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/latest/guides/async/)
 
 </div>
 
-LibTmux-Async runs tmux operations as Futures using the public
-[LibTmux core](https://github.com/libtmux/libtmux-perl/tree/master/packages/core)
-model. Submit independent operations concurrently, query their captured results
-locally, and explicitly await executor cleanup.
+It builds on the public
+[LibTmux core](https://github.com/libtmux/libtmux-perl/tree/master/packages/core),
+and captured results stay ordinary synchronous core objects.
 
 [Run the example](#libtmuxasyncserver-create-a-session-and-run-concurrent-operations) ·
 [Cancellation](#server-close-cancel-work-and-finish-cleanup) ·
@@ -31,7 +33,7 @@ locally, and explicitly await executor cleanup.
 
 ## Install
 
-Install the published distribution; cpm installs its core dependency too:
+Install with [cpm](https://github.com/skaji/cpm); it installs the core too:
 
 ```console
 $ cpm install \
@@ -39,22 +41,27 @@ $ cpm install \
     LibTmux::Async
 ```
 
-Requires Perl 5.44, Future 0.54, IO::Async 0.805,
-IO::Async::Loop::Ppoll 0.10, and IO::Ppoll 0.14 or newer. IO::Ppoll includes
-an XS extension. Linux x86_64 LP64 and tmux 3.3a–3.8 are supported; CI tests
-the tmux endpoints. Read the
-[installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
-for interpreter, compiler, and source installation setup. The `0.x` API can
-change between releases; consult `Changes` before upgrading.
+It needs:
 
-## [`LibTmux::Async::Server`][async-server]: create a session and run concurrent operations
+- **Perl 5.44 or newer.**
+- **tmux 3.3a or newer.**
+- **Linux on x86-64, including WSL.**
+- **Future, IO::Async and IO::Ppoll.** IO::Ppoll needs a C compiler.
 
-[examples/concurrent.pl](examples/concurrent.pl) uses installed modules. It
-creates and removes its own session on the explicit socket, preserves other
-sessions, and leaves the caller's event loop alive.
+The `0.x` API can change between releases; read `Changes` before upgrading.
+More: [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md).
+
+## Run concurrent operations
+
+### [`LibTmux::Async::Server`][async-server]: create a session and run concurrent operations
+
+Create a session, start independent operations, and await them together. The
+program runs its own tmux server and removes it on exit. Run
+[examples/concurrent.pl](examples/concurrent.pl) from this directory after
+installation:
 
 ```console
-$ perl examples/concurrent.pl "${TMPDIR:-/tmp}/libtmux-perl-async-$$.sock"
+$ perl examples/concurrent.pl
 ```
 
 <!-- example: packages/async/examples/concurrent.pl -->
@@ -152,45 +159,50 @@ say 'async operations and cleanup: ok';
 # example: end close
 ```
 
-The output includes `async active panes: 1`, the connected tmux version,
-`first` then `second`, and `async operations and cleanup: ok`.
-[`Future->needs_all`](https://metacpan.org/pod/Future#needs_all)
-lets independent acquisition and display requests overlap. `batch` preserves
-request order and returns a `{result, error}` entry for each independent
-command. Each ordinary operation yields one core value, including one `undef`
-for a void method.
+It prints the active pane count, your tmux version, `first` and `second`, and
+`async operations and cleanup: ok`.
 
-## [`Server->close`][server-close]: cancel work and finish cleanup
+- [`Future->needs_all`](https://metacpan.org/pod/Future#needs_all) lets
+  independent requests overlap.
+- `batch` keeps request order and returns a `{result, error}` entry for each
+  command.
 
-Cancelling an operation Future requests cleanup and suppresses later command
-continuations. It does not undo accepted effects. Only successful completion
-of the Future from
-[`close`](https://libtmux.org/en/perl/latest/reference/libtmux-async-server-close/)
-proves executor-owned processes and pipes have finished. Keep driving the loop
-through that Future; cancelling a close observer cannot cancel private cleanup.
-Closing preserves a borrowed tmux server.
+More: [async guide](https://libtmux.org/en/perl/latest/guides/async/).
 
-The standalone
+## Cancel and clean up
+
+### [`Server->close`][server-close]: cancel work and finish cleanup
+
+- Cancelling a Future requests cleanup; it does not undo accepted effects.
+- Only the Future from [`close`][server-close] proves cleanup finished. Keep
+  driving the loop until it completes.
+- Closing leaves a borrowed tmux server alone.
+
+The
 [lifecycle program](https://github.com/libtmux/libtmux-perl/blob/master/examples/async-lifecycle.pl)
-adds failure and cancellation paths against an existing explicit socket. It
-preserves the original operation failure and reports cleanup failure separately.
-See the [async guide](https://libtmux.org/en/perl/latest/guides/async/) for all
-three tested modes.
+adds failure and cancellation against an existing socket.
 
-## [`Server->new`][server-new]: choose bounds and caller syntax
+More: [async guide](https://libtmux.org/en/perl/latest/guides/async/).
 
-Construct `IO::Async::Loop::Ppoll` explicitly and pass it to
-[`Server->new`](https://libtmux.org/en/perl/latest/reference/libtmux-async-server-new/).
-`max_concurrent` bounds active subprocesses; `max_queue` bounds waiting
-requests. Other loop backends are rejected before dispatch. A command timeout
-excludes queue delay and the total duration of a multi-command operation.
+## Tune the loop
 
-`Future::AsyncAwait` is optional caller syntax. Core and workspace remain
-usable without Future, IO::Async, or IO::Ppoll. Installed documentation is
-available with `perldoc LibTmux::Async::Server` and
-`perldoc LibTmux::Async::Transport`. Persistent control and
-streaming APIs remain deferred; see the
-[architecture](https://github.com/libtmux/libtmux-perl/blob/master/docs/architecture.md).
+### [`Server->new`][server-new]: choose bounds and caller syntax
+
+- Pass an `IO::Async::Loop::Ppoll` you build; other loop backends are rejected.
+- `max_concurrent` bounds running subprocesses; `max_queue` bounds waiting
+  requests.
+- `Future::AsyncAwait` is optional caller syntax.
+
+Installed POD:
+
+```console
+$ perldoc LibTmux::Async::Server
+```
+
+## What it leaves out
+
+- **Control mode.** No persistent connection or subscriptions.
+- **Other loops.** Only `IO::Async::Loop::Ppoll` is supported.
 
 [async-server]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server/
 [server-close]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-close/

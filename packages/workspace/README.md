@@ -11,15 +11,17 @@
 
 # LibTmux-Workspace
 
+Describe sessions, windows and panes in JSON, check the plan, then load it
+into tmux from Perl or the command line.
+
 [![LibTmux-Workspace](https://img.shields.io/cpan/v/LibTmux-Workspace?label=LibTmux-Workspace)](https://metacpan.org/dist/LibTmux-Workspace)
 [![libtmux.org](https://img.shields.io/badge/docs-libtmux.org-0b7285)](https://libtmux.org/en/perl/latest/workspace/)
 
 </div>
 
-LibTmux-Workspace validates, plans, and loads JSON workspaces through public
-[LibTmux core APIs](https://libtmux.org/en/perl/latest/reference/libtmux-server/).
-Describe sessions, windows, pane commands, layout, working directories, and
-environment; inspect the plan before applying it.
+It uses the public
+[LibTmux core APIs](https://libtmux.org/en/perl/latest/reference/libtmux-server/)
+and adds no runtime dependency beyond the Perl standard library.
 
 [CLI example](#workspace-plan-validate-plan-and-load-a-workspace) ·
 [Perl example](#workspace-load-load-and-inspect-from-perl) ·
@@ -31,7 +33,8 @@ environment; inspect the plan before applying it.
 
 ## Install
 
-Install the published distribution and packaged CLI; cpm installs core too:
+Install the library and the `libtmux-workspace` command with
+[cpm](https://github.com/skaji/cpm); it installs the core too:
 
 ```console
 $ cpm install \
@@ -39,17 +42,22 @@ $ cpm install \
     LibTmux::Workspace
 ```
 
-Requires Perl 5.44, the versioned core distribution, and its Linux x86_64 LP64
-and tmux 3.3a–3.8 environment. It adds no non-core runtime dependency and does
-not require async. Read the
-[installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
-for interpreter, installer, and source setup. The `0.x` API and workspace
-behavior can change between releases; consult `Changes` before upgrading.
+It needs:
 
-## [`Workspace->plan`][workspace-plan]: validate, plan, and load a workspace
+- **Perl 5.44 or newer.**
+- **tmux 3.3a or newer.**
+- **Linux on x86-64, including WSL.**
 
-The packaged [examples/workspace.json](examples/workspace.json) creates two
-windows and three panes. Its commands run Perl directly:
+The `0.x` API and workspace format can change between releases; read `Changes`
+before upgrading.
+More: [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md).
+
+## Validate, plan and load from the command line
+
+### [`Workspace->plan`][workspace-plan]: validate, plan, and load a workspace
+
+The packaged [examples/workspace.json](examples/workspace.json) describes two
+windows and three panes:
 
 <!-- example: packages/workspace/examples/workspace.json -->
 ```json
@@ -73,7 +81,8 @@ windows and three panes. Its commands run Perl directly:
 }
 ```
 
-From this distribution directory, validate the file and inspect its plan:
+From this directory, validate the file and inspect its plan. Neither touches
+tmux:
 
 ```console
 $ libtmux-workspace validate examples/workspace.json
@@ -83,7 +92,8 @@ $ libtmux-workspace validate examples/workspace.json
 $ libtmux-workspace plan examples/workspace.json
 ```
 
-Load it on an explicit socket. An unused path starts a new server:
+Load it on an explicit socket. An unused path starts a new server, and the
+session keeps running afterwards:
 
 ```console
 $ libtmux-workspace load examples/workspace.json \
@@ -91,18 +101,21 @@ $ libtmux-workspace load examples/workspace.json \
     --existing skip
 ```
 
-Validation and planning perform no tmux I/O. Loading leaves the workspace
-running. Repeating the command with the same socket and `skip` preserves the
-entire existing session. The default policy reports a conflict; it never
-silently replaces another session.
+The command line has no stop verb. The next program loads and cleans up in
+one run.
 
-## [`Workspace->load`][workspace-load]: load and inspect from Perl
+More: [workspace guide](https://libtmux.org/en/perl/latest/workspace/source-guide/).
 
-Run [examples/load.pl](examples/load.pl) to plan, load, inspect the graph,
-repeat with `skip`, and remove the session it created:
+## Load and inspect from Perl
+
+### [`Workspace->load`][workspace-load]: load and inspect from Perl
+
+Plan, load, inspect the graph, repeat with `skip`, and remove the session. The
+program runs its own tmux server. Run [examples/load.pl](examples/load.pl) from
+this directory:
 
 ```console
-$ perl examples/load.pl "${TMPDIR:-/tmp}/libtmux-perl-workspace-$$.sock"
+$ perl examples/load.pl
 ```
 
 <!-- example: packages/workspace/examples/load.pl -->
@@ -169,31 +182,41 @@ die $failure if defined $failure;
 say 'workspace plan, load, repeat: ok';
 ```
 
-The program reports one planned session, two loaded windows, two editor panes,
-and one skipped session. It uses installed modules and its adjacent JSON file;
-it needs no Python or author fixture.
+It prints:
 
-## [`Workspace::X::Load`][workspace-load-error]: handle conflicts and partial effects
+```text
+planned sessions: 1
+loaded windows: 2
+editor panes: 2
+skipped existing sessions: 1
+workspace plan, load, repeat: ok
+```
 
-The [`Workspace`](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/)
-library checks all session-name conflicts before creating anything. `skip`
-preserves whole existing sessions; it does not reconcile their pane count or
-layout. Working directories and environment inherit through the configured
-levels, and layout is applied after splitting.
+## Handle conflicts and partial loads
 
-A failed load records completed steps, the failed step, dispatch uncertainty,
-and the original typed cause. Rollback can affect only sessions proven created
-by that load. `report` preserves typed cleanup failures with target identities;
-`report_data` makes a detached JSON-safe diagnostic export.
+### [`Workspace::X::Load`][workspace-load-error]: handle conflicts and partial effects
 
-The CLI exits with 0 for success, 2 for usage/configuration, 3 for load failure,
-and 4 for conflict. Pane commands use literal `command` arrays or an explicit
-`shell_command`. The versioned `libtmux.workspace/v1` format is not tmuxp's
-schema; tmuxp catalog import is separate work.
+- All session-name conflicts are checked before anything is created.
+- `skip` keeps whole existing sessions; it does not reconcile panes or layout.
+- A failed load reports its completed steps, the failed step and the cause.
+- Rollback removes only sessions that load created.
+- Environment and working directory inherit down the levels; layout applies
+  after splitting.
 
-Read the [workspace guide](https://libtmux.org/en/perl/latest/workspace/source-guide/)
-and installed `perldoc LibTmux::Workspace` documentation. Each native archive
-includes this README, its logo assets, and the complete examples.
+Exit status of the command line: 0 success, 2 usage or configuration, 3 load
+failure, 4 conflict.
+
+More: [workspace guide](https://libtmux.org/en/perl/latest/workspace/source-guide/).
+Installed POD:
+
+```console
+$ perldoc LibTmux::Workspace
+```
+
+## What it leaves out
+
+- **tmuxp files.** The `libtmux.workspace/v1` format is JSON, not tmuxp's.
+- **Reconciling.** `skip` never changes an existing session.
 
 [workspace-plan]: https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace-plan/
 [workspace-load]: https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace-load/
