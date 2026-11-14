@@ -21,7 +21,7 @@ $ perl packages/core/examples/quickstart.pl
 
 | Program | Task | Expected result |
 | --- | --- | --- |
-| [Core quick start](../packages/core/examples/quickstart.pl) | Create, split, rename, capture, clean up, and retain the graph. | `editor: 2 panes` and `logs: 1 pane`. |
+| [Core quick start](../packages/core/examples/quickstart.pl) | Create, split, resize, rename, capture, clean up, and retain the graph. | `editor: 2 panes`, `logs: 1 pane` and `side pane: 20 columns`. |
 | [Select panes](../packages/core/examples/select.pl) | Filter captured panes and handle an empty selection. | `editor panes: 2`. |
 | [Send input](../packages/core/examples/input.pl) | Type, capture, set environment and options, and batch commands. | `PROJECT=api` and `@build=ok`. |
 | [Explain a query](../packages/core/examples/explain.pl) | Show what tmux runs and what stays local, without tmux. | `tmux filter: ...` and `stays local: ...`. |

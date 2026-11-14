@@ -59,8 +59,9 @@ marks the breaks; pin a version in applications.
 
 ### [`Server->new_session`][server-new-session]: create a session and arrange its windows
 
-Create a session, split its window, add another, and read the result. The
-program runs its own tmux server and removes it on exit:
+Create a session, [split its window][server-split-pane],
+[resize the new pane][server-resize-pane], add another window, and read the
+result. The program runs its own tmux server and removes it on exit:
 
 <!-- example: packages/core/examples/quickstart.pl -->
 ```perl
@@ -123,6 +124,7 @@ It prints:
 ```text
 editor: 2 panes
 logs: 1 pane
+side pane: 20 columns
 ```
 
 To run it, save it as `quickstart.pl`:
@@ -133,7 +135,9 @@ $ perl quickstart.pl
 
 [`Server`][server] owns every command, and `new_session` starts tmux when none
 is running. The captured [`Snapshot`][snapshot] stays readable after its
-session is gone.
+session is gone. [`kill_session`][server-kill-session],
+[`kill_window`][server-kill-window], [`kill_pane`][server-kill-pane] and
+[`kill_server`][server-kill-server] remove what you created.
 
 Pass a socket path to join a server of your own: the program then removes only
 the session it created, and an existing session with the same name is an error.
@@ -333,7 +337,8 @@ perl-input
 ```
 
 Tmux accepting a command does not mean the pane finished. Capture again until
-the screen shows what you expect.
+the screen shows what you expect. [`set_hook`][server-set-hook] and
+[`show_hooks`][server-show-hooks] write and read hooks.
 
 More: [orchestration guide](docs/orchestration.md).
 
@@ -508,6 +513,14 @@ $ perldoc LibTmux::Server
 
 [server]: https://libtmux.org/en/perl/latest/reference/libtmux-server/
 [server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
+[server-split-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-split_pane/
+[server-resize-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-resize_pane/
+[server-kill-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-kill_session/
+[server-kill-window]: https://libtmux.org/en/perl/latest/reference/libtmux-server-kill_window/
+[server-kill-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-kill_pane/
+[server-kill-server]: https://libtmux.org/en/perl/latest/reference/libtmux-server-kill_server/
+[server-set-hook]: https://libtmux.org/en/perl/latest/reference/libtmux-server-set_hook/
+[server-show-hooks]: https://libtmux.org/en/perl/latest/reference/libtmux-server-show_hooks/
 [server-send-text]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_text/
 [server-send-keys]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_keys/
 [server-capture-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-capture_pane/

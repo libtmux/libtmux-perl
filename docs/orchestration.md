@@ -68,7 +68,7 @@ for my $link ($snapshot->session_by_id($session->id)->window_links->@*) {
 say 'side pane: ', $snapshot->pane_by_id($side->id)->width, ' columns';
 ```
 
-It prints `editor: 2 panes` and `logs: 1 pane`.
+It prints `editor: 2 panes`, `logs: 1 pane` and `side pane: 20 columns`.
 
 - Only the session `new_session` returned, or its creation receipt, is a
   cleanup target. Existing sessions stay untouched.

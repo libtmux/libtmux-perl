@@ -55,10 +55,10 @@ More: [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/d
 
 ### [`Server->new_session`][server-new-session]: create and inspect a session
 
-Create a session, split its window, add another, and read the result. The
-program runs its own tmux server and removes it on exit. Run
-[examples/quickstart.pl](examples/quickstart.pl) from this directory after
-installation:
+Create a session, split its window, resize the new pane, add another window,
+and read the result. The program runs its own tmux server and removes it on
+exit. Run [examples/quickstart.pl](examples/quickstart.pl) from this directory
+after installation:
 
 ```console
 $ perl examples/quickstart.pl
@@ -125,6 +125,7 @@ It prints:
 ```text
 editor: 2 panes
 logs: 1 pane
+side pane: 20 columns
 ```
 
 [`Server`][server] owns every command. The captured [`Snapshot`][snapshot]

@@ -108,8 +108,8 @@ $ cpm install \
 ## Run a first program
 
 The [core quick start](../packages/core/examples/quickstart.pl) creates its own
-session, splits a pane, adds a window, captures the graph, and removes the
-session. It runs its own tmux server:
+session, splits and resizes a pane, adds a window, captures the graph, and
+removes the session. It runs its own tmux server:
 
 ```console
 $ perl packages/core/examples/quickstart.pl
@@ -118,6 +118,7 @@ $ perl packages/core/examples/quickstart.pl
 ```text
 editor: 2 panes
 logs: 1 pane
+side pane: 20 columns
 ```
 
 The [examples index](../examples/README.md) lists filtering, concurrent
