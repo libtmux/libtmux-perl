@@ -60,6 +60,10 @@ Its plan is local and performs no tmux I/O:
 
 <!-- example: packages/workspace/examples/load.pl#plan -->
 ```perl
+use v5.44;
+use FindBin;
+use LibTmux::Workspace;
+
 open my $in, '<:raw', "$FindBin::Bin/workspace.json" or die $!;
 my $json = do { local $/; <$in> };
 close $in or die $!;

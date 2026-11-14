@@ -75,10 +75,6 @@ my %expected_stdout = (
         'same child: 0',
         'different children: 1',
         'native verification: agreed',
-        '@build=ok',
-        'tmux filter: #{&&:#{==:#{pane_active},1},#{e|>=:#{pane_width},1}}',
-        'stays local: window requires local relation',
-        "editor\nlogs\n",
         'captured name: logs',
         'core workflow: ok',
     ],
@@ -89,6 +85,8 @@ my %expected_stdout = (
     ],
     'packages/core/examples/input.pl' =>
         ['PROJECT=api', '@build=ok', "perl-input\n0\n",],
+    'packages/core/examples/graph.pl' =>
+        ['captured name: logs', 'live name: build',],
     'packages/core/examples/explain.pl' => [
         'tmux filter: #{&&:#{==:#{pane_active},1},#{e|>=:#{pane_width},1}}',
         'stays local: window requires local relation',
@@ -118,6 +116,7 @@ my %expected_stdout = (
 my %owned_only = map { $_ => true } qw(
     packages/core/examples/select.pl
     packages/core/examples/input.pl
+    packages/core/examples/graph.pl
 );
 
 # With no socket argument a program owns its private server and removes it.

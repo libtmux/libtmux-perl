@@ -59,6 +59,7 @@ $ perl examples/concurrent.pl "${TMPDIR:-/tmp}/libtmux-perl-async-$$.sock"
 
 <!-- example: packages/async/examples/concurrent.pl -->
 ```perl
+# example: begin connect
 use v5.44;
 use File::Temp ();
 use IO::Async::Loop::Ppoll;
@@ -69,7 +70,6 @@ my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
 my $socket  = shift @ARGV // "$private/tmux.sock";
 my $tmux    = shift @ARGV // 'tmux';
 
-# example: begin connect
 my $loop   = IO::Async::Loop::Ppoll->new;
 my $server = LibTmux::Async::Server->new(
     loop           => $loop,

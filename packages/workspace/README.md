@@ -107,22 +107,11 @@ $ perl examples/load.pl "${TMPDIR:-/tmp}/libtmux-perl-workspace-$$.sock"
 
 <!-- example: packages/workspace/examples/load.pl -->
 ```perl
+# example: begin plan
 use v5.44;
-use File::Temp ();
 use FindBin;
-use LibTmux::Server;
 use LibTmux::Workspace;
 
-my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
-my $socket  = shift @ARGV // "$private/tmux.sock";
-my $tmux    = shift @ARGV // 'tmux';
-my $server  = LibTmux::Server->new(
-    socket_path => $socket,
-    executable  => $tmux,
-    config_file => '/dev/null',
-);
-
-# example: begin plan
 open my $in, '<:raw', "$FindBin::Bin/workspace.json" or die $!;
 my $json = do { local $/; <$in> };
 close $in or die $!;
@@ -132,6 +121,17 @@ say 'planned sessions: ', scalar $plan->{sessions}->@*;
 die 'plan must not mutate' if $plan->{mutates};
 
 # example: end plan
+use File::Temp ();
+use LibTmux::Server;
+
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $socket  = shift @ARGV // "$private/tmux.sock";
+my $tmux    = shift @ARGV // 'tmux';
+my $server  = LibTmux::Server->new(
+    socket_path => $socket,
+    executable  => $tmux,
+    config_file => '/dev/null',
+);
 my ($session, $failure);
 try {
     # example: begin load
