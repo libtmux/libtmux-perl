@@ -50,7 +50,7 @@ WriteMakefile(
             bugtracker => {
                 web => 'https://github.com/libtmux/libtmux-perl/issues',
             },
-            homepage   => 'https://github.com/libtmux/libtmux-perl',
+            homepage   => 'https://libtmux.org/en/perl/',
             repository => {
                 type => 'git',
                 url  => 'https://github.com/libtmux/libtmux-perl.git',

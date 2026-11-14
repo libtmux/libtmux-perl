@@ -1,13 +1,59 @@
 ---
-title: Install from source
+title: Install Perl packages
 description: Install the independent Perl core, async, and workspace distributions.
 ---
 
-Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. The
-packages are not published on CPAN. Start from a source checkout and install
-core before workspace or optional async.
+Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. Install
+the packages you need from CPAN, or use a source checkout for development.
+The [documentation homepage](https://libtmux.org/en/perl/) links the guides
+and [API reference](https://libtmux.org/en/perl/latest/reference/).
 
-## Prepare Perl and get the source
+## Install from CPAN
+
+Install [Perl](https://www.perl.org/get.html) and
+[cpm](https://github.com/skaji/cpm#installation), then keep the same interpreter
+and installation prefix for all selected packages.
+
+Install [LibTmux](https://metacpan.org/dist/LibTmux) for commands, snapshots,
+and filtering:
+
+```console
+$ cpm install \
+    --global \
+    LibTmux
+```
+
+Add [LibTmux-Workspace](https://metacpan.org/dist/LibTmux-Workspace) for the
+JSON library and packaged `libtmux-workspace` CLI:
+
+```console
+$ cpm install \
+    --global \
+    LibTmux::Workspace
+```
+
+Add [LibTmux-Async](https://metacpan.org/dist/LibTmux-Async) for Future-returning
+operations:
+
+```console
+$ cpm install \
+    --global \
+    LibTmux::Async
+```
+
+The companions declare their core dependency; the installer resolves it
+automatically. Core and workspace use the Perl standard library at runtime.
+Async adds Future, IO::Async, IO::Async::Loop::Ppoll, and IO::Ppoll; the latter
+includes an XS extension and requires a C compiler. Configure and test
+dependencies are declared separately and resolved by the installer. Consumer
+programs do not require the repository's author tools or Python. Other loop
+backends and Linux ABIs are unsupported.
+
+The `0.x` API can change between releases. Consult each distribution's
+`Changes` file before upgrading and pin versions in applications that need a
+fixed API.
+
+## Prepare a source checkout
 
 Install [Perl](https://www.perl.org/get.html) and
 [cpm](https://github.com/skaji/cpm#installation). With mise installed, this
@@ -38,7 +84,7 @@ hash-verified standalone cpm installer and an isolated author environment.
 Consumer programs do not require those author tools or Python. Keep the same
 Perl interpreter and installation prefix for all selected distributions.
 
-## Install the packages you use
+## Install from the source checkout
 
 With Perl 5.44 and cpm on `PATH`, install core from the repository root:
 
@@ -63,11 +109,6 @@ $ cpm install \
     --global \
     ./packages/async
 ```
-
-Core and workspace use the Perl standard library at runtime. Async adds
-Future, IO::Async, IO::Async::Loop::Ppoll, and IO::Ppoll; the latter includes
-an XS extension and requires a C compiler. Configure, test, and author tools
-are separate dependencies. Other loop backends and Linux ABIs are unsupported.
 
 ## Run a first program
 

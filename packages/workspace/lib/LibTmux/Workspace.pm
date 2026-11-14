@@ -370,4 +370,14 @@ The packaged C<libtmux-workspace> executable exposes C<validate>, C<plan>, and
 C<load>. C<--dry-run> selects planning without tmux I/O. See the installed
 executable's help for socket and repeat-application options.
 
+=head1 DOCUMENTATION
+
+Read the L<Perl documentation|https://libtmux.org/en/perl/> and
+L<workspace guide|https://libtmux.org/en/perl/latest/workspace/source-guide/>
+for complete configuration and CLI examples. The
+L<API reference|https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/>
+documents validation, planning, loading, and failure reports. The
+L<CPAN distribution|https://metacpan.org/dist/LibTmux-Workspace> includes
+runnable consumer examples. The C<0.x> API can change between releases.
+
 =cut

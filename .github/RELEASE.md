@@ -1,9 +1,14 @@
 # Release to CPAN
 
-The initial candidate is `0.002`, tagged `v0.002`. The three independent
-distributions are `LibTmux`, `LibTmux-Workspace`, and `LibTmux-Async`.
-This branch prepares their first ordinary indexed release; it does not publish
-them. Perl 5.44 and Linux x86_64 LP64 remain the baseline, with tmux 3.3a–3.8
+The three independent distributions are
+[LibTmux](https://metacpan.org/dist/LibTmux),
+[LibTmux-Workspace](https://metacpan.org/dist/LibTmux-Workspace), and
+[LibTmux-Async](https://metacpan.org/dist/LibTmux-Async). Their first indexed
+release is `0.002`. Each release uses a decimal Perl version and a matching
+`v`-prefixed Git tag. The commands below use the next release, `0.003`;
+substitute a new, unused version when preparing a later release.
+
+Perl 5.44 and Linux x86_64 LP64 remain the baseline, with tmux 3.3a–3.8
 supported and only the two tmux endpoints in CI.
 
 ## One-time maintainer setup
@@ -14,8 +19,11 @@ supported and only the two tmux endpoints in CI.
 2. Check package permissions in PAUSE for `LibTmux` and all provided modules.
    The [operating model](https://pause.perl.org/pause/query?ACTION=pause_operating_model)
    describes first-come and co-maintainer indexing permissions.
-3. In PAUSE, choose **Generate a New Token**. Give it a release-specific
-   description and a one-day lifetime for the first release. The complete token
+3. In PAUSE, choose **Generate a New Token**. Use a one-day lifetime for a
+   single release, or an expiring automation token for regular releases.
+   PAUSE supports 1–180 days; a blank or zero expiry selects 180 days. Confirm
+   the resulting expiration in **List Tokens** and rotate before it expires.
+   The complete token
    includes the author ID, token ID, and secret; retain all three parts.
    PAUSE currently grants the `upload:distributions` scope, with optional IP
    restrictions, expiration, and revocation. A description does not restrict
@@ -45,7 +53,8 @@ automatic retries. It needs no account password. LWP and HTTP::Message are
 release-only dependencies; none of the distributions depends on them.
 The token must still be valid when the approved upload step runs. If it expires
 while CI is queued, generate a replacement and update the same environment
-secret before approving. Revoke the token in PAUSE after the release.
+secret before approving. Revoke single-release tokens after publication and
+revoke replaced automation tokens after storing the replacement.
 
 For an initial manual upload, leave the secret unset and follow
 [Manual publication](#manual-publication) instead. Do not approve an automated
@@ -54,9 +63,8 @@ upload of archives already submitted manually.
 ## Prepare a version
 
 Use a decimal Perl version without an underscore for ordinary indexed releases.
-The tag is `v` followed by that exact string: version `0.002` uses `v0.002`.
-`v0.0.2` means a different Perl version and is not accepted by this workflow.
-The current development version `0.001_001` sorts below `0.002`.
+The tag is `v` followed by that exact string: version `0.003` uses `v0.003`.
+`v0.0.3` means a different Perl version and is not accepted by this workflow.
 See [Perl version rules](https://perldoc.perl.org/5.44.0/version::Internals).
 
 Keep these declarations consistent when preparing a later release:
@@ -111,7 +119,7 @@ Inspect a clean candidate without uploading:
 
 ```console
 $ mise exec -- perl scripts/release.pl \
-    --tag v0.002 \
+    --tag v0.003 \
     --source "$(git rev-parse HEAD)" \
     --artifacts .cache/artifacts
 ```
@@ -130,8 +138,8 @@ rehearsal can also select a proposed tag:
 ```console
 $ gh workflow run release.yml \
     --repo libtmux/libtmux-perl \
-    --ref initial-release \
-    -f candidate-tag=v0.002
+    --ref master \
+    -f candidate-tag=v0.003
 ```
 
 Every `workflow_dispatch` run is build-only. It cannot enter the PAUSE upload
@@ -160,15 +168,15 @@ $ git fetch origin master
 
 ```console
 $ git tag \
-    --annotate v0.002 \
-    --message 'LibTmux 0.002' \
+    --annotate v0.003 \
+    --message 'LibTmux 0.003' \
     origin/master
 ```
 
 Push only the selected tag to canonical origin:
 
 ```console
-$ git push origin refs/tags/v0.002
+$ git push origin refs/tags/v0.003
 ```
 
 The tag event runs full verification and archive inspection, then waits for
@@ -204,12 +212,28 @@ of the same tagged source; `origin/master` and the tag must be available.
 First run `scripts/release.pl` without `--publish`, using the downloaded
 `artifacts/` directory and its source commit. In the authenticated PAUSE browser,
 choose **Upload a file to CPAN** and submit those exact files in dependency
-order: `LibTmux-0.002.tar.gz`, `LibTmux-Workspace-0.002.tar.gz`, then
-`LibTmux-Async-0.002.tar.gz`. This fallback keeps account authentication in the
+order: `LibTmux-0.003.tar.gz`, `LibTmux-Workspace-0.003.tar.gz`, then
+`LibTmux-Async-0.003.tar.gz`. This fallback keeps account authentication in the
 browser and requires no CI secret or local credential file.
 
 Do not approve the automated upload job after uploading manually; cancel that
 pending job. Perform the same indexing and fresh-install checks afterward.
+
+## Recover an indexing failure
+
+An accepted upload can fail PAUSE indexing. Check the indexer email, the
+archive's `provides` metadata, and **View permission per module** for the main
+package. In PAUSE, use **Force Reindexing** on the existing archive and inspect
+the new report. The request is queued and may take up to an hour. Reindexing
+uses the PAUSE web login and needs no new upload token.
+
+If indexing fails again despite correct metadata and permissions, contact
+PAUSE administrators with the archive name and indexer report. Another
+owner's namespace requires indexing permission. See the
+[PAUSE operating model](https://pause.perl.org/pause/query?ACTION=pause_operating_model).
+Keep the accepted archive and tag; an indexing failure does not establish
+that the archive needs replacement. Rerunning the GitHub upload job would
+resubmit already accepted filenames.
 
 ## Recover a partial upload
 

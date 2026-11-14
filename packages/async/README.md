@@ -20,25 +20,29 @@ locally, and explicitly await executor cleanup.
 
 [Run the example](#create-a-session-and-run-concurrent-operations) ·
 [Cancellation](#cancel-work-and-finish-cleanup) ·
+[Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/guides/async/) ·
-[API reference](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/)
+[API reference](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) ·
+[CPAN](https://metacpan.org/dist/LibTmux-Async) ·
+[POD](https://metacpan.org/pod/LibTmux::Async)
 
-## Install from source
+## Install
 
-Install core first. From the async distribution directory:
+Install the published distribution; cpm installs its core dependency too:
 
 ```console
 $ cpm install \
     --global \
-    .
+    LibTmux::Async
 ```
 
 Requires Perl 5.44, Future 0.54, IO::Async 0.805,
 IO::Async::Loop::Ppoll 0.10, and IO::Ppoll 0.14 or newer. IO::Ppoll includes
 an XS extension. Linux x86_64 LP64 and tmux 3.3a–3.8 are supported; CI tests
-the tmux endpoints. This distribution is not published on CPAN. Read the
-[source installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
-for interpreter and dependency setup.
+the tmux endpoints. Read the
+[installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
+for interpreter, compiler, and source installation setup. The `0.x` API can
+change between releases; consult `Changes` before upgrading.
 
 ## Create a session and run concurrent operations
 

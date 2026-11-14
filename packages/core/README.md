@@ -20,20 +20,25 @@ Linux x86_64 LP64, including WSL; tmux 3.3a–3.8 is supported.
 
 [Quick start](#create-and-inspect-a-session) ·
 [Filter records](#reuse-a-filter-with-ordinary-hash-records) ·
+[Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/guides/) ·
-[API reference](https://libtmux.org/en/perl/latest/reference/)
+[API reference](https://libtmux.org/en/perl/latest/reference/) ·
+[CPAN](https://metacpan.org/dist/LibTmux) ·
+[POD](https://metacpan.org/pod/LibTmux)
 
-## Install from source
+## Install
 
-This development distribution is not published on CPAN. Install Perl and cpm
-as described in the [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md),
-then run this from the core distribution directory:
+Install the published distribution with Perl 5.44 and cpm on `PATH`:
 
 ```console
 $ cpm install \
     --global \
-    .
+    LibTmux
 ```
+
+The [installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
+covers prerequisites and source installation. The `0.x` API can change between
+releases; consult `Changes` before upgrading.
 
 ## Create and inspect a session
 
@@ -110,6 +115,9 @@ values and their relationships remain readable after cleanup. The example
 imports only installed modules and needs no author fixture or Python.
 The [longer workflow](examples/workflow.pl) adds layout selection, input,
 capture, environment, compiled filters, and native query verification.
+MetaCPAN also renders the released
+[`Server` POD](https://metacpan.org/pod/LibTmux::Server) and
+[`Filter` POD](https://metacpan.org/pod/LibTmux::Filter).
 
 ## Filter panes with ordinary Perl
 

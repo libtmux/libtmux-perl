@@ -158,9 +158,15 @@ authorized. Actions and installer assets use verified commit or digest pins.
 The [Perl 5.44 class reference][perlclass] still marks `class` experimental.
 The implementation uses ordinary packages and stable positional signatures.
 No object framework or experimental class/named signatures are required.
-`0.002` is the initial indexed-release candidate. A package version and
-installed archive checks do not imply CPAN publication. See
-[release instructions](RELEASE.md) for the separate tag and PAUSE handoff.
+The initial indexed release is `0.002`:
+[core](https://metacpan.org/dist/LibTmux),
+[async](https://metacpan.org/dist/LibTmux-Async), and
+[workspace](https://metacpan.org/dist/LibTmux-Workspace). Package metadata
+uses the [Perl documentation homepage](https://libtmux.org/en/perl/) for
+`resources.homepage`, with GitHub repository and bug-tracker resources kept
+separate. See [release instructions](RELEASE.md) for versioning, protected
+publication, and PAUSE indexing verification. The `0.x` API can change
+between releases.
 
 PPI 1.291 is an author-only documentation dependency. A native B::Deparse probe
 lowered signatures to argument checks and lost authored defaults; PPI retains

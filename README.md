@@ -21,28 +21,30 @@ async distribution adds Futures and a caller-owned event loop.
 [Quick start](#create-a-session-and-arrange-its-windows) ·
 [Filter panes](#filter-with-criteria-and-perl-callbacks) ·
 [Packages](#choose-a-package) ·
+[Documentation](https://libtmux.org/en/perl/) ·
 [Guides](https://libtmux.org/en/perl/latest/guides/) ·
-[API reference](https://libtmux.org/en/perl/latest/reference/)
+[API reference](https://libtmux.org/en/perl/latest/reference/) ·
+[CPAN](https://metacpan.org/dist/LibTmux)
 
 ## Create a session and arrange its windows
 
-Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. The
-distributions are unpublished; [install from source](docs/installation.md).
-From a checkout with Perl and cpm on `PATH`, install core:
+Use Perl 5.44 and tmux 3.3a–3.8 on Linux x86_64 LP64, including WSL. With
+Perl and cpm on `PATH`, install the published core distribution from CPAN:
 
 ```console
 $ cpm install \
     --global \
-    ./packages/core
+    LibTmux
 ```
 
 Run the [complete program](packages/core/examples/quickstart.pl) with an explicit
 socket path. It creates a session, splits its editor window, adds a logs
 window, and retains a snapshot. It removes only the session it created,
 including on failure; it preserves any other sessions on the selected server.
+Save the program below as `quickstart.pl`, or run the linked file from a checkout:
 
 ```console
-$ perl packages/core/examples/quickstart.pl "${TMPDIR:-/tmp}/libtmux-perl-$$.sock"
+$ perl quickstart.pl "${TMPDIR:-/tmp}/libtmux-perl-$$.sock"
 ```
 
 <!-- example: packages/core/examples/quickstart.pl -->
@@ -103,7 +105,9 @@ editor: 2 panes
 logs: 1 pane
 ```
 
-[`Server->new_session`](https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/)
+[`Server`](https://libtmux.org/en/perl/latest/reference/libtmux-server/) owns
+explicit commands. Its
+[`new_session`](https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/)
 starts tmux when the selected socket has no server. Construction alone does no
 I/O. The example uses an empty tmux configuration and literal Perl command
 arrays; it needs no editor, shell wrapper, Python, or repository fixture.
@@ -191,15 +195,32 @@ which scalar predicates can be verified by tmux.
 
 ## Choose a package
 
-| Distribution | Use it for | Runtime dependencies |
+| Distribution | Use it for | Package and API |
 | --- | --- | --- |
-| [LibTmux](packages/core/README.md) | Commands, snapshots, graph navigation, filtering, options and environment. | Perl standard library. |
-| [LibTmux-Async](packages/async/README.md) | Concurrent Future-returning operations and explicit executor cleanup. | Core, Future, IO::Async, IO::Async::Loop::Ppoll and IO::Ppoll. |
-| [LibTmux-Workspace](packages/workspace/README.md) | Validate, plan, and load versioned JSON workspaces with a library or CLI. | Core and the Perl standard library. |
+| [LibTmux](packages/core/README.md) | Commands, snapshots, graph navigation, filtering, options and environment. Perl standard library at runtime. | [CPAN](https://metacpan.org/dist/LibTmux) · [API](https://libtmux.org/en/perl/latest/reference/) · [POD](https://metacpan.org/pod/LibTmux) |
+| [LibTmux-Async](packages/async/README.md) | Concurrent Future-returning operations and explicit executor cleanup. Adds Future, IO::Async, IO::Async::Loop::Ppoll and IO::Ppoll. | [CPAN](https://metacpan.org/dist/LibTmux-Async) · [API](https://libtmux.org/en/perl/latest/reference/libtmux-async-server/) · [POD](https://metacpan.org/pod/LibTmux::Async) |
+| [LibTmux-Workspace](packages/workspace/README.md) | Validate, plan, and load JSON workspaces with a library or CLI. Uses core and the Perl standard library. | [CPAN](https://metacpan.org/dist/LibTmux-Workspace) · [API](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) · [POD](https://metacpan.org/pod/LibTmux::Workspace) |
 
 Each package has its own README, license, metadata, and runnable consumer
 examples. Async closes its executor without destroying a borrowed tmux server.
 Workspace uses public synchronous core APIs and does not require async.
+Install either companion by module name; its declared core dependency is
+installed automatically:
+
+```console
+$ cpm install \
+    --global \
+    LibTmux::Async
+```
+
+```console
+$ cpm install \
+    --global \
+    LibTmux::Workspace
+```
+
+The `0.x` API can change between releases. Read each distribution's `Changes`
+file before upgrading and pin versions in applications that need a fixed API.
 
 ## Run the examples and read the guides
 

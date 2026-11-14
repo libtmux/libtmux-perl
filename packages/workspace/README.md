@@ -14,30 +14,34 @@
 </div>
 
 LibTmux-Workspace validates, plans, and loads JSON workspaces through public
-[LibTmux core APIs](https://github.com/libtmux/libtmux-perl/tree/master/packages/core).
+[LibTmux core APIs](https://libtmux.org/en/perl/latest/reference/libtmux-server/).
 Describe sessions, windows, pane commands, layout, working directories, and
 environment; inspect the plan before applying it.
 
 [CLI example](#validate-plan-and-load-a-workspace) ·
 [Perl example](#load-and-inspect-from-perl) ·
+[Documentation](https://libtmux.org/en/perl/) ·
 [Guide](https://libtmux.org/en/perl/latest/workspace/source-guide/) ·
-[API reference](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/)
+[API reference](https://libtmux.org/en/perl/latest/workspace/reference/libtmux-workspace/) ·
+[CPAN](https://metacpan.org/dist/LibTmux-Workspace) ·
+[POD](https://metacpan.org/pod/LibTmux::Workspace)
 
-## Install from source
+## Install
 
-Install core first. From the workspace distribution directory:
+Install the published distribution and packaged CLI; cpm installs core too:
 
 ```console
 $ cpm install \
     --global \
-    .
+    LibTmux::Workspace
 ```
 
 Requires Perl 5.44, the versioned core distribution, and its Linux x86_64 LP64
 and tmux 3.3a–3.8 environment. It adds no non-core runtime dependency and does
-not require async. This development distribution is not published on CPAN.
-Read the [source installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
-for interpreter and installer setup.
+not require async. Read the
+[installation guide](https://github.com/libtmux/libtmux-perl/blob/master/docs/installation.md)
+for interpreter, installer, and source setup. The `0.x` API and workspace
+behavior can change between releases; consult `Changes` before upgrading.
 
 ## Validate, plan, and load a workspace
 
