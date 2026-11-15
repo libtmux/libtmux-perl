@@ -39,10 +39,10 @@ integration:
 	done
 
 check-async-wakeup:
-	@python3 scripts/check-async-wakeup.py
+	@$(PERL) scripts/check-wakeup.pl async
 
 check-supervisor-wakeup:
-	@python3 scripts/check-supervisor-wakeup.py
+	@$(PERL) scripts/check-wakeup.pl supervisor
 
 examples:
 	@$(PERL) scripts/run-examples.pl

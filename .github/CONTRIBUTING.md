@@ -256,7 +256,7 @@ $ mise exec -- make check-async-wakeup
 ```
 
 For the preserved negative control, pass `--loop Poll` to
-`scripts/check-async-wakeup.py`; this intentionally fails on the reviewed
+`scripts/check-wakeup.pl async`; this intentionally fails on the reviewed
 Perl 5.44 / IO::Async 0.805 backend. Async's live daemon-exit test also proves
 that a new server observes its final pane exiting after executor cleanup.
 

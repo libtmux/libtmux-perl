@@ -105,7 +105,7 @@ reaping; LibTmux does not compete with its waitpid calls.
 
 ## Verification and reconsideration
 
-[`check-async-wakeup.py`](../../../scripts/check-async-wakeup.py) is an outer
+[`check-wakeup.pl async`](../../../scripts/check-wakeup.pl) is an outer
 check with a C compiler; its helper is excluded from native distributions.
 [`signals.t`](../../../packages/async/t/unit/signals.t) checks backend refusal,
 child masks, unchanged host masks, typed preparation failure and cleanup.

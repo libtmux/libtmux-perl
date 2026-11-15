@@ -72,7 +72,7 @@ adding setup-failure cleanup. No advantage for this isolated supervisor.
 
 ## Verification and reconsideration
 
-The author-only [boundary probe](../../../scripts/check-supervisor-wakeup.py)
+The author-only [boundary probe, `check-wakeup.pl supervisor`](../../../scripts/check-wakeup.pl)
 releases a stopped child inside the native wait, observes exit with
 `waitid(WNOWAIT)`, and leaves reaping to the supervisor. It requires the
 injection marker, successful completion and verified cleanup. Its helper does
