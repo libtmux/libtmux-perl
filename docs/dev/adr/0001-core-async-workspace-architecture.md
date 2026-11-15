@@ -458,8 +458,8 @@ exact artifact descriptor. Unpublished distributions are labelled as source
 previews; their real overview pages remain useful destinations. Package
 publication and shared-site deployment require separate authority.
 
-[Compatibility](../../compatibility.md) defines the Linux/Perl/tmux cells;
-the [source lock](../../../scripts/tmux-lock.json) pins builds. Validation
+[Compatibility](../../compatibility.md) defines the Linux/Perl/tmux cells and
+how CI pins their builds. Validation
 includes Test2::V1 units, isolated real-tmux fixtures, POD, runnable examples,
 native archives, and installed consumers outside the checkout. Fixtures own
 their sockets and prove process exit. The [contributor guide](../../../.github/CONTRIBUTING.md)

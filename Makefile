@@ -51,7 +51,7 @@ artifacts:
 	@$(PERL) scripts/check-artifacts.pl
 
 compatibility:
-	@python3 scripts/compatibility.py --check
+	@$(PERL) scripts/compatibility.pl $(TMUX)
 
 check-snippets:
 	@$(PERL) scripts/check-snippets.pl

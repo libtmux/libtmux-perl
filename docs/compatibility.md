@@ -17,9 +17,10 @@ What CI runs:
 - Releases in between are supported without cells of their own.
 - A missing or skipped cell counts as unverified.
 
-[The source lock](../scripts/tmux-lock.json) pins the official tmux sources,
-archive hashes, source commits and configure flags. Each build records its
-compiler and executable hashes.
+CI builds each tmux release with the shared
+[build-tmux action](https://github.com/libtmux/.github/tree/30f81842b1e639ea4e25f93f1f2543504178e228/actions/build-tmux),
+which checks the official release archive against a pinned SHA-256 before it
+builds. The check compares each binary's reported version with its release.
 
 Run the compatibility check:
 

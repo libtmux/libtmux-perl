@@ -260,13 +260,10 @@ For the preserved negative control, pass `--loop Poll` to
 Perl 5.44 / IO::Async 0.805 backend. Async's live daemon-exit test also proves
 that a new server observes its final pane exiting after executor cleanup.
 
-Provision pinned tmux source builds outside all test loops. The lock records
-release URLs, archive digests, and upstream tag commits. Build provenance
-records compiler, configure flags, and executable digests.
-
-```console
-$ mise exec -- python3 scripts/compatibility.py --provision
-```
+Build or install the supported tmux releases outside all test loops. CI uses the
+shared `build-tmux` action, which checks each release archive against a pinned
+digest before it builds. The compatibility check takes each release and the
+path of its executable, and fails a binary that reports another version.
 
 Focused critical tests (inner loop):
 
@@ -327,15 +324,16 @@ Run the Linux matrix using only the latest stable Perl (currently 5.44.0),
 the oldest supported tmux (3.3a), and the newest stable tmux (3.8):
 
 ```console
-$ mise exec -- make compatibility
+$ mise exec -- make compatibility \
+    TMUX='3.3a=/path/to/tmux-3.3a 3.8=/path/to/tmux-3.8'
 ```
 
 Support covers tmux 3.3a–3.8, including intermediate releases; CI tests only
 the endpoints. The matrix includes core graph/query, async, workspace, and
 runnable examples.
-Inspect every cell in `.cache/compatibility/evidence-all.json`; missing builds are
-UNVERIFIED. CI runs the same two cells with explicit versions. Keep the
-workflow, development Perl pin, and tmux source lock aligned when upgrading
+Inspect every cell in `.cache/compatibility/evidence-all.json`; a release
+without a binary is UNVERIFIED. CI runs the same two cells with explicit
+versions. Keep the workflow and development Perl pin aligned when upgrading
 the latest stable versions; do not add intermediate or older-language cells.
 
 Native API export uses PPI 1.291 for declared signatures and Pod::Simple for
