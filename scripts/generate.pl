@@ -5,6 +5,7 @@ use LibTmux::Schema;
 use lib "$FindBin::Bin/../local/lib/perl5", "$FindBin::Bin/lib";
 use LibTmuxDev qw(tidy_text);
 use File::Spec;
+use Text::Wrap qw(wrap);
 my $check = @ARGV && $ARGV[0] eq '--check';
 die "Usage: perl scripts/generate.pl [--check]\n"
     if @ARGV > 1 || (@ARGV && !$check);
@@ -19,6 +20,35 @@ my @table   = (
     '| --- | --- | --- | --- | --- | --- |'
 );
 my %outputs;
+
+# Hand-written "What is on here" directories, by entity kind. A row is a bold
+# lead with its guidance, then the fields it covers: labelled
+# [label, field, ...] items, or bare field names in a paragraph. check-pod.pl
+# requires every field to be named.
+my %directory;
+
+sub directory_pod ($entry) {
+    local $Text::Wrap::columns = 81;
+    my $link = sub ($field) { "L<$field|/$field>" };
+    my @pod = ('=head1 What is on here', '', wrap('', '', $entry->{intro}), '');
+    for my $row ($entry->{rows}->@*) {
+        push @pod, wrap('', '', "B<$row->{lead}.> $row->{text}"), '';
+        if ($row->{items}) {
+            push @pod, '=over 4', '';
+            for my $item ($row->{items}->@*) {
+                my ($label, @fields) = @$item;
+                push @pod,
+                    "=item $label: " . join(', ', map { $link->($_) } @fields),
+                    '';
+            }
+            push @pod, '=back', '';
+        }
+        else {
+            push @pod, join(', ', map { $link->($_) } $row->{fields}->@*), '';
+        }
+    }
+    return join("\n", @pod) . "\n";
+}
 
 for my $kind (sort keys $catalog->{entities}->%*) {
     my $class  = LibTmux::Schema->class_for($kind);
@@ -55,7 +85,9 @@ for my $kind (sort keys $catalog->{entities}->%*) {
     $outputs{"packages/core/lib/$rel.pm"} =
           "package $class;\nuse v5.44;\nuse parent 'LibTmux::Entity';\n\n"
         . join("\n", @subs)
-        . "\n\n=head1 NAME\n\n$class - Captured $kind entity\n\n=head1 METHODS\n\n"
+        . "\n\n=head1 NAME\n\n$class - Captured $kind entity\n\n"
+        . ($directory{$kind} ? directory_pod($directory{$kind}) : '')
+        . "=head1 METHODS\n\n"
         . join("\n", @pod)
         . "\n=head1 OWNERSHIP\n\nReaders use the retained graph and never refresh it. Acquire a new snapshot for\nnew state. Inherited L<to_record|LibTmux::Entity/to_record> exports a detached scalar record.\n\n=cut\n";
 }
