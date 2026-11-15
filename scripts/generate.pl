@@ -25,14 +25,73 @@ my %outputs;
 # lead with its guidance, then the fields it covers: labelled
 # [label, field, ...] items, or bare field names in a paragraph. check-pod.pl
 # requires every field to be named.
-my %directory;
+my %directory = (
+    pane => {
+        intro => q{A captured pane holds what tmux reported when its snapshot
+            was taken. Its readers answer from that snapshot and run no tmux
+            command, so capture again to see later changes. They fall into the
+            groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{Name a pane by its tmux ID, such as C<%3>, which stays
+                    the same for the pane's life. A L<LibTmux::Server> method
+                    takes the handle in place of that ID. The index is the
+                    pane's position in its window, and the title is whatever
+                    the application set.},
+                items => [
+                    ['Stable ID',              'id'],
+                    ['Position in the window', 'index'],
+                    ['Title',                  'title'],
+                ],
+            },
+            {
+                lead => 'Running',
+                text => q{Read what the pane runs: the foreground command, the
+                    working directory of its process, and the PID tmux started
+                    in it. A pane whose process has exited and that tmux kept
+                    reports C<dead> as true, and its C<exit_status> is C<undef>
+                    when tmux reports none.},
+                items => [
+                    ['Foreground command', 'current_command'],
+                    ['Working directory',  'current_path'],
+                    ['Process ID',         'pid'],
+                    ['Exit state',         'dead', 'exit_status'],
+                ],
+            },
+            {
+                lead => 'Size and focus',
+                text => q{Width and height count character cells, and the active
+                    pane is the one its window currently selects. The cursor
+                    shape needs tmux 3.6 or newer; reading it from an older
+                    daemon's snapshot throws
+                    L<LibTmux::X::Unsupported|LibTmux::X/Unsupported>.},
+                items => [
+                    ['Size in cells',        'width', 'height'],
+                    ['Active in its window', 'active'],
+                    ['Cursor shape',         'cursor_shape'],
+                ],
+            },
+            {
+                lead => 'Reaching the window',
+                text => q{The window that holds the pane, as a captured
+                    L<LibTmux::Window> resolved in the same graph.},
+                fields => ['window'],
+            },
+        ],
+    },
+);
 
 sub directory_pod ($entry) {
     local $Text::Wrap::columns = 81;
     my $link = sub ($field) { "L<$field|/$field>" };
-    my @pod = ('=head1 What is on here', '', wrap('', '', $entry->{intro}), '');
+    my $flow = sub ($text) { join ' ', split ' ', $text };
+    my @pod  = (
+        '=head1 What is on here',
+        '', wrap('', '', $flow->($entry->{intro})), ''
+    );
     for my $row ($entry->{rows}->@*) {
-        push @pod, wrap('', '', "B<$row->{lead}.> $row->{text}"), '';
+        push @pod, wrap('', '', $flow->("B<$row->{lead}.> $row->{text}")), '';
         if ($row->{items}) {
             push @pod, '=over 4', '';
             for my $item ($row->{items}->@*) {

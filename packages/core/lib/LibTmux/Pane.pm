@@ -20,6 +20,64 @@ sub window          ($self) { $self->_read('window') }
 
 LibTmux::Pane - Captured pane entity
 
+=head1 What is on here
+
+A captured pane holds what tmux reported when its snapshot was taken. Its
+readers answer from that snapshot and run no tmux command, so capture again to
+see later changes. They fall into the groups below.
+
+B<Identifying.> Name a pane by its tmux ID, such as C<%3>, which stays the same
+for the pane's life. A L<LibTmux::Server> method takes the handle in place of
+that ID. The index is the pane's position in its window, and the title is
+whatever the application set.
+
+=over 4
+
+=item Stable ID: L<id|/id>
+
+=item Position in the window: L<index|/index>
+
+=item Title: L<title|/title>
+
+=back
+
+B<Running.> Read what the pane runs: the foreground command, the working
+directory of its process, and the PID tmux started in it. A pane whose process
+has exited and that tmux kept reports C<dead> as true, and its C<exit_status> is
+C<undef> when tmux reports none.
+
+=over 4
+
+=item Foreground command: L<current_command|/current_command>
+
+=item Working directory: L<current_path|/current_path>
+
+=item Process ID: L<pid|/pid>
+
+=item Exit state: L<dead|/dead>, L<exit_status|/exit_status>
+
+=back
+
+B<Size and focus.> Width and height count character cells, and the active pane
+is the one its window currently selects. The cursor shape needs tmux 3.6 or
+newer; reading it from an older daemon's snapshot throws
+L<LibTmux::X::Unsupported|LibTmux::X/Unsupported>.
+
+=over 4
+
+=item Size in cells: L<width|/width>, L<height|/height>
+
+=item Active in its window: L<active|/active>
+
+=item Cursor shape: L<cursor_shape|/cursor_shape>
+
+=back
+
+B<Reaching the window.> The window that holds the pane, as a captured
+L<LibTmux::Window> resolved in the same graph.
+
+L<window|/window>
+
 =head1 METHODS
 
 =head2 active
