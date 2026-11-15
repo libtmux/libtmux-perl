@@ -54,16 +54,14 @@ jobs:
         env:
           PERL5LIB: local/lib/perl5
         run: |
-          python3 scripts/evidence.py dependency-versions -- perl scripts/dependency-profile.pl check .cache/dependency-profile local
-          python3 scripts/evidence.py dependency-unit -- make check-metadata unit check-pod
+          perl scripts/dependency-profile.pl check .cache/dependency-profile local
+          make check-metadata unit check-pod
       - name: Retain resolution and qualification evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: dependency-versions-${{ matrix.profile }}
-          path: |
-            .cache/dependency-profile/
-            .cache/evidence/dependency-*
+          path: .cache/dependency-profile/
           retention-days: 7
 
   scaffold:
@@ -92,8 +90,8 @@ jobs:
         run: make check
       - name: Inject child exit at the blocking wait boundary
         run: |
-          python3 scripts/evidence.py supervisor-wakeup -- make check-supervisor-wakeup
-          python3 scripts/evidence.py async-wakeup -- make check-async-wakeup
+          make check-supervisor-wakeup
+          make check-async-wakeup
       - name: Export native declarations from the exact source revision
         run: perl scripts/export-api.pl --revision "$GITHUB_SHA" --exporter-revision "$GITHUB_SHA" --output .cache/native-api.json
       - name: Check the instruction link and whitespace

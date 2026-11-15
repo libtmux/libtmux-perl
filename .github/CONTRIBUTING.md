@@ -151,7 +151,7 @@ author requirements. Minimum pins each direct requirement at its declared
 floor; latest resolves compatible releases again, retaining the PPI and
 Perl::Tidy author pins. The installer cache stores downloads/builds, while
 each CI job starts with an empty installation prefix. Generated constraints,
-loaded versions, module origins and test evidence are retained as artifacts.
+loaded versions and module origins are retained as artifacts.
 Transitive versions are resolved by cpm; this is not a minimal transitive tree.
 
 Generate one profile using the provisioned author environment. Substitute
@@ -363,11 +363,6 @@ Fixture teardown continues through owned-process termination, reaping and
 directory removal if a discovery or `kill-server` command fails. The test's
 original exception remains primary; cleanup failures are reported separately.
 Without a test failure, the first cleanup exception is rethrown unchanged.
-Record exact tree/command evidence without changing the check command:
-
-```console
-$ mise exec -- python3 scripts/evidence.py mid -- make check
-```
 
 A method call does not apply a function prototype to its arguments. Keep
 `T2->ok` predicates in scalar context: use `T2->like($text, qr/pattern/,
