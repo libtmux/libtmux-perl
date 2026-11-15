@@ -17,8 +17,8 @@ LibTmuxFixture->run(
         my $created = $server->new_session(
             name    => 'async-exit',
             command => [
-                '/bin/sh', '-c', '"$@" wait-for release; exit 0',
-                'sh', $tmux, '-S', "$root/s"
+                $^X,   '-e', 'system @ARGV, "wait-for", "release"; exit 0',
+                $tmux, '-S', "$root/s"
             ],
         );
         $loop->await($created);
