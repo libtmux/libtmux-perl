@@ -22,3 +22,7 @@ The generic manifests start at `/`; a documentation publisher must adjust
 `id`, `start_url`, and `scope` to its deployment path before linking them.
 The Safari pinned-tab exports retain the shared kit's current geometry;
 the dedicated silhouette redesign is a separate follow-up.
+
+The library sharing cards show a native query verified against a private tmux
+server. File entries with a `revision` in `assets/source.json` override the
+default source revision for those exports.
