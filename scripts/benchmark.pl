@@ -26,7 +26,7 @@ LibTmuxFixture->run(
                     socket_path => "$root/s",
                     timeout     => 0.8,
                     executable  => $instrumented
-                    ? "$FindBin::Bin/count-tmux-process.py"
+                    ? "$FindBin::Bin/count-tmux-process.pl"
                     : $binary
                 );
                 $config{env} = {
