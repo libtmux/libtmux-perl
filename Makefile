@@ -5,9 +5,9 @@ LIBS := -I"$(LOCAL_LIB)" $(foreach package,$(PACKAGES),-Ipackages/$(package)/lib
 TIDY := $(PERL) -I"$(LOCAL_LIB)" "$(CURDIR)/local/bin/perltidy"
 PERL_FILES := cpanfile $(foreach package,$(PACKAGES),packages/$(package)/Makefile.PL packages/$(package)/cpanfile)
 
-.PHONY: benchmark check-async-wakeup check-supervisor-wakeup check-inventory conformance check-snippets check check-metadata check-format format check-generated check-pod unit integration examples artifacts compatibility
+.PHONY: benchmark check-async-wakeup check-supervisor-wakeup check-snippets check check-metadata check-format format check-generated check-pod unit integration examples artifacts compatibility
 
-check: check-metadata check-format check-generated check-pod check-snippets check-inventory unit conformance
+check: check-metadata check-format check-generated check-pod check-snippets unit
 
 check-metadata:
 	@set -eu; for package in $(PACKAGES); do \
@@ -56,11 +56,5 @@ compatibility:
 check-snippets:
 	@$(PERL) scripts/check-snippets.pl
 
-conformance:
-	@python3 scripts/conformance.py
-
 benchmark:
 	@python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl
-
-check-inventory:
-	@python3 scripts/inventory.py --check

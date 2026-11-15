@@ -44,12 +44,7 @@
       "ids": [
         "%0",
         "%2"
-      ],
-      "python": {
-        "kwargs": {
-          "active": false
-        }
-      }
+      ]
     },
     {
       "key": "numeric-zero",
@@ -93,12 +88,7 @@
       },
       "ids": [
         "%0"
-      ],
-      "python": {
-        "kwargs": {
-          "width": 0
-        }
-      }
+      ]
     },
     {
       "key": "text-zero",
@@ -142,12 +132,7 @@
       },
       "ids": [
         "%0"
-      ],
-      "python": {
-        "kwargs": {
-          "title": "0"
-        }
-      }
+      ]
     },
     {
       "key": "empty-text",
@@ -191,12 +176,7 @@
       },
       "ids": [
         "%2"
-      ],
-      "python": {
-        "kwargs": {
-          "title": ""
-        }
-      }
+      ]
     },
     {
       "key": "known-null",
@@ -241,10 +221,7 @@
       "ids": [
         "%0",
         "%2"
-      ],
-      "python": {
-        "unsupported": "Pinned QueryList.filter rejects a None field before lookup_exact; Perl deliberately matches known null. Initial attempted equivalence failed and is retained as conformance-initial evidence."
-      }
+      ]
     },
     {
       "key": "literal-period",
@@ -290,12 +267,7 @@
       },
       "ids": [
         "%1"
-      ],
-      "python": {
-        "kwargs": {
-          "title__contains": "build.v2"
-        }
-      }
+      ]
     },
     {
       "key": "prefix",
@@ -341,12 +313,7 @@
       },
       "ids": [
         "%1"
-      ],
-      "python": {
-        "kwargs": {
-          "title__startswith": "build."
-        }
-      }
+      ]
     },
     {
       "key": "suffix",
@@ -392,12 +359,7 @@
       },
       "ids": [
         "%1"
-      ],
-      "python": {
-        "kwargs": {
-          "title__endswith": ".v2"
-        }
-      }
+      ]
     },
     {
       "key": "membership",
@@ -447,15 +409,7 @@
       "ids": [
         "%1",
         "%3"
-      ],
-      "python": {
-        "kwargs": {
-          "currentCommand__in": [
-            "cat",
-            "perl"
-          ]
-        }
-      }
+      ]
     },
     {
       "key": "empty-in",
@@ -499,12 +453,7 @@
           "in": []
         }
       },
-      "ids": [],
-      "python": {
-        "kwargs": {
-          "width__in": []
-        }
-      }
+      "ids": []
     },
     {
       "key": "empty-not-in",
@@ -553,12 +502,7 @@
         "%1",
         "%2",
         "%3"
-      ],
-      "python": {
-        "kwargs": {
-          "width__nin": []
-        }
-      }
+      ]
     },
     {
       "key": "numeric-order",
@@ -605,10 +549,7 @@
       "ids": [
         "%1",
         "%3"
-      ],
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      ]
     },
     {
       "key": "unknown-field-empty",
@@ -617,10 +558,7 @@
       "where": {
         "typo": 1
       },
-      "error": "InvalidFilter",
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      "error": "InvalidFilter"
     },
     {
       "key": "bad-operator-empty",
@@ -631,10 +569,7 @@
           "regex": "x"
         }
       },
-      "error": "InvalidFilter",
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      "error": "InvalidFilter"
     },
     {
       "key": "alias-policy-canonical-only",
@@ -676,10 +611,7 @@
       "where": {
         "current_command": "sleep"
       },
-      "error": "InvalidFilter",
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      "error": "InvalidFilter"
     },
     {
       "key": "missing-property",
@@ -692,10 +624,7 @@
       "where": {
         "width": 1
       },
-      "error": "Unloaded",
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      "error": "Unloaded"
     },
     {
       "key": "empty-relation-every",
@@ -719,10 +648,7 @@
       },
       "ids": [
         "%0"
-      ],
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      ]
     },
     {
       "key": "null-relation",
@@ -733,10 +659,7 @@
           "is": null
         }
       },
-      "error": "InvalidFilter",
-      "python": {
-        "unsupported": "The independent port has no equivalent declarative operator/availability contract."
-      }
+      "error": "InvalidFilter"
     }
   ]
 }

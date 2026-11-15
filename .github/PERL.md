@@ -149,7 +149,7 @@ releases. The selected [checkout v7.0.1][checkout] and [Perl setup action][setup
 are pinned to their verified release commits.
 
 The checks workflow preserves syntax, native metadata, formatting, instruction
-symlink, and whitespace checks, and adds units, native POD, conformance, pinned
+symlink, and whitespace checks, and adds units, native POD, pinned
 Linux/tmux cells, and installed native archives. Publication remains separately
 authorized. Actions and installer assets use verified commit or digest pins.
 

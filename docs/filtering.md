@@ -204,15 +204,10 @@ See [graph identity](graph.md).
 
 ## Conformance fixtures
 
-- A source-pinned Python QueryList evaluator agrees on the shared subset:
-  Boolean, integer and text equality, literal contains, prefix and suffix, and
-  membership, including empty membership. It does not claim Python accepts
-  this wire API.
-- Known-null equality differs: the pinned Python filter rejects None fields
-  before its equality lookup.
-- Numeric ordering, availability errors, graph quantifiers, validation on
-  empty data and canonical names have no Python contract. They are marked
-  unsupported there, and Perl fixtures cover them.
-
-See [the fixtures](../conformance/where-v1.json) and
-[the pin](../scripts/conformance-reference.json).
+[The fixtures](../conformance/where-v1.json) list records, a criteria tree and
+the expected record ids or error class for each case. They cover Boolean,
+integer and text equality, known-null equality, literal contains, prefix and
+suffix, membership including empty membership, numeric ordering, availability
+errors, graph quantifiers, validation on empty data and canonical names. The
+[filter conformance test](../scripts/t/filter-conformance.t) runs every case
+through the Perl filter.

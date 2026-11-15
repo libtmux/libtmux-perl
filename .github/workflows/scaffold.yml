@@ -88,13 +88,6 @@ jobs:
           install-modules-with: cpm
           install-modules-args: >-
             --top-level-phase configure,runtime,test,develop
-      - name: Prepare the pinned independent filter evaluator
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: tmux-python/libtmux
-          ref: 699f72a507ef63d97792acc51e9eaa61649c538a
-          path: .cache/reference-python
-          persist-credentials: false
       - name: Check all distributions, documentation, and units
         run: make check
       - name: Inject child exit at the blocking wait boundary

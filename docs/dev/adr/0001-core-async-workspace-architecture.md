@@ -51,10 +51,9 @@ provides a domain precedent for filtering and cardinality. These are behavioral
 references. Perl's array semantics, reference counting, dependency policy, and
 error conventions require their own contracts.
 
-The [native operation inventory](../../behavior-inventory.json) and
-[Python behavior dispositions](../../python-behavior-inventory.json) map
-upstream behavior to Perl signatures, native adaptations, and explicit
-exclusions. They define the operation scope alongside this record.
+The [native operation inventory](../../behavior-inventory.json) maps upstream
+behavior to Perl signatures, native adaptations, and explicit exclusions. It
+defines the operation scope alongside this record.
 
 ## Decision
 
@@ -354,12 +353,10 @@ input and exports the proposed `libtmux.where/v1` JSON envelope through
 JSON::PP. Wire fields use canonical catalog names and operators omit the
 leading dash. Reject executable or arbitrary blessed values, cycles, unknown
 versions, and unsupported operators. The
-[independent evaluator pin](../../../scripts/conformance-reference.json)
-and [conformance fixtures](../../../conformance/where-v1.json) declare the
-tested common subset: eighteen Perl fixtures, ten common Python comparisons,
-and eight explicitly unsupported comparisons. Python QueryList is not a
-wire-format implementation. Its null-equality disagreement remains recorded;
-successful matches do not establish cross-port error-ordering equivalence.
+[conformance fixtures](../../../conformance/where-v1.json), run by the
+[filter conformance test](../../../scripts/t/filter-conformance.t), declare the
+tested subset. Python QueryList is not a wire-format implementation.
+Successful matches do not establish cross-port error-ordering equivalence.
 
 ### Verify scalar native candidates against captured local semantics
 
@@ -505,7 +502,7 @@ The critical contracts map to existing checks:
 
 | Contract | Evidence entry points |
 | --- | --- |
-| Stable returns, callback isolation, graph retention, criteria and wire data | [selection units](../../../packages/core/t/unit/selection.t), [availability units](../../../packages/core/t/unit/availability.t), [conformance runner](../../../scripts/conformance.py). |
+| Stable returns, callback isolation, graph retention, criteria and wire data | [selection units](../../../packages/core/t/unit/selection.t), [availability units](../../../packages/core/t/unit/availability.t), [filter conformance test](../../../scripts/t/filter-conformance.t). |
 | Literal I/O, framing, signal ownership, timeout and cleanup | [transport units](../../../packages/core/t/unit/transport.t), [live codec corpus](../../../packages/core/t/integration/codec.t), [descriptor isolation](../../../packages/core/t/integration/descriptors.t), [reversible getters](../../../packages/core/t/integration/getters.t), [lifecycle integration](../../../packages/core/t/integration/lifecycle.t). |
 | Linked graph identity and native/local equivalence | [tmux integration](../../../packages/core/t/integration/tmux.t), [query integration](../../../packages/core/t/integration/query-planning.t). |
 | Async admission, borrowed-loop lifetime and cancellation versus close | [async transport units](../../../packages/async/t/unit/transport.t), [atomic-wait regression](../../../scripts/check-async-wakeup.py), [daemon signal policy](../../../packages/async/t/integration/daemon-exit.t), [parent-loss integration](../../../packages/async/t/integration/parent-loss.t). |
@@ -526,8 +523,7 @@ implementation; qualify changed behavior and update the owning guide.
 Upstream Git links use release tags and point to the named symbol or section.
 tmux 3.8 illustrates upstream structures; it does not raise the 3.3a support
 floor. The Mojo and Python tags document precedents, not required runtime
-versions or full behavioral equivalence. The conformance runner retains its
-own exact independent-evaluator revision.
+versions or full behavioral equivalence.
 
 Perl and OCaml had no repository tags when this record was written, so their
 recorded source links use full commits. Future and IO::Async links use exact

@@ -1,6 +1,5 @@
 {
   "schema": 1,
-  "python_revision": "699f72a507ef63d97792acc51e9eaa61649c538a",
   "tmux_source_revision": "089ad94e13c560db99fd4989b2774a5c6ad37a17",
   "core_owner": "LibTmux::Server",
   "methods": [

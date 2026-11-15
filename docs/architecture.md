@@ -11,7 +11,7 @@ state without modifying old handles.
 [The catalog](../packages/core/lib/LibTmux/schema.json) defines field types,
 relations, wire names, operators, and source capabilities. The
 [behavior inventory](behavior-inventory.json) defines the required native
-operation signatures and adaptations from the pinned Python reference.
+operation signatures and their adaptations.
 
 Physical windows and panes have one identity per server generation. WindowLink
 records preserve each session/index association, including repeated links.

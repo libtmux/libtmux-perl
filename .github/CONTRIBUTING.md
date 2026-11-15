@@ -348,20 +348,6 @@ executing exporter revision:
 $ mise exec -- perl scripts/export-api.pl
 ```
 
-Provision the independent filter evaluator before the mid loop, from its
-source-pinned sibling checkout (or the canonical checkout in CI):
-
-```console
-$ mise exec -- python3 scripts/conformance.py --provision
-```
-
-Regenerate the pinned Python behavior inventory only after reviewing mapping
-changes:
-
-```console
-$ mise exec -- python3 scripts/inventory.py
-```
-
 The benchmark is a separate tier. It compares stable results and query identity
 before reporting timings; process counts use a separate exec-wrapper probe so
 that its overhead does not contaminate native timings:
