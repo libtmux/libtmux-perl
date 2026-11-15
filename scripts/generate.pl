@@ -80,6 +80,43 @@ my %directory = (
             },
         ],
     },
+    session => {
+        intro => q{A captured session holds what tmux reported when its
+            snapshot was taken. Its readers answer from that snapshot and run
+            no tmux command, so capture again to see later changes. They fall
+            into the groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{The ID, such as C<$1>, stays the same for the
+                    session's life. The name changes when the session is
+                    renamed. A L<LibTmux::Server> method takes the handle in
+                    place of the ID.},
+                items => [['Stable ID', 'id'], ['Name', 'name']],
+            },
+            {
+                lead => 'Describing',
+                text => q{When tmux created the session, how many clients were
+                    attached to it, and the directory it started in. The
+                    creation time is an integer as tmux reports it, and the
+                    path comes back as bytes.},
+                items => [
+                    ['Creation time',    'created'],
+                    ['Attached clients', 'attached'],
+                    ['Start directory',  'path'],
+                ],
+            },
+            {
+                lead => 'Reaching windows',
+                text => q{A session reaches its windows through window links,
+                    because one window can be linked into several sessions and
+                    carries its own index in each. Each L<LibTmux::WindowLink>
+                    names its session, its window, its index, and whether it is
+                    active in the session.},
+                fields => ['window_links'],
+            },
+        ],
+    },
     window => {
         intro => q{A captured window holds what tmux reported when its snapshot
             was taken. Its readers answer from that snapshot and run no tmux
