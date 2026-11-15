@@ -77,7 +77,7 @@ def qualify(row, installed=None):
     libs = [f'-I{installed}/lib/perl5', '-Ilocal/lib/perl5', '-Iscripts/lib'] if installed else ['-Ilocal/lib/perl5', '-Ipackages/core/lib', '-Ipackages/async/lib', '-Ipackages/workspace/lib', '-Iscripts/lib']
     if installed: env['LIBTMUX_TEST_CLI']=str(Path(installed)/'bin/libtmux-workspace')
     suites = [str(p.relative_to(ROOT)) for package in ('core','async','workspace') for p in sorted((ROOT / f'packages/{package}/t/integration').glob('*.t'))]
-    commands = [['python3', 'scripts/with-subreaper.py', 'perl', *libs, suite] for suite in suites]
+    commands = [['perl', 'scripts/with-subreaper.pl', 'perl', *libs, suite] for suite in suites]
     commands.append(['perl', 'scripts/run-examples.pl', *(['--installed', installed] if installed else [])])
     results = []
     for index, command in enumerate(commands):

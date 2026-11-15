@@ -35,7 +35,7 @@ unit:
 
 integration:
 	@set -eu; for suite in packages/core/t/integration/*.t packages/async/t/integration/*.t packages/workspace/t/integration/*.t; do \
-		python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
+		$(PERL) scripts/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
 	done
 
 check-async-wakeup:
@@ -57,4 +57,4 @@ check-snippets:
 	@$(PERL) scripts/check-snippets.pl
 
 benchmark:
-	@python3 scripts/with-subreaper.py $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl
+	@$(PERL) scripts/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl

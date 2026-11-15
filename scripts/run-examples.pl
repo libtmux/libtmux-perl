@@ -247,7 +247,7 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
     my $result = LibTmux::Transport->run(
         argv => $file =~ m!\Apackages/!
         ? [$^X, $program]
-        : ['python3', 'scripts/with-subreaper.py', $^X, $file],
+        : [$^X, 'scripts/with-subreaper.pl', $^X, $file],
         timeout => 2,
         env     => {PERL5LIB => join(':', @libraries)}
     );
