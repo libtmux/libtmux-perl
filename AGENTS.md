@@ -57,6 +57,8 @@ untouched. Do not mirror pushes there; its workflows incur costs.
   [.github/CONTRIBUTING.md](.github/CONTRIBUTING.md).
 - Documentation, comments, and commit messages:
   [.github/WRITING.md](.github/WRITING.md).
+- Support scripts: what may stay, their language, layout and checks:
+  [.github/SCRIPTS.md](.github/SCRIPTS.md).
 - Perl package and CI choices, with pinned upstream examples:
   [.github/PERL.md](.github/PERL.md).
 
