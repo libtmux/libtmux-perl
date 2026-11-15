@@ -48,7 +48,7 @@ LibTmuxFixture->run(
         );
         my $job = LibTmux::Transport->start(
             argv => [
-                'python3', 'scripts/pty-client.py',
+                $^X, 'scripts/pty-client.pl',
                 $server->attach_argv(session => $session->id)->@*
             ],
             timeout => 0.8

@@ -19,4 +19,8 @@ on 'develop' => sub {
     requires 'IO::Async::Loop::Ppoll', '0.10';
     requires 'IO::Ppoll',              '0.14';
     requires 'Future::AsyncAwait',     '0.71';
+
+    # Core Perl cannot open a PTY; scripts/pty-client.pl needs one for the
+    # interactive-client integration test.
+    requires 'IO::Pty', '1.31';
 };

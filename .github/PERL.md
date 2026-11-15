@@ -53,6 +53,7 @@ Only verified artifact and runtime evidence establishes consumer behavior.
 | MakeMaker adapter | ExtUtils::MakeMaker::CPANfile 0.11 or newer | Reads the declarations during configuration. |
 | Dependency installation | cpm 1.1.6 | Local dependencies, explicit phases, and reusable builds. |
 | Formatting | Perl::Tidy 20260826 | A fixed formatter version keeps results consistent. |
+| Test PTY | IO::Pty 1.31 | Core Perl cannot open a PTY; the interactive-client integration test needs one, so it is a develop-phase dependency. |
 | GitHub interpreter setup | actions-setup-perl v1.44.5 | Node 24, interpreter setup, and dependency caching. |
 
 The stable [MakeMaker release][makemaker] and [cpanfile adapter][adapter]
