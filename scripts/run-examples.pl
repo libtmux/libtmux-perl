@@ -114,6 +114,11 @@ my %expected_stdout = (
 );
 
 my %owned_only = map { $_ => true } qw(
+    examples/async.pl
+    examples/await.pl
+    examples/quickstart.pl
+    examples/selection.pl
+    examples/workspace.pl
     packages/core/examples/select.pl
     packages/core/examples/input.pl
     packages/core/examples/graph.pl
@@ -245,9 +250,7 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
     my $expected = $expected_stdout{$file}
         // die "$file has no declared expected output\n";
     my $result = LibTmux::Transport->run(
-        argv => $file =~ m!\Apackages/!
-        ? [$^X, $program]
-        : [$^X, 'scripts/with-subreaper.pl', $^X, $file],
+        argv    => [$^X, $program],
         timeout => 2,
         env     => {PERL5LIB => join(':', @libraries)}
     );

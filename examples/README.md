@@ -35,11 +35,23 @@ Async needs its own distribution and Ppoll dependencies. Workspace needs core
 and the workspace distribution. Every program ships with its distribution's
 README and logo assets.
 
-## Run repository qualification programs
+## Run the longer programs
 
-These programs use the repository's fixture. Provision the
-[author environment](../.github/CONTRIBUTING.md#environment) first.
-`Future::AsyncAwait` is needed only for `await.pl`.
+These programs also use only installed modules and ordinary Perl. Apart from
+`async-lifecycle.pl`, each starts its own tmux server in a private temporary
+directory and stops it before it exits. With the distributions installed, run
+one directly:
+
+```console
+$ perl examples/quickstart.pl
+```
+
+Without installing, add each distribution's `lib` directory to the library
+path, for example `perl -I packages/core/lib examples/quickstart.pl`.
+`workspace.pl` also needs the workspace distribution. `async.pl` and
+`await.pl` need the async distribution and its Ppoll dependencies, and
+`await.pl` also needs `Future::AsyncAwait`. To check all of them, provision the
+[author environment](../.github/CONTRIBUTING.md#environment) and run:
 
 ```console
 $ mise exec -- make examples
@@ -47,7 +59,7 @@ $ mise exec -- make examples
 
 | Program | Contract |
 | --- | --- |
-| [quickstart.pl](quickstart.pl) | Select contextual window links, filter captured panes, and verify fixture cleanup. |
+| [quickstart.pl](quickstart.pl) | Select contextual window links, filter captured panes, and stop the server. |
 | [selection.pl](selection.pl) | Arrays, callbacks, cardinality, wire filters, relations, retained graphs, and native verification. |
 | [workspace.pl](workspace.pl) | Plan, load, inspect panes, and repeat with `existing => 'skip'`. |
 | [async.pl](async.pl) | Capture through a caller-owned Ppoll loop and await cleanup. |
@@ -66,8 +78,9 @@ succeeds.
 - Rejects a nonzero exit or missing expected output.
 - Runs each live program with an owned private socket and a sentinel session,
   then checks that the program's session is gone and the sentinel remains.
-- Runs the self-contained programs with no socket, and fails if one leaves a
-  tmux server or files behind.
+- Runs every program that starts its own server, including the five longer
+  programs above, with no socket. It fails if one leaves a tmux server or
+  files behind.
 
 CI runs the same programs on the oldest and newest supported tmux. The
 installed-artifact job extracts the examples from the native archives, checks
