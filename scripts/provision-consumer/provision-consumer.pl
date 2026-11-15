@@ -9,8 +9,8 @@ use Getopt::Long qw(GetOptions);
 # recorded in CACHE/consumer-prefix, which check-artifacts.pl reads, and a later
 # run reuses it while it exists.
 #
-#   perl scripts/provision-consumer.pl [--cpm PATH] [--cache DIR]
-my $root  = "$FindBin::Bin/..";
+#   perl scripts/provision-consumer/provision-consumer.pl [--cpm PATH] [--cache DIR]
+my $root  = "$FindBin::Bin/../..";
 my $cpm   = "$root/.cache/cpm";
 my $cache = "$root/.cache";
 GetOptions('cpm=s' => \$cpm, 'cache=s' => \$cache)

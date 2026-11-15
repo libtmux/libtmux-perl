@@ -256,9 +256,10 @@ $ mise exec -- make check-async-wakeup
 ```
 
 For the preserved negative control, pass `--loop Poll` to
-`scripts/check-wakeup.pl async`; this intentionally fails on the reviewed
-Perl 5.44 / IO::Async 0.805 backend. Async's live daemon-exit test also proves
-that a new server observes its final pane exiting after executor cleanup.
+`scripts/check-wakeup/check-wakeup.pl async`; this intentionally fails on the
+reviewed Perl 5.44 / IO::Async 0.805 backend. Async's live daemon-exit test also
+proves that a new server observes its final pane exiting after executor
+cleanup.
 
 Build or install the supported tmux releases outside all test loops. CI uses the
 shared `build-tmux` action, which checks each release archive against a pinned
@@ -312,7 +313,7 @@ $ mise exec -- make artifacts
 Provision the external consumer runtime outside test loops:
 
 ```console
-$ mise exec -- perl scripts/provision-consumer.pl
+$ mise exec -- perl scripts/provision-consumer/provision-consumer.pl
 ```
 
 The consumer prefix is an author-created temporary directory outside the

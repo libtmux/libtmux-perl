@@ -1,6 +1,6 @@
 use v5.44;
 use FindBin;
-use lib "$FindBin::Bin/../packages/core/lib";
+use lib "$FindBin::Bin/../../packages/core/lib";
 use Digest::SHA      ();
 use File::Temp       qw(tempdir);
 use Getopt::Long     qw(GetOptions);
@@ -13,18 +13,18 @@ use LibTmux::Platform::Linux;
 # preloads it into a probe that runs under this process as a child subreaper,
 # and fails when the probe does not report the injected exit or times out.
 #
-#   perl scripts/check-wakeup.pl async [--loop Ppoll|Poll]
-#   perl scripts/check-wakeup.pl supervisor
+#   perl scripts/check-wakeup/check-wakeup.pl async [--loop Ppoll|Poll]
+#   perl scripts/check-wakeup/check-wakeup.pl supervisor
 #
 # `async` injects the exit at the IO::Async wait boundary. `--loop Poll` is the
 # negative control: it fails on the rejected backend. `supervisor` injects it at
 # the private supervisor's wait. Both need a C compiler; set CC to choose one.
 $| = 1;
-my $root = "$FindBin::Bin/..";
+my $root = "$FindBin::Bin/../..";
 my %mode = (
     async => {
-        probe   => 'scripts/async-wakeup/observe.pl',
-        inject  => 'scripts/async-wakeup/inject.c',
+        probe   => 'scripts/check-wakeup/async/observe.pl',
+        inject  => 'scripts/check-wakeup/async/inject.c',
         libs    => [qw(local/lib/perl5 packages/core/lib packages/async/lib)],
         failure => 'FAIL: child-exit wakeup was not proved',
         success =>
@@ -32,8 +32,8 @@ my %mode = (
         required => [],
     },
     supervisor => {
-        probe   => 'scripts/supervisor-wakeup/observe.pl',
-        inject  => 'scripts/supervisor-wakeup/inject.c',
+        probe   => 'scripts/check-wakeup/supervisor/observe.pl',
+        inject  => 'scripts/check-wakeup/supervisor/inject.c',
         libs    => ['packages/core/lib'],
         failure => 'FAIL: supervisor completion was not proved',
         success =>

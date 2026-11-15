@@ -128,7 +128,7 @@ jobs:
         env:
           TMUX_VERSION: ${{ matrix.tmux }}
           TMUX_BINARY: ${{ steps.tmux.outputs.binary }}
-        run: perl scripts/compatibility.pl "$TMUX_VERSION=$TMUX_BINARY"
+        run: perl scripts/compatibility/compatibility.pl "$TMUX_VERSION=$TMUX_BINARY"
       - name: Retain per-cell qualification evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
@@ -166,7 +166,7 @@ jobs:
           mkdir -p .cache
           curl --fail --silent --show-error --location --output .cache/cpm https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
           printf '%s  %s\n' 2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 .cache/cpm | sha256sum --check
-          perl scripts/provision-consumer.pl
+          perl scripts/provision-consumer/provision-consumer.pl
       - name: Build and install exact archives, then execute installed consumers
         env:
           TMUX_BINARY: ${{ steps.tmux.outputs.binary }}
@@ -174,7 +174,7 @@ jobs:
           make artifacts
           prefix=$(cat .cache/consumer-prefix)
           perl scripts/run-examples.pl --installed "$prefix"
-          perl scripts/compatibility.pl --installed "$prefix" "3.8=$TMUX_BINARY"
+          perl scripts/compatibility/compatibility.pl --installed "$prefix" "3.8=$TMUX_BINARY"
       - name: Verify no source changes
         if: always()
         run: git diff --check

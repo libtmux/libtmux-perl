@@ -31,18 +31,18 @@ check-pod:
 	@$(PERL) scripts/check-pod.pl
 
 unit:
-	@prove $(LIBS) -Iscripts/lib scripts/t/*.t packages/core/t/unit/*.t packages/async/t/unit/*.t packages/workspace/t/unit/*.t
+	@prove $(LIBS) -Iscripts/lib scripts/t/*.t scripts/*/tests/*.t packages/core/t/unit/*.t packages/async/t/unit/*.t packages/workspace/t/unit/*.t
 
 integration:
 	@set -eu; for suite in packages/core/t/integration/*.t packages/async/t/integration/*.t packages/workspace/t/integration/*.t; do \
-		$(PERL) scripts/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
+		$(PERL) scripts/with-subreaper/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib "$$suite"; \
 	done
 
 check-async-wakeup:
-	@$(PERL) scripts/check-wakeup.pl async
+	@$(PERL) scripts/check-wakeup/check-wakeup.pl async
 
 check-supervisor-wakeup:
-	@$(PERL) scripts/check-wakeup.pl supervisor
+	@$(PERL) scripts/check-wakeup/check-wakeup.pl supervisor
 
 examples:
 	@$(PERL) scripts/run-examples.pl
@@ -51,10 +51,10 @@ artifacts:
 	@$(PERL) scripts/check-artifacts.pl
 
 compatibility:
-	@$(PERL) scripts/compatibility.pl $(TMUX)
+	@$(PERL) scripts/compatibility/compatibility.pl $(TMUX)
 
 check-snippets:
 	@$(PERL) scripts/check-snippets.pl
 
 benchmark:
-	@$(PERL) scripts/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl
+	@$(PERL) scripts/with-subreaper/with-subreaper.pl $(PERL) $(LIBS) -Iscripts/lib scripts/benchmark.pl

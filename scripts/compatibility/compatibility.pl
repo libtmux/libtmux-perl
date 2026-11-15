@@ -14,11 +14,12 @@ use Time::HiRes  qw(time);
 # against it, one cell per tmux in parallel. It writes a log per command and
 # evidence-VERSION.json (evidence-all.json for several) under .cache/compatibility.
 #
-#   perl scripts/compatibility.pl [--installed PREFIX] VERSION=BINARY...
+#   perl scripts/compatibility/compatibility.pl \
+#       [--installed PREFIX] VERSION=BINARY...
 #
 # --installed runs the suites against a qualified consumer prefix outside the
 # checkout. --root and --timeout exist for the script's own test.
-my $root      = abs_path("$FindBin::Bin/..");
+my $root      = abs_path("$FindBin::Bin/../..");
 my $timeout   = 25;
 my $installed = undef;
 GetOptions(
@@ -102,11 +103,16 @@ sub qualify ($version, $tmux) {
         qw(core async workspace);
     my @commands = (
         (
-            map { [$^X, 'scripts/with-subreaper.pl', $^X, @libraries, $_] }
-                @suites
+            map {
+                [
+                    $^X, 'scripts/with-subreaper/with-subreaper.pl',
+                    $^X, @libraries, $_
+                ]
+            } @suites
         ),
         [
-            $^X, 'scripts/run-examples.pl',
+            $^X,
+            'scripts/run-examples.pl',
             $installed ? ('--installed', $installed) : ()
         ],
     );

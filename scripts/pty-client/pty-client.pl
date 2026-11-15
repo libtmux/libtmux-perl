@@ -1,6 +1,6 @@
 use v5.44;
 use FindBin;
-use lib "$FindBin::Bin/../local/lib/perl5";
+use lib "$FindBin::Bin/../../local/lib/perl5";
 use IO::Pty ();
 use POSIX   ();
 
@@ -10,7 +10,7 @@ use POSIX   ();
 # the terminal until the client closes it, then prints client_exit=<code> and
 # exits with that code.
 #
-#   perl scripts/pty-client.pl PROGRAM [ARGS...]
+#   perl scripts/pty-client/pty-client.pl PROGRAM [ARGS...]
 die "Usage: pty-client.pl PROGRAM [ARGS...]\n" unless @ARGV;
 my $pty   = IO::Pty->new;
 my $slave = $pty->slave;

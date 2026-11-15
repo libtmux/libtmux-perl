@@ -15,9 +15,10 @@ sub write_file ($path, $text) {
     print {$out} $text;
     close $out or die "$path: $!";
 }
-write_file("$root/scripts/with-subreaper.pl",          'exec {$ARGV[0]} @ARGV');
-write_file("$root/scripts/run-examples.pl",            'exit 0');
-write_file("$root/packages/core/t/integration/pass.t", 'exit 0');
+write_file("$root/scripts/with-subreaper/with-subreaper.pl",
+    'exec {$ARGV[0]} @ARGV');
+write_file("$root/scripts/run-examples.pl",                 'exit 0');
+write_file("$root/packages/core/t/integration/pass.t",      'exit 0');
 write_file("$root/packages/async/t/integration/fail.t",     'exit 3');
 write_file("$root/packages/workspace/t/integration/hang.t", 'sleep 30');
 my $tmux = "$root/tmux";
