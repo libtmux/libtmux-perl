@@ -80,6 +80,46 @@ my %directory = (
             },
         ],
     },
+    window => {
+        intro => q{A captured window holds what tmux reported when its snapshot
+            was taken. Its readers answer from that snapshot and run no tmux
+            command, so capture again to see later changes. They fall into the
+            groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{The ID, such as C<@2>, names the window itself in
+                    every session that links it and stays the same for the
+                    window's life. A L<LibTmux::Server> method takes the handle
+                    in place of that ID. The name is a label and changes when
+                    the window is renamed.},
+                items => [['Stable ID', 'id'], ['Name', 'name']],
+            },
+            {
+                lead => 'Size and layout',
+                text => q{Width and height count character cells. The layout is
+                    tmux's native layout string, which
+                    L<select_layout|LibTmux::Server/select_layout> accepts
+                    back.},
+                items => [
+                    ['Size in cells', 'width', 'height'],
+                    ['Layout string', 'layout'],
+                ],
+            },
+            {
+                lead => 'Reaching panes and links',
+                text => q{A window holds its panes directly and reaches the
+                    sessions that link it through its window links, one per
+                    link. Its active pane is C<undef> when the snapshot holds
+                    none.},
+                items => [
+                    ['Panes',               'panes'],
+                    ['Active pane',         'active_pane'],
+                    ['Links into sessions', 'links'],
+                ],
+            },
+        ],
+    },
 );
 
 sub directory_pod ($entry) {
