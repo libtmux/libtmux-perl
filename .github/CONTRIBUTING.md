@@ -296,7 +296,10 @@ $ mise exec -- make examples
 The runner is an owned Linux subreaper. It checks the standalone async
 lifecycle example's success, rejected-command, and cancellation paths against
 a borrowed fixture server. The program itself imports only installed modules;
-the runner owns setup, assertions, and teardown.
+the runner owns setup, assertions, and teardown. It also runs each program that
+starts its own server as a child, and fails the run if that program leaves a
+tmux process or file behind. Those programs carry no fixture and no
+process-reaping code, so a reader's copy is the program CI ran.
 
 Archive checks configure and test extracted native distributions, install
 core then workspace then async into the separately provisioned consumer
