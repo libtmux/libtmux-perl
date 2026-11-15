@@ -312,7 +312,7 @@ $ mise exec -- make artifacts
 Provision the external consumer runtime outside test loops:
 
 ```console
-$ mise exec -- python3 scripts/provision-consumer.py
+$ mise exec -- perl scripts/provision-consumer.pl
 ```
 
 The consumer prefix is an author-created temporary directory outside the

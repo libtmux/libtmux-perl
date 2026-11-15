@@ -165,7 +165,7 @@ jobs:
           mkdir -p .cache
           curl --fail --silent --show-error --location --output .cache/cpm https://github.com/skaji/cpm/releases/download/v1.1.6/cpm
           printf '%s  %s\n' 2f85dea9272722d518297a3baa13a85ac7a9bbb18c0b529bd29eb7ccbf23c734 .cache/cpm | sha256sum --check
-          python3 scripts/provision-consumer.py
+          perl scripts/provision-consumer.pl
           python3 scripts/compatibility.py --provision --version 3.8
       - name: Build and install exact archives, then execute installed consumers
         run: |

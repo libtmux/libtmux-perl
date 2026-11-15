@@ -97,7 +97,7 @@ native archives. These are separate commands; metadata generation and archive
 construction must not run concurrently.
 
 ```console
-$ mise exec -- python3 scripts/provision-consumer.py
+$ mise exec -- perl scripts/provision-consumer.pl
 ```
 
 ```console
