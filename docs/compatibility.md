@@ -50,6 +50,9 @@ report through a Future and awaits executor cleanup.
   recursive copy. A saved report performs no later I/O and remains historical.
   A later call may observe a replacement daemon through the same settings.
 - Discovery cannot start a daemon, fire user hooks or create tmux resources.
+  Keep its native `run-shel` bootstrap spelling unaliased throughout the call.
+  Redefining that spelling can execute arbitrary server code; ordinary
+  `run-shell` aliases do not replace it.
   It uses the smaller of configured limits and 750 milliseconds/16 KiB.
   Cold/dead endpoints fail with `NoServer`; unknown or below-floor releases
   fail with `Unsupported`; malformed receipts fail with `Codec`.

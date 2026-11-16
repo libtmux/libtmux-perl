@@ -133,6 +133,9 @@ sub _capabilities_op ($self) {
     my $marker = sprintf 'libtmux-capabilities-%x%x%x-', $$, ++$probe_sequence,
         int(time() * 1_000_000);
     my $receipt = $marker . '#{pid}_#{start_time}_#{version}';
+
+    # Exact-name aliases cannot redirect this through a full run-shell override.
+    # The native run-shel spelling itself is a trusted bootstrap requirement.
     return $self->_raw_op(
         ['-N', 'run-shel', '-C', $receipt],
         timeout    => $self->{timeout} < 0.75     ? $self->{timeout}    : 0.75,
@@ -1340,9 +1343,13 @@ L<LibTmux::X/InvalidArgument>.
 =head2 capabilities
 
 Return a L<LibTmux::Capabilities> report from a fresh observation of the selected
-running daemon. The hook-free probe cannot start a server or create tmux
-resources. It uses at most 750 milliseconds and 16 KiB of combined output,
-or the smaller configured limits. It does not run or cache C<-V>.
+running daemon. Discovery starts no server, invokes no hooks and creates no
+tmux resources when its native C<run-shel> bootstrap spelling remains unaliased.
+Keep that spelling unaliased throughout the call: an administrator who
+redefines it can execute arbitrary server code. Ordinary C<run-shell> aliases
+do not replace this private spelling. The read uses at most 750 milliseconds
+and 16 KiB of combined output, or the smaller configured limits. It does not
+run or cache C<-V>.
 
 The report contains the actual daemon release, PID/start time and copied
 optional-feature metadata. This wrapper holds connection settings, so a later
