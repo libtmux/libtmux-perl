@@ -1,0 +1,33 @@
+{
+   "features" : [
+      {
+         "apis" : [
+            "LibTmux::Pane/cursor_shape",
+            "LibTmux::Server/listings",
+            "LibTmux::Server/snapshot",
+            "LibTmux::Server/query_panes",
+            "LibTmux::Server/explain_panes",
+            "LibTmux::QueryPlan/lowering",
+            "LibTmux::Async::Server/listings",
+            "LibTmux::Async::Server/snapshot",
+            "LibTmux::Async::Server/query_panes",
+            "LibTmux::Async::Server/explain_panes"
+         ],
+         "commands" : [
+            {
+               "command" : "list-panes",
+               "format" : "cursor_shape"
+            }
+         ],
+         "error" : "LibTmux::X::Unsupported",
+         "handling" : "refuse",
+         "id" : "cursor-shape",
+         "since" : "3.6",
+         "summary" : "Captured pane cursor shape"
+      }
+   ],
+   "minimum_tmux" : "3.3a",
+   "port" : "perl",
+   "schema" : "libtmux-capabilities/1",
+   "workarounds" : []
+}

@@ -482,6 +482,7 @@
           "source": "cursor_shape",
           "nullable": false,
           "minimum": "3.6",
+        "capability": "cursor-shape",
           "operators": [
             "eq",
             "ne",
@@ -623,6 +624,9 @@
   "availability": "Absent keys are unloaded; nullable keys with null are known null. Live capture requires all baseline fields and adjacency, with unavailable version fields omitted.",
   "bytes_wire": "UTF-8 representable byte operands encode as JSON text; invalid UTF-8 raises UnsupportedValue. Unicode local operands encode to UTF-8 octets; unflagged local scalars are octets.",
   "operations": {
+    "capabilities": {
+      "parameters": {}
+    },
     "execute": {
       "parameters": {
         "argv": {

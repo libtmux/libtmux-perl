@@ -26,5 +26,7 @@ my $close = $server->close;
 $loop->await($close);
 T2->ok($close->is_done,              'close proves empty facade cleanup');
 T2->ok($server->snapshot->is_failed, 'closed facade rejects new operations');
+T2->ok($server->capabilities->is_failed,
+    'closed facade rejects capability discovery through a Future');
 T2->ok($loop->new_future->done('usable')->is_done, 'caller keeps the loop');
 T2->done_testing;

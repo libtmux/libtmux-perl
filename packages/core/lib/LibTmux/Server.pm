@@ -9,9 +9,11 @@ use LibTmux::Operation;
 use LibTmux::Transport;
 use LibTmux::Codec;
 use LibTmux::Schema;
+use LibTmux::Capabilities;
 use LibTmux::Snapshot;
 use LibTmux::Filter;
 use LibTmux::X;
+my $probe_sequence = 0;
 
 sub new ($class, %args) {
     my %allowed = map { $_ => 1 }
@@ -117,6 +119,7 @@ sub _binary_op ($self) {
         sub ($result) {
             my $version = $result->stdout;
             $version =~ s/\s+\z//;
+            $version =~ s/\Atmux //;
             LibTmux::X::Unsupported->throw(
                 message => "tmux 3.3a or newer required; found $version")
                 unless $self->at_least($version, '3.3a');
@@ -124,6 +127,45 @@ sub _binary_op ($self) {
             return $version;
         }
         );
+}
+
+sub _capabilities_op ($self) {
+    my $marker = sprintf 'libtmux-capabilities-%x%x%x-', $$, ++$probe_sequence,
+        int(time() * 1_000_000);
+    my $receipt = $marker . '#{pid}_#{start_time}_#{version}';
+    return $self->_raw_op(
+        ['-N', 'run-shel', '-C', $receipt],
+        timeout    => $self->{timeout} < 0.75     ? $self->{timeout}    : 0.75,
+        max_output => $self->{max_output} < 16384 ? $self->{max_output} : 16384
+    )->then(
+        sub ($result) {
+            my ($pid, $started, $version) = $result->stderr =~
+/\Aunknown command: \Q$marker\E([1-9][0-9]{0,19})_((?:0|[1-9][0-9]{0,19}))_([^\r\n_\0]{1,64})\n\z/;
+            if (   defined($pid)
+                && $result->stdout eq ''
+                && defined($result->raw_status)
+                && $result->exit_code == 1
+                && $result->signal == 0)
+            {
+                return LibTmux::Capabilities->_from_identity(
+                    {pid => $pid, start_time => $started, version => $version});
+            }
+            my $malformed = sub {
+                LibTmux::X::Codec->throw(
+                    message => 'malformed daemon capability receipt',
+                    result  => $result
+                );
+            };
+            return $self->_checked(LibTmux::Operation->value($result))->catch(
+                sub ($error) {
+                    die $error
+                        if blessed($error)
+                        && $error->isa('LibTmux::X::NoServer');
+                    $malformed->();
+                }
+            )->then($malformed);
+        }
+    );
 }
 
 sub _identity_op ($self) {
@@ -163,8 +205,9 @@ sub _list_op ($self, $kind, $version) {
         unless $commands{$kind};
     my $schema = LibTmux::Schema->entity($kind)->{fields};
     my @keys   = sort grep {
-               $schema->{$_}{source}
-            && $self->at_least($version, $schema->{$_}{minimum})
+        $schema->{$_}{source}
+            && $self->at_least($version,
+            LibTmux::Schema->_field_minimum($schema->{$_}))
     } keys %$schema;
     my @tokens = map { $schema->{$_}{source} } @keys;
     my %context =
@@ -493,6 +536,7 @@ sub _created_op ($self, $argv, $kind) {
 }
 
 sub _prepare ($self, $name, %args) {
+    if ($name eq 'capabilities') { return $self->_capabilities_op }
     if ($name eq 'select_layout') {
         my $layout  = $args{layout};
         my @matches = grep { index($_, $layout) == 0 }
@@ -865,6 +909,7 @@ sub operation ($self, $name, %args) {
         return LibTmux::Operation->value(LibTmux::QueryPlan->new(%args));
     }
     my $operation = $self->_prepare($name, %args);
+    return $operation if $name eq 'capabilities';
     return $self->_binary_op->then(sub { $operation });
 }
 
@@ -966,6 +1011,7 @@ sub _run ($self, $operation) {
     return $value;
 }
 sub cmd ($self, @argv) { $self->_run($self->operation('cmd', argv => \@argv)) }
+sub capabilities ($self) { $self->_run($self->operation('capabilities')) }
 
 sub listings ($self, $kind) {
     $self->_run($self->operation('listings', kind => $kind));
@@ -1145,6 +1191,11 @@ not be running yet. Dropping the wrapper never stops it.
 
 L<new|/new>
 
+B<Checking feature support.> Inspect the selected running daemon without
+starting one. Keep the detached report as a historical observation.
+
+L<capabilities|/capabilities>, L<at_least|/at_least>
+
 B<Capturing and querying.> Read the server into a graph of sessions, windows,
 panes, and clients. A snapshot or selection keeps what it observed; capture
 again to see later changes.
@@ -1285,6 +1336,36 @@ TMUX and TMUX_PANE. Invalid configuration throws
 L<LibTmux::X/InvalidArgument>.
 
     my $server = LibTmux::Server->new(socket_name => 'application');
+
+=head2 capabilities
+
+Return a L<LibTmux::Capabilities> report from a fresh observation of the selected
+running daemon. The hook-free probe cannot start a server or create tmux
+resources. It uses at most 750 milliseconds and 16 KiB of combined output,
+or the smaller configured limits. It does not run or cache C<-V>.
+
+The report contains the actual daemon release, PID/start time and copied
+optional-feature metadata. This wrapper holds connection settings, so a later
+call can observe a replacement daemon; the saved report remains historical.
+Existing snapshot and captured-target generation checks still apply.
+
+A cold or dead endpoint throws L<LibTmux::X/NoServer>. Unrecognized or
+below-floor daemon releases throw L<LibTmux::X/Unsupported>; malformed receipts
+throw L<LibTmux::X/Codec>. Transport failures retain their typed exceptions.
+Use C<operation('capabilities')> for prepared execution through
+L<LibTmux::Operation>; preparation performs no process I/O.
+
+    my $report = $server->capabilities;
+    say $report->supports('cursor-shape') ? 'available' : 'requires tmux 3.6';
+
+=head2 at_least
+
+C<at_least($release, $minimum)> compares complete release strings without I/O.
+It accepts C<X.Y>, one lowercase patch letter, C<next-X.Y> and C<X.Y-rc[N]>.
+Development and candidate releases precede their final release; patch letters
+follow it. Malformed strings, banners and trailing whitespace return false.
+Remove a command output's line ending before comparing it. Use L</capabilities>
+for decisions about a running daemon.
 
 =head2 execute
 

@@ -5,6 +5,7 @@ use File::Basename qw(dirname);
 use Scalar::Util   qw(blessed reftype);
 use Encode         qw(encode decode FB_CROAK LEAVE_SRC);
 use LibTmux::X;
+use LibTmux::Capabilities;
 my ($catalog, %adapters);
 
 sub catalog ($class) {
@@ -13,17 +14,30 @@ sub catalog ($class) {
             or die "Read schema: $!";
         local $/;
         $catalog = JSON::PP->new->utf8->decode(<$in>);
+        LibTmux::X::InvalidArgument->throw(
+            message => 'schema support floor differs from capability registry')
+            unless $catalog->{minimum_tmux} eq LibTmux::Capabilities->_minimum;
+        for my $entity (values $catalog->{entities}->%*) {
+            $class->_field_minimum($_)
+                for grep { $_->{source} } values $entity->{fields}->%*;
+        }
     }
     return $catalog;
 }
 
 sub _version_at_least ($class, $version, $minimum) {
-    my @got  = $version =~ /(\d+)\.(\d+)([a-z]?)/;
-    my @want = $minimum =~ /(\d+)\.(\d+)([a-z]?)/;
-    return false unless @got == 3 && @want == 3;
-    return $got[0] > $want[0] if $got[0] != $want[0];
-    return $got[1] > $want[1] if $got[1] != $want[1];
-    return $got[2] ge $want[2];
+    LibTmux::Capabilities->_at_least($version, $minimum);
+}
+
+sub _field_minimum ($class, $field) {
+    my $minimum =
+        exists($field->{capability})
+        ? LibTmux::Capabilities->_feature($field->{capability})->{since}
+        : LibTmux::Capabilities->_minimum;
+    LibTmux::X::InvalidArgument->throw(
+        message => 'schema field minimum differs from capability registry')
+        unless defined($field->{minimum}) && $field->{minimum} eq $minimum;
+    return $minimum;
 }
 
 sub entity ($class, $kind) {

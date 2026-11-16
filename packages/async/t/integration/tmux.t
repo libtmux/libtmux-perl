@@ -20,6 +20,15 @@ LibTmuxFixture->run(
             max_concurrent => 2
         );
         T2->note('acquiring the asynchronous snapshot');
+        my $capabilities = $async->capabilities;
+        T2->ok(!$capabilities->is_ready,
+            'capability submission returns a pending Future');
+        $loop->await($capabilities);
+        T2->is(
+            $capabilities->get->identity,
+            $sync->capabilities->identity,
+            'async discovery observes the same actual daemon as core'
+        );
         my $snapshot = $async->snapshot;
         $loop->await($snapshot);
         my $async_snapshot = $snapshot->get;
@@ -90,6 +99,38 @@ LibTmuxFixture->run(
         T2->ok($closed->is_done, 'facade close proves owned job cleanup');
         T2->is($sync->snapshot->sessions->count,
             1, 'closing facade preserves the borrowed tmux server');
+        my $pending_server = LibTmux::Async::Server->new(
+            loop        => $loop,
+            socket_path => "$root/s",
+            config_file => '/dev/null',
+            executable  => $ENV{LIBTMUX_TEST_TMUX} // 'tmux'
+        );
+        my $pid   = $sync->capabilities->identity->{pid};
+        my $stamp = LibTmuxFixture::_stamp($pid);
+        die 'owned daemon identity disappeared' unless defined $stamp;
+        kill 'STOP', $pid or die $!;
+        my $failure;
+        try {
+            my $pending = $pending_server->capabilities;
+            my $tick    = $loop->new_future;
+            $loop->later(sub { $tick->done });
+            $loop->await($tick);
+            T2->ok($tick->is_done && !$pending->is_ready,
+                'the borrowed loop stays responsive during pending discovery');
+            $pending->cancel;
+            T2->ok($pending->is_cancelled,
+                'discovery cancellation settles its Future');
+            my $cleanup = $pending_server->close;
+            $loop->await($cleanup);
+            $cleanup->get;
+            T2->ok($cleanup->is_done,
+                'successful close proves cancelled discovery process cleanup');
+        }
+        catch ($error) { $failure = $error }
+        kill 'CONT', $pid if (LibTmuxFixture::_stamp($pid) // '') eq $stamp;
+        die $failure if defined $failure;
+        T2->is($sync->snapshot->sessions->count, 1,
+            'cancelled discovery and executor close preserve the owned daemon');
     }
 );
 T2->done_testing;

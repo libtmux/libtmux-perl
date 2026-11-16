@@ -119,10 +119,14 @@ sub _node ($input, $version) {
             next;
         }
         my $field = LibTmux::Schema->field('pane', $key);
-        if (   $field->{type} eq 'relation'
+        if (
+               $field->{type} eq 'relation'
             || $field->{type} eq 'bytes'
             || $field->{nullable}
-            || !LibTmux::Schema->_version_at_least($version, $field->{minimum}))
+            || !LibTmux::Schema->_version_at_least(
+                $version, LibTmux::Schema->_field_minimum($field)
+            )
+            )
         {
             push @reasons,
 "$key requires local relation, byte, null, or unavailable-field semantics";
@@ -225,7 +229,7 @@ sub _requirements ($kind, $where, $out) {
                 entity  => $kind,
                 field   => $key,
                 source  => $field->{source},
-                minimum => $field->{minimum},
+                minimum => LibTmux::Schema->_field_minimum($field),
                 type    => $field->{type}
             };
         }
