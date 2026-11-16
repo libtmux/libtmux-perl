@@ -22,13 +22,14 @@ $ perl packages/core/examples/quickstart.pl
 | Program | Task | Expected result |
 | --- | --- | --- |
 | [Core quick start](../packages/core/examples/quickstart.pl) | Create, split, resize, rename, capture, clean up, and retain the graph. | `editor: 2 panes`, `logs: 1 pane` and `side pane: 20 columns`. |
+| [Feature support](../packages/core/examples/capabilities.pl) | Discover the actual daemon release and cursor-shape support, then remove the owned session. | `daemon: tmux ...`; cursor shape is available or requires tmux 3.6. |
 | [Select panes](../packages/core/examples/select.pl) | Filter captured panes and handle an empty selection. | `editor panes: 2`. |
 | [Send input](../packages/core/examples/input.pl) | Type, capture, set environment and options, and batch commands. | `PROJECT=api` and `@build=ok`. |
 | [Explain a query](../packages/core/examples/explain.pl) | Show what tmux runs and what stays local, without tmux. | `tmux filter: ...` and `stays local: ...`. |
 | [Retained graph](../packages/core/examples/graph.pl) | Keep an old capture across a rename. | `captured name: logs` and `live name: build`. |
 | [Core workflow](../packages/core/examples/workflow.pl) | Arrange windows, filter, compare quantifiers, and verify native queries. | `core workflow: ok`. |
 | [Filter records](../packages/core/examples/filters.pl) | Match hash records, round-trip JSON, and inspect validation errors without tmux. | `%1` matches; the invalid numeric operand reports its criterion path. |
-| [Async operations](../packages/async/examples/concurrent.pl) | Run concurrent Futures and ordered batches, remove the session, and await close. | `first` before `second`; `async operations and cleanup: ok`. |
+| [Async operations](../packages/async/examples/concurrent.pl) | Discover feature support, run concurrent Futures and ordered batches, remove the session, and await close. | `cursor-shape: ...`; `first` before `second`; `async operations and cleanup: ok`. |
 | [Workspace loading](../packages/workspace/examples/load.pl) | Plan, load, inspect two windows and three panes, repeat with skip, and clean up. | `workspace plan, load, repeat: ok`. |
 
 Async needs its own distribution and Ppoll dependencies. Workspace needs core

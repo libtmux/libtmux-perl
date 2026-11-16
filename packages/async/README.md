@@ -97,6 +97,16 @@ try {
     $loop->await($created);
     $session = $created->get;
 
+    # example: begin capabilities
+    my $discovery = $server->capabilities;
+    $loop->await($discovery);
+    my $report  = $discovery->get;
+    my $feature = $report->status('cursor-shape');
+    say 'cursor-shape: ', $feature->{supported}
+        ? 'available'
+        : 'requires tmux ' . $feature->{since};
+
+    # example: end capabilities
     # example: begin concurrent
     my $capture = $server->snapshot;
     my $version = $server->cmd('display-message', '-p', '#{version}');
@@ -169,6 +179,30 @@ It prints the active pane count, your tmux version, `first` and `second`, and
 
 More: [async guide](https://libtmux.org/en/perl/latest/guides/async/).
 
+## Check feature support
+
+### [`Server->capabilities`][server-capabilities]: discover without blocking the loop
+
+The complete program above awaits a detached core report through a Future:
+
+<!-- example: packages/async/examples/concurrent.pl#capabilities -->
+```perl
+my $discovery = $server->capabilities;
+$loop->await($discovery);
+my $report  = $discovery->get;
+my $feature = $report->status('cursor-shape');
+say 'cursor-shape: ', $feature->{supported}
+    ? 'available'
+    : 'requires tmux ' . $feature->{since};
+
+```
+
+It prints `cursor-shape: available` from tmux 3.6, or the required release
+on an older supported daemon. The daemon supplies this decision. Cancelling
+the Future requests cleanup; successful `close` completion proves it finished.
+
+More: [feature discovery and compatibility](https://github.com/libtmux/libtmux-perl/blob/master/docs/compatibility.md#check-feature-support).
+
 ## Cancel and clean up
 
 ### [`Server->close`][server-close]: cancel work and finish cleanup
@@ -207,3 +241,4 @@ $ perldoc LibTmux::Async::Server
 [async-server]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server/
 [server-close]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-close/
 [server-new]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-new/
+[server-capabilities]: https://libtmux.org/en/perl/latest/reference/libtmux-async-server-capabilities/

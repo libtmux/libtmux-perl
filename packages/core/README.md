@@ -410,6 +410,55 @@ Installed POD:
 $ perldoc LibTmux::Server
 ```
 
+## Check feature support
+
+### [`Server->capabilities`][server-capabilities]: inspect the running daemon
+
+Run [examples/capabilities.pl](examples/capabilities.pl) to create a private
+server, inspect cursor-shape support, and remove the owned session:
+
+<!-- example: packages/core/examples/capabilities.pl -->
+```perl
+use v5.44;
+use File::Temp ();
+use LibTmux::Server;
+
+my $private = File::Temp->newdir('libtmux-perl-XXXXXX', TMPDIR => 1);
+my $server  = LibTmux::Server->new(
+    socket_path => shift(@ARGV) // "$private/tmux.sock",
+    executable  => shift(@ARGV) // 'tmux',
+    config_file => '/dev/null',
+);
+my ($session, $report, $failure);
+try {
+    $session = $server->new_session(
+        name    => 'perl-capabilities',
+        command => [$^X, '-e', 'while (<STDIN>) { print }'],
+    );
+    $report = $server->capabilities;
+    my $feature = $report->status('cursor-shape');
+    say 'daemon: tmux ', $report->version;
+    say 'cursor-shape: ', $feature->{supported}
+        ? 'available'
+        : 'requires tmux ' . $feature->{since};
+}
+catch ($error) {
+    $failure = $error;
+    $session //= $error->created if $error isa LibTmux::X::Creation;
+}
+if ($session) {
+    try { $server->kill_session(session => $session) }
+    catch ($cleanup) { $failure //= $cleanup }
+}
+die $failure if defined $failure;
+```
+
+It prints the daemon release and either `cursor-shape: available` or
+`cursor-shape: requires tmux 3.6`. Reports retain their observation; a later
+call may reach a replacement daemon.
+
+More: [feature discovery and compatibility](https://github.com/libtmux/libtmux-perl/blob/master/docs/compatibility.md#check-feature-support).
+
 ## Add async execution or workspace loading
 
 - [LibTmux-Async](https://github.com/libtmux/libtmux-perl/tree/master/packages/async):
@@ -426,6 +475,7 @@ Core loads neither. Every runnable program is listed in the
 - **Command chaining.** `batch` makes separate tmux calls, not one command list.
 
 [server]: https://libtmux.org/en/perl/latest/reference/libtmux-server/
+[server-capabilities]: https://libtmux.org/en/perl/latest/reference/libtmux-server-capabilities/
 [server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
 [server-send-text]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_text/
 [server-send-keys]: https://libtmux.org/en/perl/latest/reference/libtmux-server-send_keys/
