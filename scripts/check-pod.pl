@@ -54,10 +54,12 @@ for my $link (@links) {
         $failed = 1;
     }
 }
-my @directory = directory_problems('packages/core/lib/LibTmux/Server.pm');
-warn "$_\n" for @directory;
-T2->ok(!@directory, 'LibTmux::Server directory names every method');
-$failed = 1 if @directory;
+for my $class (qw(Server Session Window Pane)) {
+    my @directory = directory_problems("packages/core/lib/LibTmux/$class.pm");
+    warn "$_\n" for @directory;
+    T2->ok(!@directory, "LibTmux::$class directory names every method");
+    $failed = 1 if @directory;
+}
 T2->done_testing;
 print '# ' . scalar(@links) . " native POD links checked\n" unless $failed;
 exit $failed;

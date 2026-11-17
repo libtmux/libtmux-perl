@@ -15,6 +15,51 @@ sub width       ($self) { $self->_read('width') }
 
 LibTmux::Window - Captured window entity
 
+=head1 What is on here
+
+A captured window holds what tmux reported when its snapshot was taken. Its
+readers answer from that snapshot and run no tmux command, so capture again to
+see later changes. They fall into the groups below.
+
+B<Identifying.> The ID, such as C<@2>, names the window itself in every session
+that links it and stays the same for the window's life. A L<LibTmux::Server>
+method takes the handle in place of that ID. The name is a label and changes
+when the window is renamed.
+
+=over 4
+
+=item Stable ID: L<id|/id>
+
+=item Name: L<name|/name>
+
+=back
+
+B<Size and layout.> Width and height count character cells. The layout is tmux's
+native layout string, which L<select_layout|LibTmux::Server/select_layout>
+accepts back.
+
+=over 4
+
+=item Size in cells: L<width|/width>, L<height|/height>
+
+=item Layout string: L<layout|/layout>
+
+=back
+
+B<Reaching panes and links.> A window holds its panes directly and reaches the
+sessions that link it through its window links, one per link. Its active pane is
+C<undef> when the snapshot holds none.
+
+=over 4
+
+=item Panes: L<panes|/panes>
+
+=item Active pane: L<active_pane|/active_pane>
+
+=item Links into sessions: L<links|/links>
+
+=back
+
 =head1 METHODS
 
 =head2 active_pane

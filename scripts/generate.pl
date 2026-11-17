@@ -5,6 +5,7 @@ use LibTmux::Schema;
 use lib "$FindBin::Bin/../local/lib/perl5", "$FindBin::Bin/lib";
 use LibTmuxDev qw(tidy_text);
 use File::Spec;
+use Text::Wrap qw(wrap);
 my $check = @ARGV && $ARGV[0] eq '--check';
 die "Usage: perl scripts/generate.pl [--check]\n"
     if @ARGV > 1 || (@ARGV && !$check);
@@ -19,6 +20,171 @@ my @table   = (
     '| --- | --- | --- | --- | --- | --- |'
 );
 my %outputs;
+
+# Hand-written "What is on here" directories, by entity kind. A row is a bold
+# lead with its guidance, then the fields it covers: labelled
+# [label, field, ...] items, or bare field names in a paragraph. check-pod.pl
+# requires every field to be named.
+my %directory = (
+    pane => {
+        intro => q{A captured pane holds what tmux reported when its snapshot
+            was taken. Its readers answer from that snapshot and run no tmux
+            command, so capture again to see later changes. They fall into the
+            groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{Name a pane by its tmux ID, such as C<%3>, which stays
+                    the same for the pane's life. A L<LibTmux::Server> method
+                    takes the handle in place of that ID. The index is the
+                    pane's position in its window, and the title is whatever
+                    the application set.},
+                items => [
+                    ['Stable ID',              'id'],
+                    ['Position in the window', 'index'],
+                    ['Title',                  'title'],
+                ],
+            },
+            {
+                lead => 'Running',
+                text => q{Read what the pane runs: the foreground command, the
+                    working directory of its process, and the PID tmux started
+                    in it. A pane whose process has exited and that tmux kept
+                    reports C<dead> as true, and its C<exit_status> is C<undef>
+                    when tmux reports none.},
+                items => [
+                    ['Foreground command', 'current_command'],
+                    ['Working directory',  'current_path'],
+                    ['Process ID',         'pid'],
+                    ['Exit state',         'dead', 'exit_status'],
+                ],
+            },
+            {
+                lead => 'Size and focus',
+                text => q{Width and height count character cells, and the active
+                    pane is the one its window currently selects. The cursor
+                    shape needs tmux 3.6 or newer; reading it from an older
+                    daemon's snapshot throws
+                    L<LibTmux::X::Unsupported|LibTmux::X/Unsupported>.},
+                items => [
+                    ['Size in cells',        'width', 'height'],
+                    ['Active in its window', 'active'],
+                    ['Cursor shape',         'cursor_shape'],
+                ],
+            },
+            {
+                lead => 'Reaching the window',
+                text => q{The window that holds the pane, as a captured
+                    L<LibTmux::Window> resolved in the same graph.},
+                fields => ['window'],
+            },
+        ],
+    },
+    session => {
+        intro => q{A captured session holds what tmux reported when its
+            snapshot was taken. Its readers answer from that snapshot and run
+            no tmux command, so capture again to see later changes. They fall
+            into the groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{The ID, such as C<$1>, stays the same for the
+                    session's life. The name changes when the session is
+                    renamed. A L<LibTmux::Server> method takes the handle in
+                    place of the ID.},
+                items => [['Stable ID', 'id'], ['Name', 'name']],
+            },
+            {
+                lead => 'Describing',
+                text => q{When tmux created the session, how many clients were
+                    attached to it, and the directory it started in. The
+                    creation time is an integer as tmux reports it, and the
+                    path comes back as bytes.},
+                items => [
+                    ['Creation time',    'created'],
+                    ['Attached clients', 'attached'],
+                    ['Start directory',  'path'],
+                ],
+            },
+            {
+                lead => 'Reaching windows',
+                text => q{A session reaches its windows through window links,
+                    because one window can be linked into several sessions and
+                    carries its own index in each. Each L<LibTmux::WindowLink>
+                    names its session, its window, its index, and whether it is
+                    active in the session.},
+                fields => ['window_links'],
+            },
+        ],
+    },
+    window => {
+        intro => q{A captured window holds what tmux reported when its snapshot
+            was taken. Its readers answer from that snapshot and run no tmux
+            command, so capture again to see later changes. They fall into the
+            groups below.},
+        rows => [
+            {
+                lead => 'Identifying',
+                text => q{The ID, such as C<@2>, names the window itself in
+                    every session that links it and stays the same for the
+                    window's life. A L<LibTmux::Server> method takes the handle
+                    in place of that ID. The name is a label and changes when
+                    the window is renamed.},
+                items => [['Stable ID', 'id'], ['Name', 'name']],
+            },
+            {
+                lead => 'Size and layout',
+                text => q{Width and height count character cells. The layout is
+                    tmux's native layout string, which
+                    L<select_layout|LibTmux::Server/select_layout> accepts
+                    back.},
+                items => [
+                    ['Size in cells', 'width', 'height'],
+                    ['Layout string', 'layout'],
+                ],
+            },
+            {
+                lead => 'Reaching panes and links',
+                text => q{A window holds its panes directly and reaches the
+                    sessions that link it through its window links, one per
+                    link. Its active pane is C<undef> when the snapshot holds
+                    none.},
+                items => [
+                    ['Panes',               'panes'],
+                    ['Active pane',         'active_pane'],
+                    ['Links into sessions', 'links'],
+                ],
+            },
+        ],
+    },
+);
+
+sub directory_pod ($entry) {
+    local $Text::Wrap::columns = 81;
+    my $link = sub ($field) { "L<$field|/$field>" };
+    my $flow = sub ($text) { join ' ', split ' ', $text };
+    my @pod  = (
+        '=head1 What is on here',
+        '', wrap('', '', $flow->($entry->{intro})), ''
+    );
+    for my $row ($entry->{rows}->@*) {
+        push @pod, wrap('', '', $flow->("B<$row->{lead}.> $row->{text}")), '';
+        if ($row->{items}) {
+            push @pod, '=over 4', '';
+            for my $item ($row->{items}->@*) {
+                my ($label, @fields) = @$item;
+                push @pod,
+                    "=item $label: " . join(', ', map { $link->($_) } @fields),
+                    '';
+            }
+            push @pod, '=back', '';
+        }
+        else {
+            push @pod, join(', ', map { $link->($_) } $row->{fields}->@*), '';
+        }
+    }
+    return join("\n", @pod) . "\n";
+}
 
 for my $kind (sort keys $catalog->{entities}->%*) {
     my $class  = LibTmux::Schema->class_for($kind);
@@ -55,7 +221,9 @@ for my $kind (sort keys $catalog->{entities}->%*) {
     $outputs{"packages/core/lib/$rel.pm"} =
           "package $class;\nuse v5.44;\nuse parent 'LibTmux::Entity';\n\n"
         . join("\n", @subs)
-        . "\n\n=head1 NAME\n\n$class - Captured $kind entity\n\n=head1 METHODS\n\n"
+        . "\n\n=head1 NAME\n\n$class - Captured $kind entity\n\n"
+        . ($directory{$kind} ? directory_pod($directory{$kind}) : '')
+        . "=head1 METHODS\n\n"
         . join("\n", @pod)
         . "\n=head1 OWNERSHIP\n\nReaders use the retained graph and never refresh it. Acquire a new snapshot for\nnew state. Inherited L<to_record|LibTmux::Entity/to_record> exports a detached scalar record.\n\n=cut\n";
 }
