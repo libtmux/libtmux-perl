@@ -29,6 +29,16 @@ try {
     $loop->await($created);
     $session = $created->get;
 
+    # example: begin capabilities
+    my $discovery = $server->capabilities;
+    $loop->await($discovery);
+    my $report  = $discovery->get;
+    my $feature = $report->status('cursor-shape');
+    say 'cursor-shape: ', $feature->{supported}
+        ? 'available'
+        : 'requires tmux ' . $feature->{since};
+
+    # example: end capabilities
     # example: begin concurrent
     my $capture = $server->snapshot;
     my $version = $server->cmd('display-message', '-p', '#{version}');

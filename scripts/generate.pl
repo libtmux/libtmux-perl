@@ -2,6 +2,8 @@ use v5.44;
 use FindBin;
 use lib "$FindBin::Bin/../packages/core/lib";
 use LibTmux::Schema;
+use LibTmux::Capabilities;
+use JSON::PP ();
 use lib "$FindBin::Bin/../local/lib/perl5", "$FindBin::Bin/lib";
 use LibTmuxDev qw(tidy_text);
 use File::Spec;
@@ -209,13 +211,23 @@ for my $kind (sort keys $catalog->{entities}->%*) {
                     . ($f->{nullable} ? ' or undef.' : '.')
                 )
             : "$f->{type}" . ($f->{nullable} ? ' or undef.' : '.')
-            ) . " Local captured data; no I/O.\n";
+            )
+            . " Local captured data; no I/O.\n"
+            . (
+            $f->{capability}
+            ? "\nRequires tmux "
+                . LibTmux::Schema->_field_minimum($f)
+                . "; otherwise throws L<LibTmux::X/Unsupported>. See L<LibTmux::Server/capabilities>.\n"
+            : ''
+            );
         push @table,
               "| $kind | $field | $f->{wire} | $f->{type} | "
             . ($f->{nullable} ? 'yes' : 'no') . ' | '
             . (
-            $f->{source} ? "`$f->{source}` / $f->{minimum}" : 'captured graph')
-            . ' |';
+            $f->{source}
+            ? "`$f->{source}` / " . LibTmux::Schema->_field_minimum($f)
+            : 'captured graph'
+            ) . ' |';
     }
     (my $rel = $class) =~ s!::!/!g;
     $outputs{"packages/core/lib/$rel.pm"} =
@@ -228,7 +240,9 @@ for my $kind (sort keys $catalog->{entities}->%*) {
         . "\n=head1 OWNERSHIP\n\nReaders use the retained graph and never refresh it. Acquire a new snapshot for\nnew state. Inherited L<to_record|LibTmux::Entity/to_record> exports a detached scalar record.\n\n=cut\n";
 }
 for my $file (keys %outputs) { $outputs{$file} = tidy_text($outputs{$file}) }
-$outputs{'docs/fields.md'} = join("\n", @table) . "\n";
+$outputs{'docs/fields.md'}    = join("\n", @table) . "\n";
+$outputs{'capabilities.json'} = JSON::PP->new->utf8->canonical->pretty->encode(
+    LibTmux::Capabilities->_manifest);
 my $changed = 0;
 for my $path (sort keys %outputs) {
     my $actual = '';

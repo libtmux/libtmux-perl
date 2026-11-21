@@ -128,13 +128,14 @@ sub _read ($self, $kind, $id, $field) {
             && defined($spec->{minimum})
             && !LibTmux::Schema->_version_at_least(
                 $self->{metadata}{version},
-                $spec->{minimum}
+                LibTmux::Schema->_field_minimum($spec)
             )
             )
         {
             LibTmux::X::Unsupported->throw(
                 path    => "$kind.$field",
-                message => 'field requires tmux ' . $spec->{minimum}
+                message => 'field requires tmux '
+                    . LibTmux::Schema->_field_minimum($spec)
             );
         }
 

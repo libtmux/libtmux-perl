@@ -1,6 +1,12 @@
 Revision history for LibTmux
 
 Unreleased
+    - Add Server->capabilities reports from the selected running daemon,
+      with copied feature metadata and shared cursor-shape admission.
+      Discovery requires its native run-shel spelling to remain unaliased.
+    - Compare complete release spellings, ordering development and candidate
+      builds below final releases. at_least rejects banners and trailing
+      whitespace; remove command output line endings before comparing.
     - Add a "What is on here" capability directory to the LibTmux::Server documentation.
     - Add "What is on here" capability directories to the LibTmux::Session, LibTmux::Window and LibTmux::Pane documentation.
 

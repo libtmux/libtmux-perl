@@ -96,6 +96,8 @@ bytes. Local captured data; no I/O.
 
 string. Local captured data; no I/O.
 
+Requires tmux 3.6; otherwise throws L<LibTmux::X/Unsupported>. See L<LibTmux::Server/capabilities>.
+
 =head2 dead
 
 boolean. Local captured data; no I/O.

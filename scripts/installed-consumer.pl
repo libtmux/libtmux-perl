@@ -3,6 +3,7 @@ use Cwd qw(abs_path);
 use Pod::Simple::SimpleTree;
 use LibTmux;
 use LibTmux::Server;
+use LibTmux::Capabilities;
 use LibTmux::PaneSelection;
 my $prefix = $ENV{LIBTMUX_CONSUMER_PREFIX} // die 'missing prefix';
 die 'core loaded optional async dependencies'
@@ -12,6 +13,9 @@ my $plan = LibTmux::Workspace->new(
     config => {schema => 'libtmux.workspace/v1', sessions => []})->plan;
 die 'empty workspace plan' unless $plan->{sessions}->@* == 0;
 require LibTmux::Async::Server;
+die 'installed discovery API absent'
+    unless LibTmux::Server->can('capabilities')
+    && LibTmux::Async::Server->can('capabilities');
 
 for my $module (
     grep {
@@ -22,7 +26,10 @@ for my $module (
     die "module origin outside installed artifact: $module"
         unless index(abs_path($INC{$module}), abs_path($prefix) . '/') == 0;
 }
-for my $module (qw(LibTmux::Server LibTmux::Workspace LibTmux::Async::Server)) {
+for my $module (
+    qw(LibTmux::Server LibTmux::Capabilities LibTmux::Workspace LibTmux::Async::Server)
+    )
+{
     (my $key = $module) =~ s!::!/!g;
     my $pod = $INC{$key . '.pm'};
     die "installed POD absent: $module"

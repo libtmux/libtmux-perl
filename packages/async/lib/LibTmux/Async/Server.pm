@@ -57,8 +57,9 @@ sub close ($self) {
     $_->cancel for values $self->{operations}->%*;
     return $self->{transport}->close;
 }
-sub cmd      ($self, @argv)  { $self->_submit('cmd',      argv => \@argv) }
-sub listings ($self, $kind)  { $self->_submit('listings', kind => $kind) }
+sub capabilities ($self)        { $self->_submit('capabilities') }
+sub cmd          ($self, @argv) { $self->_submit('cmd',      argv => \@argv) }
+sub listings     ($self, $kind) { $self->_submit('listings', kind => $kind) }
 sub batch ($self, $requests) { $self->_submit('batch', requests => $requests) }
 sub execute         ($self, %args) { $self->_submit('execute',         %args) }
 sub new_session     ($self, %args) { $self->_submit('new_session',     %args) }
@@ -146,6 +147,14 @@ inside the event loop. Captured L<LibTmux::Selection> filtering stays local.
 Cancelling a Future requests process cleanup and prevents later requests; it
 cannot reverse already accepted mutations. Independent operations may overlap;
 C<batch> requests remain ordered. C<Future::AsyncAwait> is optional caller syntax.
+
+=head2 capabilities
+
+Return a L<Future> yielding a L<LibTmux::Capabilities> report. See
+L<LibTmux::Server/capabilities> for observation, limits and errors. Submission
+uses the shared prepared operation without running a blocking core method.
+Cancellation requests process cleanup; await successful L</close> completion
+while driving the borrowed loop to prove that cleanup finished.
 
 =head2 execute
 

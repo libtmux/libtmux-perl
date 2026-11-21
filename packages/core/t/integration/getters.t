@@ -130,6 +130,7 @@ LibTmuxFixture->run(
         );
         my $version =
             $server->cmd('display-message', '-p', '#{version}')->stdout;
+        chomp $version;
 
         for my $name ('prefix', 'prefix2', 'backspace') {
             my %scope =

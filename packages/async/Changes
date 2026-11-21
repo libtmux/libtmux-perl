@@ -1,6 +1,8 @@
 Revision history for LibTmux-Async
 
 Unreleased
+    - Add the Future-returning Server->capabilities method through the shared
+      bounded daemon probe. Await successful close for cancellation cleanup.
 
 0.003  2026-11-13
     - Link CPAN installation, native POD and the shared async API reference.
