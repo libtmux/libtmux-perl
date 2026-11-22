@@ -199,8 +199,13 @@ $ mise exec -- make \
 
 Verify tmux behavior against a real server. Each test or probe must
 own a unique socket and temporary directory with a `libtmux-perl-` prefix.
-Address the socket explicitly with `-S` or `-L`. Clear inherited `TMUX` and
-`TMUX_PANE` in child environments.
+Address the socket explicitly with `-S` or `-L`, or route named and default
+socket tests through a `0700` directory with `TMUX_TMPDIR` and
+`LIBTMUX_TEST_SANDBOX` set to that path. Clear inherited `TMUX`, `TMUX_PANE`,
+`LIBTMUX_SOCKET`, and `LIBTMUX_SOCKET_PATH` in test and child environments
+unless the test's subject is ambient server selection. Set `LIBTMUX_TEST_TMUX`
+to select a specific `tmux` executable for live fixtures and examples; empty or
+whitespace-only values count as unset.
 
 Clean up only the server, processes, and files owned by that run, including on
 failure and cancellation. Verify that owned processes exit. Never use or stop

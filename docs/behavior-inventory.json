@@ -5,7 +5,7 @@
   "methods": [
     {
       "key": "new",
-      "contract": "new(executable => tmux, socket_name|socket_path => string, timeout => seconds, max_output => bytes, config_file => path, env => hashref); no I/O",
+      "contract": "new(executable => tmux, socket_name|socket_path => string, timeout => seconds, max_output => bytes, config_file => path, env => hashref); defaults follow LIBTMUX_SOCKET_PATH, LIBTMUX_SOCKET, TMUX, or tmux default; no I/O",
       "minimum": "3.3a",
       "required": true,
       "verification": "PASS",

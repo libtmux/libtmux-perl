@@ -11,6 +11,7 @@ use LibTmux::Transport;
 use LibTmux::Platform::Linux;
 use LibTmuxFixture;
 chdir "$FindBin::Bin/.." or die $!;
+delete @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
 LibTmux::Platform::Linux::_subreaper();
 my $root      = getcwd();
 my $installed = @ARGV && $ARGV[0] eq '--installed' ? $ARGV[1] : undef;
@@ -127,7 +128,7 @@ my %owned_only = map { $_ => true } qw(
 # With no socket argument a program owns its private server and removes it.
 my $run_owned = sub ($file, $program, $socket_root) {
     my $private  = "$socket_root/private";
-    my $selected = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
+    my $selected = LibTmuxFixture->test_tmux;
     mkdir $private or die "$private: $!";
     my %before = map { $_ => true } LibTmuxFixture::_children($$);
     my $owned  = LibTmux::Transport->run(
@@ -183,7 +184,7 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
                 my $result = LibTmux::Transport->run(
                     argv => [
                         $^X,              $program,
-                        "$socket_root/s", $ENV{LIBTMUX_TEST_TMUX} // 'tmux'
+                        "$socket_root/s", LibTmuxFixture->test_tmux
                     ],
                     timeout => 3,
                     env     => {PERL5LIB => join(':', @libraries)},
@@ -220,7 +221,7 @@ for my $file (sort(glob('examples/*.pl'), glob('packages/*/examples/*.pl'))) {
                             '--socket',
                             "$socket_root/s",
                             '--tmux',
-                            $ENV{LIBTMUX_TEST_TMUX} // 'tmux',
+                            LibTmuxFixture->test_tmux,
                             length($mode) ? ($mode) : ()
                         ],
                         timeout => 2,

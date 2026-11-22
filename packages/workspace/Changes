@@ -1,6 +1,7 @@
 Revision history for LibTmux-Workspace
 
 Unreleased
+    - Delegate default server selection in libtmux-workspace load to LibTmux::Server->new when neither --socket-path nor --socket-name is passed.
 
 0.003  2026-11-13
     - Link CPAN installation, native POD and the shared workspace API reference.

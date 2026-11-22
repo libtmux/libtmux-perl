@@ -30,16 +30,23 @@ sub _tree ($pid, $owned, $order) {
     _tree($_, $owned, $order) for _children($pid);
 }
 
+sub test_tmux ($class = undef) {
+    my $configured = $ENV{LIBTMUX_TEST_TMUX};
+    return defined($configured) && $configured =~ /\S/ ? $configured : 'tmux';
+}
+
 sub run ($class, $code, %args) {
     my %allowed = map { $_ => true } qw(executable timeout max_output env);
     die 'fixture selectors/configuration cannot be overridden'
         if grep { !$allowed{$_} } keys %args;
+    my $tmux     = $class->test_tmux;
     my %baseline = map { $_ => true } _children($$);
     my $root = tempdir('libtmux-perl-fixture-XXXX', TMPDIR => 1, CLEANUP => 0);
+    delete local @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
     my $server = LibTmuxFixture::Server->new(
         socket_path => "$root/s",
         config_file => '/dev/null',
-        executable  => $ENV{LIBTMUX_TEST_TMUX} // 'tmux',
+        executable  => $tmux,
         timeout     => 0.8,
         %args
     );

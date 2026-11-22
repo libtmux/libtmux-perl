@@ -78,9 +78,10 @@ It prints `editor: 2 panes`, `logs: 1 pane` and `side pane: 20 columns`.
   to borrow one.
 
 Constructing a [Server](https://libtmux.org/en/perl/latest/reference/libtmux-server/)
-records settings without I/O. `new_session` starts a daemon when needed;
-`snapshot` needs one running. The core clears inherited `TMUX` and `TMUX_PANE`
-for subprocesses.
+records settings without I/O. With neither `socket_path` nor `socket_name`,
+`new` checks `LIBTMUX_SOCKET_PATH`, else `LIBTMUX_SOCKET`, else the socket path
+in `TMUX`, else tmux's default socket. `new_session` starts a daemon when
+needed; `snapshot` needs one running. Subprocesses clear `TMUX` and `TMUX_PANE`.
 
 ## Arrange a live window
 

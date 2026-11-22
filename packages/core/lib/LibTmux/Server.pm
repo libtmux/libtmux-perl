@@ -30,13 +30,41 @@ sub new ($class, %args) {
             || !length($args{$key})
             || $args{$key} =~ /\0/;
     }
+    %args = LibTmux::Transport->_configuration(%args);
+    $args{env} = {%{$args{env}}};
+    if (!exists($args{socket_name}) && !exists($args{socket_path})) {
+        my $env_value = sub ($name) {
+            exists $args{env}{$name} ? $args{env}{$name} : $ENV{$name};
+        };
+        my $env_path = $env_value->('LIBTMUX_SOCKET_PATH');
+        my $env_name = $env_value->('LIBTMUX_SOCKET');
+        if (defined($env_path) && $env_path =~ /\S/) {
+            LibTmux::X::InvalidArgument->throw(message =>
+                    'LIBTMUX_SOCKET_PATH must be a nonempty NUL-free scalar')
+                if $env_path =~ /\0/;
+            $args{socket_path} = $env_path;
+        }
+        elsif (defined($env_name) && $env_name =~ /\S/) {
+            LibTmux::X::InvalidArgument->throw(
+                message => 'LIBTMUX_SOCKET must be a nonempty NUL-free scalar')
+                if $env_name =~ /\0/;
+            $args{socket_name} = $env_name;
+        }
+        else {
+            my ($tmux_path) = split /,/, ($env_value->('TMUX') // ''), 2;
+            if (defined($tmux_path) && $tmux_path =~ /\S/) {
+                LibTmux::X::InvalidArgument->throw(message =>
+                        'TMUX socket path must be a nonempty NUL-free scalar')
+                    if $tmux_path =~ /\0/;
+                $args{socket_path} = $tmux_path;
+            }
+        }
+    }
     LibTmux::X::InvalidArgument->throw(
         message => 'socket name cannot contain a slash')
         if exists($args{socket_name}) && $args{socket_name} =~ m!/!;
     $args{socket_path} = File::Spec->rel2abs($args{socket_path})
         if exists $args{socket_path};
-    %args = LibTmux::Transport->_configuration(%args);
-    $args{env} = {%{$args{env}}};
     $args{executable} //= 'tmux';
     $args{timeout}    //= 5;
     $args{max_output} //= 8 * 1024 * 1024;
@@ -1139,9 +1167,10 @@ LibTmux::Server - Explicit tmux acquisition and commands
 The wrapper holds connection settings and no tmux state, and its methods fall
 into the groups below.
 
-B<Connecting.> Describe one tmux socket by name or path, with the executable,
-timeout, and output limit to use. Construction runs nothing, so the daemon need
-not be running yet. Dropping the wrapper never stops it.
+B<Connecting.> Describe one tmux socket by name or path, or leave both unset to
+follow C<LIBTMUX_SOCKET_PATH>, C<LIBTMUX_SOCKET>, C<TMUX>, or tmux's default
+socket. Construction runs nothing, so the daemon need not be running yet.
+Dropping the wrapper never stops it.
 
 L<new|/new>
 
@@ -1278,11 +1307,18 @@ or a timeout after dispatch does not prove nonexecution or roll back effects.
 
 C<new(executable =E<gt> tmux, socket_nameE<verbar>socket_path =E<gt> string, timeout =E<gt> seconds, max_output =E<gt> bytes, config_file =E<gt> path, env =E<gt> hashref)>.
 
-Return a new server wrapper without I/O. Select socket_name or socket_path,
-never both. Defaults are executable tmux, timeout 5 seconds, and an 8 MiB
-combined retained-output limit. env is copied; child processes clear ambient
-TMUX and TMUX_PANE. Invalid configuration throws
-L<LibTmux::X/InvalidArgument>.
+Return a new server wrapper without I/O. Select C<socket_name> or
+C<socket_path>, never both; explicit options take precedence without reading
+selector environment variables. When neither is given, C<new> checks the
+effective environment (C<env> merged over C<%ENV>): C<LIBTMUX_SOCKET_PATH>
+selects C<-S> and ignores C<LIBTMUX_SOCKET>, else C<LIBTMUX_SOCKET> selects
+C<-L>, else a socket path before the first comma in C<TMUX> selects C<-S>,
+else neither C<-S> nor C<-L> is passed so tmux uses its default socket. Empty
+or whitespace-only values count as unset; other values are used untrimmed, and
+relative socket paths resolve against the current directory at construction.
+Defaults are executable C<tmux>, timeout 5 seconds, and an 8 MiB combined
+retained-output limit. C<env> is copied; child processes clear C<TMUX> and
+C<TMUX_PANE>. Invalid configuration throws L<LibTmux::X/InvalidArgument>.
 
     my $server = LibTmux::Server->new(socket_name => 'application');
 

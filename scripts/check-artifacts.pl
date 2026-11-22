@@ -11,6 +11,7 @@ use JSON::PP    ();
 use Digest::SHA qw(sha256_hex);
 use LibTmux::Transport;
 chdir "$FindBin::Bin/.." or die $!;
+delete @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
 my $root = getcwd();
 open my $prefix_file, '<', '.cache/consumer-prefix'
     or die "Provision the isolated consumer prefix first\n";

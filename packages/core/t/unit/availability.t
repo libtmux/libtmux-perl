@@ -57,7 +57,7 @@ package IncompleteLiveCapture {
     }
 }
 for my $include_window (false, true) {
-    my $server = IncompleteLiveCapture->new;
+    my $server = IncompleteLiveCapture->new(socket_name => 'never-start');
     $server->{include_window} = $include_window;
     my $failure;
     try { $server->snapshot } catch ($caught) {

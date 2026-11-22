@@ -1,7 +1,10 @@
 use v5.44;
 use Test2::V1;
+use File::Spec;
 use Scalar::Util qw(blessed);
 use LibTmux::Server;
+
+delete @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
 
 sub failure ($code, $type, $label) {
     my $caught;
@@ -73,4 +76,98 @@ T2->ok(
     !$server->explain_panes(where => {title => "nul\0text"})->lowering->{exact},
     'NUL text stays local because process arguments cannot represent it'
 );
+
+sub prefix_for (%args) {
+    my $argv = LibTmux::Server->new(%args)->attach_argv(session => '$0');
+    return [$argv->@[0 .. $#$argv - 3]];
+}
+
+T2->is(prefix_for(), ['tmux'],
+    'default construction passes neither -S nor -L when selectors are unset');
+{
+    local $ENV{LIBTMUX_SOCKET_PATH} = '/tmp/from-env.sock';
+    local $ENV{LIBTMUX_SOCKET}      = 'bad/slash';
+    local $ENV{TMUX}                = '/tmp/from-tmux.sock,123,0';
+    T2->is(
+        prefix_for(socket_path => '/tmp/explicit.sock'),
+        ['tmux', '-S', '/tmp/explicit.sock'],
+        'explicit socket_path overrides env selectors without reading them'
+    );
+    T2->is(
+        prefix_for(socket_name => 'explicit'),
+        ['tmux', '-L', 'explicit'],
+        'explicit socket_name overrides env selectors without reading them'
+    );
+    failure(
+        sub {
+            LibTmux::Server->new(
+                socket_path => '/tmp/explicit.sock',
+                socket_name => 'explicit'
+            );
+        },
+        'InvalidArgument',
+        'explicit socket_path and socket_name remain mutually exclusive'
+    );
+    T2->is(
+        prefix_for(),
+        ['tmux', '-S', '/tmp/from-env.sock'],
+        'LIBTMUX_SOCKET_PATH wins over LIBTMUX_SOCKET and TMUX without error'
+    );
+}
+{
+    local $ENV{LIBTMUX_SOCKET_PATH} = '  rel/spaced.sock  ';
+    T2->is(
+        prefix_for(),
+        ['tmux', '-S', File::Spec->rel2abs('  rel/spaced.sock  ')],
+        'relative LIBTMUX_SOCKET_PATH resolves untrimmed against cwd'
+    );
+}
+{
+    local $ENV{LIBTMUX_SOCKET_PATH} = "  \t\n ";
+    local $ENV{LIBTMUX_SOCKET}      = ' work ';
+    local $ENV{TMUX}                = '/tmp/from-tmux.sock,123,0';
+    T2->is(
+        prefix_for(),
+        ['tmux', '-L', ' work '],
+        'whitespace-only LIBTMUX_SOCKET_PATH falls through to untrimmed name'
+    );
+}
+{
+    local $ENV{LIBTMUX_SOCKET_PATH} = '';
+    local $ENV{LIBTMUX_SOCKET}      = '   ';
+    T2->is(prefix_for(), ['tmux'],
+        'empty and whitespace-only LIBTMUX_SOCKET* count as unset');
+    local $ENV{LIBTMUX_SOCKET} = 'bad/name';
+    failure(sub { LibTmux::Server->new },
+        'InvalidArgument',
+        'slash in LIBTMUX_SOCKET is rejected like explicit socket_name');
+}
+{
+    local $ENV{TMUX} = '/tmp/pane.sock,1234,0';
+    T2->is(
+        prefix_for(),
+        ['tmux', '-S', '/tmp/pane.sock'],
+        'ambient TMUX resolves socket path before the first comma'
+    );
+    T2->is(
+        prefix_for(env => {TMUX => 'rel/pane.sock,99,1'}),
+        ['tmux', '-S', File::Spec->rel2abs('rel/pane.sock')],
+        'relative TMUX socket path resolves against cwd'
+    );
+    for my $blank ('', ',1234,0', '   ', '   ,1234,0') {
+        T2->is(prefix_for(env => {TMUX => $blank}),
+            ['tmux'],
+            'blank or comma-leading TMUX overrides ambient TMUX as unset');
+    }
+}
+{
+    local $ENV{LIBTMUX_SOCKET_PATH} = '/tmp/ambient.sock';
+    T2->is(
+        prefix_for(
+            env => {LIBTMUX_SOCKET_PATH => '  ', LIBTMUX_SOCKET => 'override'}
+        ),
+        ['tmux', '-L', 'override'],
+        'server env hash overrides process environment for selector precedence'
+    );
+}
 T2->done_testing;

@@ -121,4 +121,34 @@ T2->like(
 qr/AcquisitionRace: observed topology changed.*Creation: accepted creation/s,
     'failed fixture reports acquisition cause and primary failure'
 );
+{
+    local $ENV{TMUX}                = '/tmp/ambient-tmux.sock,99,0';
+    local $ENV{TMUX_PANE}           = '%99';
+    local $ENV{LIBTMUX_SOCKET}      = 'ambient/invalid';
+    local $ENV{LIBTMUX_SOCKET_PATH} = '/tmp/ambient-libtmux.sock';
+    my @present_inside;
+    LibTmuxFixture->run(
+        sub ($owned, $dir) {
+            @present_inside =
+                grep { exists $ENV{$_} }
+                qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH);
+        }
+    );
+    T2->is(\@present_inside, [],
+        'fixture scrubs ambient TMUX and LIBTMUX_SOCKET* inside its scope');
+    T2->is($ENV{LIBTMUX_SOCKET_PATH},
+        '/tmp/ambient-libtmux.sock',
+        'fixture restores caller environment on return');
+}
+{
+    local $ENV{LIBTMUX_TEST_TMUX} = "  \t ";
+    my $resolved;
+    LibTmuxFixture->run(
+        sub ($owned, $dir) {
+            $resolved = $owned->{executable};
+        }
+    );
+    T2->is($resolved, 'tmux',
+        'whitespace-only LIBTMUX_TEST_TMUX counts as unset');
+}
 T2->done_testing;
