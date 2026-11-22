@@ -39,8 +39,8 @@ It needs:
 - **tmux 3.3a or newer.**
 - **Linux on x86-64, including WSL.** See [compatibility](docs/compatibility.md).
 
-The `0.x` API can change between releases. Each distribution's `Changes` file
-marks the breaks; pin a version in applications.
+The `0.x` API can change between releases. [CHANGELOG.md](CHANGELOG.md) indexes
+each distribution's `Changes` file; pin a version in applications.
 
 **Contents** — [Quick start](#quick-start) ·
 [Find things](#find-sessions-windows-and-panes) ·
@@ -53,7 +53,8 @@ marks the breaks; pin a version in applications.
 [Documentation](https://libtmux.org/en/perl/) ·
 [Guides](https://libtmux.org/en/perl/latest/guides/) ·
 [API reference](https://libtmux.org/en/perl/latest/reference/) ·
-[CPAN](https://metacpan.org/dist/LibTmux)
+[CPAN](https://metacpan.org/dist/LibTmux) ·
+[Changelog](CHANGELOG.md)
 
 ## Quick start
 
@@ -502,7 +503,8 @@ $ perldoc LibTmux::Server
 
 ## Support and status
 
-- **The `0.x` API can change.** Read each `Changes` file before upgrading.
+- **The `0.x` API can change.** Read [CHANGELOG.md](CHANGELOG.md) and each
+  `Changes` file before upgrading.
 - **Standard library at runtime.** Async adds Future, IO::Async and IO::Ppoll.
 - **Linux on x86-64, including WSL.** Other systems are untested.
 
@@ -511,6 +513,13 @@ $ perldoc LibTmux::Server
 [architecture decisions](docs/dev/adr/index.md) explain the contracts, and
 [logo assets](assets/README.md) record the artwork and social card.
 
+Part of the [libtmux.org](https://libtmux.org/) family alongside Python
+[`libtmux`][python-libtmux], sibling [language ports][libtmux-gh], and
+[`tmux`][tmux].
+
+[python-libtmux]: https://github.com/tmux-python/libtmux
+[libtmux-gh]: https://github.com/libtmux
+[tmux]: https://github.com/tmux/tmux
 [server]: https://libtmux.org/en/perl/latest/reference/libtmux-server/
 [server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
 [server-split-pane]: https://libtmux.org/en/perl/latest/reference/libtmux-server-split_pane/
