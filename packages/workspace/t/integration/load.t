@@ -150,6 +150,95 @@ LibTmuxFixture->run(
                 ->success,
             'repeat CLI skip is idempotent for existing sessions'
         );
+        {
+            my $tmux_bin = $server->{executable};
+            my $env_file = "$root/workspace-env.json";
+            my $write_ws = sub ($session_name) {
+                open my $ws_out, '>:raw', $env_file or die $!;
+                print {$ws_out} JSON::PP->new->utf8->encode(
+                    {
+                        schema   => 'libtmux.workspace/v1',
+                        sessions => [
+                            {
+                                name    => $session_name,
+                                windows => [
+                                    {
+                                        name  => 'cli',
+                                        panes => [
+                                            {command => ['/bin/sleep', '120']}
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                );
+                close $ws_out;
+            };
+            $write_ws->('cli-env-path');
+            my $via_path = LibTmux::Transport->run(
+                argv => [@cli, 'load', $env_file, '--tmux', $tmux_bin],
+                env  => {
+                    LIBTMUX_SOCKET_PATH => "$root/s",
+                    LIBTMUX_SOCKET      => 'ignored/slash',
+                },
+            );
+            T2->ok(
+                $via_path->success && $server->snapshot->sessions->where(
+                    {name => 'cli-env-path'}
+                )->count == 1,
+'CLI load without flags uses LIBTMUX_SOCKET_PATH over LIBTMUX_SOCKET'
+            );
+
+            my $sandbox = "$root/ws-sandbox";
+            mkdir($sandbox, 0700) or die $!;
+            $write_ws->('cli-env-name');
+            my $via_name = LibTmux::Transport->run(
+                argv => [@cli, 'load', $env_file, '--tmux', $tmux_bin],
+                env  => {
+                    LIBTMUX_SOCKET_PATH  => '   ',
+                    LIBTMUX_SOCKET       => 'ws-named',
+                    TMUX_TMPDIR          => $sandbox,
+                    LIBTMUX_TEST_SANDBOX => $sandbox,
+                },
+            );
+            my $named_srv = LibTmux::Server->new(
+                executable  => $tmux_bin,
+                socket_path => "$sandbox/tmux-$>/ws-named",
+                timeout     => 0.8,
+            );
+            T2->ok(
+                $via_name->success && $named_srv->snapshot->sessions->where(
+                    {name => 'cli-env-name'}
+                )->count == 1,
+'CLI load falls through blank LIBTMUX_SOCKET_PATH to LIBTMUX_SOCKET'
+            );
+            my $named_pid =
+                0 + $named_srv->cmd('display-message', '-p', '#{pid}')->stdout;
+            $named_srv->kill_server;
+            waitpid($named_pid, 0);
+
+            $write_ws->('cli-tmux-env');
+            my $via_tmux = LibTmux::Transport->run(
+                argv => [
+                    $^X,
+                    '-e',
+'$ENV{TMUX} = shift @ARGV; exec {$ARGV[0]} @ARGV or exit 127',
+                    "$root/s,42,0",
+                    @cli,
+                    'load',
+                    $env_file,
+                    '--tmux',
+                    $tmux_bin,
+                ],
+            );
+            T2->ok(
+                $via_tmux->success && $server->snapshot->sessions->where(
+                    {name => 'cli-tmux-env'}
+                )->count == 1,
+'CLI load without flags or LIBTMUX_SOCKET* reaches the TMUX server'
+            );
+        }
         open $out, '>:raw', $file or die $!;
         print {$out} JSON::PP->new->utf8->encode(
             {

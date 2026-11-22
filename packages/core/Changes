@@ -1,6 +1,7 @@
 Revision history for LibTmux
 
 Unreleased
+    - Honor LIBTMUX_SOCKET_PATH, LIBTMUX_SOCKET, and inherited TMUX socket paths in LibTmux::Server->new when no explicit socket is passed.
     - Add a "What is on here" capability directory to the LibTmux::Server documentation.
     - Add "What is on here" capability directories to the LibTmux::Session, LibTmux::Window and LibTmux::Pane documentation.
 

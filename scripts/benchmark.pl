@@ -18,7 +18,7 @@ LibTmuxFixture->run(
             command => ['/bin/sleep', '120']
         );
         my $pane   = $session->window_links->one->window->panes->one;
-        my $binary = $ENV{LIBTMUX_TEST_TMUX} // 'tmux';
+        my $binary = LibTmuxFixture->test_tmux;
         my $loop   = IO::Async::Loop::Ppoll->new;
         for my $instrumented (false, true) {
             for my $mode (qw(sync sync-batch async-concurrent async-batch)) {

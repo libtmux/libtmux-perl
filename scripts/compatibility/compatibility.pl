@@ -96,6 +96,7 @@ sub qualify ($version, $tmux) {
         '-Ipackages/async/lib', '-Ipackages/workspace/lib',
         '-Iscripts/lib'
         );
+    delete local @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
     local $ENV{LIBTMUX_TEST_TMUX} = $tmux;
     local $ENV{LIBTMUX_TEST_CLI}  = "$installed/bin/libtmux-workspace"
         if $installed;

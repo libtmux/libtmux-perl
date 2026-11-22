@@ -11,13 +11,17 @@ sub client ($code) {
     return ($? >> 8, $text);
 }
 
-# The client sees a terminal, the fixed TERM and no TMUX variables.
-local $ENV{TMUX}      = '/tmp/outer,1,0';
-local $ENV{TMUX_PANE} = '%9';
-local $ENV{TERM}      = 'dumb';
+# The client sees a terminal, the fixed TERM and no ambient tmux selectors.
+local $ENV{TMUX}                = '/tmp/outer,1,0';
+local $ENV{TMUX_PANE}           = '%9';
+local $ENV{LIBTMUX_SOCKET}      = 'outer-name';
+local $ENV{LIBTMUX_SOCKET_PATH} = '/tmp/outer.sock';
+local $ENV{TERM}                = 'dumb';
 my $terminal = <<'PERL';
 exit(-t STDIN && -t STDOUT && -t STDERR && $ENV{TERM} eq 'xterm-256color'
-    && !exists $ENV{TMUX} && !exists $ENV{TMUX_PANE} ? 0 : 1)
+    && !exists $ENV{TMUX} && !exists $ENV{TMUX_PANE}
+    && !exists $ENV{LIBTMUX_SOCKET} && !exists $ENV{LIBTMUX_SOCKET_PATH}
+    ? 0 : 1)
 PERL
 T2->is([client($terminal)], [0, "client_exit=0\n"], 'the client owns a PTY');
 T2->is(

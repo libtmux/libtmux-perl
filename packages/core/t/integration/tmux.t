@@ -1,5 +1,6 @@
 use v5.44;
 use Test2::V1;
+use Cwd          qw(getcwd);
 use POSIX        qw(WNOHANG);
 use Scalar::Util qw(blessed);
 my $loaded = eval { require LibTmux::Server; 1 };
@@ -161,6 +162,120 @@ LibTmuxFixture->run(
             blessed($stale) && $stale->isa('LibTmux::X::StaleReference'),
             'reused session/index cannot retarget a captured link'
         );
+
+        {
+            my $tmux_bin = $server->{executable};
+            my $sandbox  = "$root/sandbox";
+            my $workdir  = "$root/cwd";
+            mkdir($sandbox, 0700) or die $!;
+            mkdir($workdir, 0700) or die $!;
+            my $stop_daemon = sub ($srv) {
+                my $pid =
+                    0 + $srv->cmd('display-message', '-p', '#{pid}')->stdout;
+                $srv->kill_server;
+                waitpid($pid, 0);
+            };
+            my $saved_cwd = getcwd();
+            chdir $workdir or die $!;
+            my $rel_server;
+            try {
+                $rel_server = LibTmux::Server->new(
+                    executable  => $tmux_bin,
+                    config_file => '/dev/null',
+                    timeout     => 0.8,
+                    env         => {
+                        LIBTMUX_SOCKET_PATH => 'rel.sock',
+                        LIBTMUX_SOCKET      => 'ignored/slash',
+                        TMUX                => "$root/s,123,0",
+                    },
+                );
+            }
+            catch ($err) {
+                chdir $saved_cwd;
+                die $err;
+            }
+            chdir $saved_cwd or die $!;
+            $rel_server->new_session(
+                name    => 'from-rel-path',
+                command => ['/bin/sleep', '120']
+            );
+            T2->is($rel_server->snapshot->server_id, "$workdir/rel.sock",
+'relative LIBTMUX_SOCKET_PATH reaches resolved daemon and ignores LIBTMUX_SOCKET'
+            );
+            my $explicit = LibTmux::Server->new(
+                executable  => $tmux_bin,
+                socket_path => "$root/s",
+                timeout     => 0.8,
+                env         => {
+                    LIBTMUX_SOCKET_PATH => "$workdir/rel.sock",
+                    LIBTMUX_SOCKET      => 'ignored/slash',
+                },
+            );
+            T2->is(
+                $explicit->snapshot->sessions->where({name => 'main'})->count,
+                1,
+'explicit socket_path beats LIBTMUX_SOCKET_PATH against live daemons'
+            );
+            $stop_daemon->($rel_server);
+
+            my $named = LibTmux::Server->new(
+                executable  => $tmux_bin,
+                config_file => '/dev/null',
+                timeout     => 0.8,
+                env         => {
+                    LIBTMUX_SOCKET_PATH  => "  \t ",
+                    LIBTMUX_SOCKET       => 'env-named',
+                    TMUX_TMPDIR          => $sandbox,
+                    LIBTMUX_TEST_SANDBOX => $sandbox,
+                    TMUX                 => "$root/s,123,0",
+                },
+            );
+            $named->new_session(
+                name    => 'from-socket-name',
+                command => ['/bin/sleep', '120']
+            );
+            T2->is($named->snapshot->server_id, "$sandbox/tmux-$>/env-named",
+'LIBTMUX_SOCKET reaches named daemon after blank LIBTMUX_SOCKET_PATH'
+            );
+            $stop_daemon->($named);
+
+            my $via_tmux = LibTmux::Server->new(
+                executable => $tmux_bin,
+                timeout    => 0.8,
+                env        => {TMUX => "$root/s,999,0"},
+            );
+            T2->is($via_tmux->snapshot->server_id, "$root/s",
+'inherited TMUX reaches the daemon TMUX names when no selector is set'
+            );
+            my $nested = $via_tmux->new_session(
+                name    => 'from-tmux-env',
+                command => ['/bin/sleep', '120']
+            );
+            T2->is(
+                $server->snapshot->session_by_id($nested->id)->name,
+                'from-tmux-env',
+'new_session succeeds against TMUX daemon with child TMUX cleared'
+            );
+            $via_tmux->kill_session(session => $nested);
+
+            my $default_srv = LibTmux::Server->new(
+                executable  => $tmux_bin,
+                config_file => '/dev/null',
+                timeout     => 0.8,
+                env         => {
+                    TMUX_TMPDIR          => $sandbox,
+                    LIBTMUX_TEST_SANDBOX => $sandbox,
+                },
+            );
+            $default_srv->new_session(
+                name    => 'from-default',
+                command => ['/bin/sleep', '120']
+            );
+            T2->is($default_srv->snapshot->server_id,
+                "$sandbox/tmux-$>/default",
+                'unset selectors and unset TMUX reach tmux default socket');
+            $stop_daemon->($default_srv);
+        }
 
         $server->kill_server;
         my $reaped = waitpid($owned_pid, 0);

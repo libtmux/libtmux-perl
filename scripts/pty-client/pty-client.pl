@@ -6,9 +6,9 @@ use POSIX   ();
 
 # Own one interactive tmux client and observe its exit through a PTY. Core Perl
 # cannot allocate a PTY, so this author-only helper uses IO::Pty. The client
-# runs with TERM=xterm-256color and without TMUX or TMUX_PANE; the helper drains
-# the terminal until the client closes it, then prints client_exit=<code> and
-# exits with that code.
+# runs with TERM=xterm-256color and without ambient tmux selectors; the helper
+# drains the terminal until the client closes it, then prints
+# client_exit=<code> and exits with that code.
 #
 #   perl scripts/pty-client/pty-client.pl PROGRAM [ARGS...]
 die "Usage: pty-client.pl PROGRAM [ARGS...]\n" unless @ARGV;
@@ -21,7 +21,7 @@ if (!$pid) {
     close $pty;
     close $slave;
     $ENV{TERM} = 'xterm-256color';
-    delete @ENV{qw(TMUX TMUX_PANE)};
+    delete @ENV{qw(TMUX TMUX_PANE LIBTMUX_SOCKET LIBTMUX_SOCKET_PATH)};
     exec {$ARGV[0]} @ARGV or POSIX::_exit(127);
 }
 $pty->close_slave;

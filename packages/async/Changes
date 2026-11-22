@@ -1,6 +1,7 @@
 Revision history for LibTmux-Async
 
 Unreleased
+    - Inherit default server selection (LIBTMUX_SOCKET_PATH, LIBTMUX_SOCKET, and TMUX) in LibTmux::Async::Server->new through LibTmux::Server->new.
 
 0.003  2026-11-13
     - Link CPAN installation, native POD and the shared async API reference.

@@ -23,7 +23,7 @@ my $snapshot = LibTmux::Snapshot->from_records(
         {id => '%1', active => true,  title => 'other'},
     ],
 );
-my $server = VerificationServer->new;
+my $server = VerificationServer->new(socket_name => 'never-start');
 
 sub run_query ($native, $args, $capture_error = undef) {
     my ($value, $error, @requests);
