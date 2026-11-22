@@ -1,8 +1,8 @@
 <!-- libtmux-logo -->
 <div align="center">
   <picture>
-    <source srcset="docs/assets/logo.svg" type="image/svg+xml">
-    <img src="docs/assets/logo-512.png" width="128" height="128" alt="libtmux for Perl">
+    <source srcset="assets/logo.svg" type="image/svg+xml">
+    <img src="assets/logo.png" width="128" height="128" alt="libtmux for Perl">
   </picture>
 </div>
 <!-- /libtmux-logo -->
@@ -509,7 +509,7 @@ $ perldoc LibTmux::Server
 [Contributing](.github/CONTRIBUTING.md) covers author setup and checks.
 [Perl choices](.github/PERL.md) records dependency decisions,
 [architecture decisions](docs/dev/adr/index.md) explain the contracts, and
-[branding](docs/branding.md) describes the logos and social cards.
+[logo assets](assets/README.md) record the artwork and social card.
 
 [server]: https://libtmux.org/en/perl/latest/reference/libtmux-server/
 [server-new-session]: https://libtmux.org/en/perl/latest/reference/libtmux-server-new_session/
