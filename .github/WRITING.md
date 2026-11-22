@@ -1,33 +1,24 @@
 # Writing
 
-This guide governs documentation, user-facing text, comments, Markdown, and
-commit messages. [CONTRIBUTING.md](CONTRIBUTING.md) governs the development
-workflow.
-
-## Voice
-
-Lead with the conclusion or observable behavior, then give the evidence the
-reader needs. Use active voice, present tense, concrete verbs, and short
-sentences. Assume no conversation history; explain what a ticket, codename,
-or referenced commit means.
+This file adds Perl, POD, and multi-distribution rules to
+[`libtmux/.github/WRITING.md`][org-writing], which governs voice, plain
+CommonMark, 80-column prose wrapping, unwrapped issue and pull-request bodies,
+slop removal, and commit and pull-request format.
+[CONTRIBUTING.md](CONTRIBUTING.md) governs the development workflow.
 
 State capabilities and limits precisely. Distinguish a scaffold, implemented
 behavior, verified compatibility, and a published release. A sibling port's
 features or passing checks do not establish this port's capabilities.
 
-Cut promotional claims, conversational filler, AI signatures, and tool
-metadata. Use no emoji in commits, issues, pull requests, comments, or code.
-Keep personal information and machine-specific paths out of published text.
-
-## Documentation and examples
+## Documentation and POD
 
 Describe the caller's task before implementation details. Explain inputs,
 defaults, empty values, errors, side effects, ownership, ordering, concurrency,
 and cleanup when they affect the contract. Use native Perl conventions.
 Write installed API documentation in POD, with `L<>` links to real qualified
 classes, methods, return types, errors, and sections. Validate those targets
-through native POD checks and the shared-site exporter. Avoid repeating
-signatures or language basics.
+through native POD checks (`make check-pod`) and the shared-site exporter
+(`scripts/export-api.pl`). Avoid repeating signatures or language basics.
 
 Examples must match available APIs and include required setup and cleanup.
 Keep complete programs in [examples](../examples/README.md), check their exit
@@ -44,6 +35,114 @@ performance claim needs a measurement and a reproduction command.
 
 Link to the source of a rule instead of copying it across documents. Keep
 relative links valid when moving files or renaming headings.
+
+## Code blocks
+
+Code blocks are paste-and-run units:
+
+- Put one command in each block. An explicit `&&`, `;`, or `\` continuation
+  counts as one command.
+- Put explanations outside the fence.
+- Mark shell commands as `console` and prefix them with `$ `.
+- Split long commands with `\`, one flag per continuation line.
+- Use the actual language tag for source examples.
+
+Show recent commits as a graph:
+
+```console
+$ git log \
+    --max-count=10 \
+    --graph \
+    --oneline
+```
+
+## Examples
+
+<!-- shared:examples -->
+
+An example is code written for a reader: a program under `examples/`, code in
+a doc comment or docstring, and every fenced block in a README or docs page.
+Shell blocks also follow [Code blocks](#code-blocks).
+
+The text between the shared markers is the same in every libtmux port.
+Change it in all of them together.
+
+### Width
+
+- **Examples stay within 80 columns.** They render in fixed-width boxes that
+  scroll sideways, and 80 columns fits a libtmux.org code block in a
+  laptop-width window. Comments inside examples wrap at 80 too.
+- **The width check enforces it.** It reads the tracked files that
+  `.github/example-width.toml` names and fails on a wider line. It measures
+  the whole source line, so code in a doc comment counts its indent and
+  comment marker. It skips output (a fence tagged `text`, and what a
+  `console` block prints), hidden setup lines, and a line that is only a URL;
+  an untagged fence counts as code.
+- **A line that must stay wider is listed there with its reason.** An entry
+  that no longer matches a line fails the check, so no stale entry stays.
+- **The formatter's width is the hard limit for all other source.** Example
+  directories set their formatter to 80 where the formatter takes a width.
+
+### Reaching 80
+
+- **Change the code, not the line breaks.** A formatter rejoins any line that
+  fits its width. Name a sub-expression, use a short example name, hide setup
+  the reader does not need, or print less.
+- **Break at the outermost level when a break is still needed:** after an
+  opening parenthesis with one argument per line, one call per line in a
+  chain, one field per line in a literal.
+- **Put a comment on its own line above the code it explains.** Never trail
+  one after code in an example, unless the repository's example runner reads
+  it there, as with an assertion marker.
+- **Break a long string at a word boundary,** never inside a tmux format
+  (`#{...}`) or an escape sequence; the joined text stays the same.
+- **Continue a long command in a `console` block the way its shell does:**
+  `\` after a `$ ` prompt, a backtick after `PS> `, one flag per continuation
+  line.
+
+### What never breaks
+
+- **Output a test compares.** Wrapping it changes what the test expects.
+- **A block copied from a source file.** Fix the width in the source and run
+  the sync command; never edit the copy.
+- **Marker lines and URLs,** which tools and readers take whole.
+
+<!-- /shared:examples -->
+
+### In this repository
+
+- **Hard limit:** `.perltidyrc` sets `-l=80`, and `make check-format`
+  (`scripts/format.pl --check`) checks `cpanfile`,
+  `packages/*/{Makefile.PL,cpanfile,lib,t,bin,examples}`, `scripts/`, and
+  `examples/*.pl`. `check-example-width` and `.github/example-width.toml`
+  enforce the hard 80-column limit across Markdown code blocks,
+  `examples/*.pl`, and `packages/*/examples/*.{pl,json}`.
+- **Not formatted:** Markdown code fences,
+  `packages/workspace/examples/workspace.json`, and POD verbatim blocks are
+  not wrapped by `perltidy`; hold them to 80 columns by hand.
+- **Runs, compiles, exempt:** `make examples` (`scripts/run-examples.pl`)
+  executes `examples/*.pl` and `packages/*/examples/*.pl` against isolated
+  tmux servers and checks exit status, stdout, and cleanup; `make artifacts`
+  repeats packaged examples from an external prefix. Fences tagged `text` and
+  unprompted output lines in `console` blocks are exempt.
+- **Compared output and copied blocks:** never wrap output lines asserted by
+  `scripts/run-examples.pl` or test suites. Edit `examples/*.pl` or
+  `packages/*/examples/*.{pl,json}`, then run
+  `perl scripts/check-snippets.pl --write`; `make check-snippets` fails on
+  drift.
+
+Bad, over 80:
+
+```perl
+my $panes = $snapshot->panes->where({active => true, current_command => {-in => [qw(perl vim)]}});
+```
+
+Good, name the criteria first:
+
+```perl
+my $where = {active => true, current_command => {-in => [qw(perl vim)]}};
+my $panes = $snapshot->panes->where($where);
+```
 
 ## READMEs
 
@@ -111,74 +210,28 @@ compatibility workaround, ordering requirement, or failure mode. Aim for one
 or two direct lines. Preserve tool directives and explanations of code that
 appears wrong but is required.
 
-Remove narration of the next lines, repeated defaults, speculative TODOs,
-and history already recorded by Git. Put design rationale and rejected
+Remove narration of the next lines, repeated defaults, speculative TODOs, and
+history already recorded by Git. Put design rationale and rejected
 alternatives in commit messages. Avoid brittle line references, bare commit
 hashes, and counts that duplicate source state.
 
 Error messages name the failed operation and its concrete cause. Add a useful
 next action when one exists; omit empty phrases such as "an error occurred".
 
-## Markdown and code blocks
+## Changelogs, releases, and commits
 
-Use plain CommonMark with sentence-case headings. Put blank lines before
-lists and code blocks and after headings. Wrap repository prose at 80 columns
-where practical, except URLs, identifiers, and tables. Do not hard-wrap GitHub
-issue or pull request body paragraphs.
+Follow `scope(type[detail]): concise description` (50-character subject,
+72-character body lines, `why:` and `what:` separated by a blank line) and the
+pull-request rules in [`libtmux/.github/WRITING.md`][org-commits]. Use a
+lowercase scope unless it names a class or product, and keep temporary
+validation results in the review discussion.
 
-Code blocks are paste-and-run units:
+Each distribution records caller-visible changes under `Unreleased` in its
+CPAN `Changes` file (`packages/core/Changes`, `packages/async/Changes`,
+`packages/workspace/Changes`), while root [`CHANGELOG.md`](../CHANGELOG.md)
+indexes releases across all three distributions. State changed defaults and
+incompatibilities with migration guidance, and do not invent versions, release
+dates, compatibility, or publication claims.
 
-- Put one command in each block. An explicit `&&`, `;`, or `\` continuation
-  counts as one command.
-- Put explanations outside the fence.
-- Mark shell commands as `console` and prefix them with `$ `.
-- Split long commands with `\`, one flag per continuation line.
-- Use the actual language tag for source examples.
-
-Show recent commits as a graph:
-
-```console
-$ git log \
-    --max-count=10 \
-    --graph \
-    --oneline
-```
-
-## Commit messages
-
-Use this scoped format; the detail qualifier is optional:
-
-```text
-scope(type[detail]) Concise description
-
-why: Explain the reason or effect.
-what:
-- State the concrete change
-```
-
-Use a lowercase scope unless it names a class or product. Name the affected
-component and use an imperative verb. Keep the subject within 50 characters
-and body lines within 72, except indivisible URLs or identifiers. Common types
-are `feat`, `fix`, `refactor`, `docs`, `chore`, `test`, and `ci`.
-
-Explain why the change matters under `why:` and list concrete changes under
-`what:`. Preserve real newlines with a message file or heredoc. Keep each
-commit focused on one topic. Leave temporary validation results in the review
-discussion; retain context that remains useful over time in the commit.
-
-Avoid vague subjects such as "wip", "misc fixes", or "address review". Do not
-add emojis, attribution trailers, or PR numbers to ordinary commit subjects.
-A merge subject's PR number must identify the PR that produced the merge.
-
-## Reviews, changelogs, and releases
-
-Describe the final change for someone who has not read the conversation. Lead
-with the concrete problem and resulting behavior, then give relevant checks
-and limits. Distinguish passing, failing, skipped, and unverified work.
-
-When a changelog exists, record caller-visible changes under `Unreleased`.
-State changed defaults and incompatibilities with migration guidance. Omit
-invisible refactors and descriptions of effort.
-
-Release notes explain what an upgrader needs to know and any required action.
-Do not invent versions, release dates, compatibility, or publication claims.
+[org-writing]: https://github.com/libtmux/.github/blob/main/WRITING.md
+[org-commits]: https://github.com/libtmux/.github/blob/main/WRITING.md#commits-and-pull-requests

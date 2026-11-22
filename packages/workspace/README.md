@@ -71,11 +71,14 @@ windows and three panes:
       "layout": "even-horizontal",
       "panes": [
         {"command": ["perl", "-e", "while (<STDIN>) { print }"]},
-        {"command": ["perl", "-e", "while (<STDIN>) { print }"], "horizontal": true}
+        {
+          "command": ["perl", "-e", "while (<STDIN>) { print }"],
+          "horizontal": true
+        }
       ]
     }, {
       "name": "logs",
-      "panes": [{"command": ["perl", "-e", "while (<STDIN>) { print }" ]}]
+      "panes": [{"command": ["perl", "-e", "while (<STDIN>) { print }"]}]
     }]
   }]
 }

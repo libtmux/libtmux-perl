@@ -181,7 +181,9 @@ Reject mismatched versions or modules loaded outside that prefix before tests:
 ```console
 $ mise exec -- env -u PERL5LIB -u PERL5OPT perl \
     -I.cache/dependencies/minimum/local/lib/perl5 \
-    scripts/dependency-profile.pl check .cache/dependencies/minimum .cache/dependencies/minimum/local
+    scripts/dependency-profile.pl check \
+    .cache/dependencies/minimum \
+    .cache/dependencies/minimum/local
 ```
 
 Run native units with the selected dependencies; the installed-artifact job
