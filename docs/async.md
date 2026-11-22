@@ -196,10 +196,10 @@ GetOptions(
     'help'     => \$help,
 ) or die "Use --help for arguments\n";
 if ($help) {
-    say
-'Usage: perl async-lifecycle.pl --socket PATH [--tmux EXE] [--fail | --cancel]';
-    say
-'Observe an existing server and close the executor without destroying that server.';
+    say 'Usage: perl async-lifecycle.pl --socket PATH '
+        . '[--tmux EXE] [--fail | --cancel]';
+    say 'Observe an existing server and close the executor '
+        . 'without destroying that server.';
     exit 0;
 }
 die "Supply --socket PATH; --fail and --cancel are mutually exclusive\n"
